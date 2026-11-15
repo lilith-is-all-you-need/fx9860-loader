@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "component": "loader",
+  "files": {
+    "probes/mapped-loader/tools/prepare.py": "09b53c576a4b31fc68e292c3680e2d0bfc83f64d667764985b198e8049232007",
+    "probes/native-loader/CMakeLists.txt": "b44730709c8c6cccec5e4e8ad92ac413f69eb111383f82c20b66c445470ba704",
+    "probes/native-loader/KHICAS-BLOCKERS.md": "e804d78ed5e4d21c465d63a11e48860c9abe7397dae3c7ed1b5e4a3ee6ac1c61",
+    "probes/native-loader/README.md": "0bcb7f0304402861c226edc737a4aebb8301cc3e2b4db7475690dc4f8c010eab",
+    "probes/native-loader/VALIDATION.md": "3a7c851e1893468047020464675851fe696dbd86a6073e8714a8be9e57fcffb7",
+    "probes/native-loader/assets/icon.png": "aafe7bc0f8067f4341fcc77f4844878e630243dca3ef2d2e57845df375a71f2e",
+    "probes/native-loader/fxide.json": "f259691321bea8cc56b7622cda519fbe2b1c75dbcf880eda69af249ec2b450c4",
+    "probes/native-loader/src/callback.S": "81b5b7485490dba70091d699efd21de2e3894c2f27cf4aa6dda276f21e96f2be",
+    "probes/native-loader/src/gateway.S": "bfa48f6f1c1d7d62b59080eba45e54d9836bade65a1451390fcad3abb21061dd",
+    "probes/native-loader/src/loader.h": "b1ffdc57529d6d5141a64bf99deebe209c50c1b2eb8d6c9c91fe268f7b34b165",
+    "probes/native-loader/src/main.c": "306b5ce5cdc27489f089931428716562e56abe370049f390cfe0c54bc167f504",
+    "probes/native-loader/src/probe.ld": "89f5a4db8a9b40b36348673378fadae67170611300907faec7b88c62ab088562",
+    "probes/native-loader/src/resident.c": "69326a37d7dc164c9bb22e9c3c771899e1f4eef7d38862191df0c7a935949a1d",
+    "probes/native-loader/src/resident_syscalls.S": "d03b94c38b6f794a0da51fe7d53e75a4a50c4b1a65edcc0125bb9ad59422fd96",
+    "probes/native-loader/src/sha256.c": "44f932eef3bfb4929be92fe1e1f9228e3e98b357cf697a33e767d36157208ca9",
+    "probes/native-loader/src/start.S": "dd25342af405acf015cc7087bc2191025d4edc5cfe8333311683745ffffbc382",
+    "probes/native-loader/tools/fixtures.py": "9cf40abaa9dc0650172daba2e422be7579787e219bc0428570e46ef03f93a799",
+    "probes/native-loader/tools/pack.py": "df635df5b53ce687a4f2e936cfeeb68a634193f4ce0674f248c1fb825094df1b",
+    "probes/native-loader/tools/prepare.py": "d24e3606eabc9b8eef6659c74f15e745eeea95fa301863f2dd6e3e317700067f",
+    "probes/native-loader/tools/test_prepare.py": "71ee2b737f2c8b41a89065d9a2357ed0da65c2444bee66d18ab2084bb4588a64",
+    "probes/native-loader/tools/verify.py": "8bcf189ba266077fc6ed0c93de48726a5beca6d3812a9588a4c1b855419c0a2e",
+    "probes/native-loader/validation-results.json": "02bddb4b71aa2f3dce0c960fd9e56d1b32b3d0726ccd44ec800359a423f4728c",
+    "profiles/registry.json": "60d96ff8e10fcad6702587cde4846eee2c65235e5488104dd73ca27120876f0f",
+    "tests/test_loader_suite.py": "27c39b05fbde1c525014f2b87023628ffcf6e4679ee949dc3673e153d5bbb38d",
+    "tooling/loader_suite.py": "9767783c7ce1cd34af04c5a0fb67b54e292c126ba0c2e177f256bbe61522d989"
+  }
+}

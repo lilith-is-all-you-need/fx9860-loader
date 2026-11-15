@@ -1,0 +1,672 @@
+{
+  "hardwareValidated": false,
+  "targetMemoryInjected": false,
+  "loaderSha256": "8845cf40957378bb4cb698e5d7839ca104d1b37498ae48ac90d037fa18f41646",
+  "emulatorSha256": "b46e0a2ea6d9eedff8070b8fe496aa0aac70a645f670323ae082a1d46e8382d9",
+  "corpus": [
+    {
+      "id": "khicas",
+      "bytes": 2094444,
+      "sha256": "4a9d1c18009d987dc7c8745b7fc099b3c6e8006ebbb2ee5e4b483934be757473",
+      "gatePools": 51,
+      "unadaptedControlTransfers": []
+    },
+    {
+      "id": "wolf",
+      "bytes": 98708,
+      "sha256": "d8c8b567b7a2f108e4969ca0f3461a9e82d9669c834f26f7f476f1b5eebf88ca",
+      "gatePools": 38,
+      "unadaptedControlTransfers": [
+        {
+          "kind": "direct jump to boot-ROM alias; exit adapter required",
+          "instructionOffset": 40808,
+          "literalOffset": 40816,
+          "destination": 2684354560
+        }
+      ]
+    },
+    {
+      "id": "fruit",
+      "bytes": 66236,
+      "sha256": "5c5bd8f2c42add4feb9eb4112f134d00c45066eb80be805c3f872b27f451eaf6",
+      "gatePools": 46,
+      "unadaptedControlTransfers": []
+    },
+    {
+      "id": "mines",
+      "bytes": 126448,
+      "sha256": "0cf3f1fa10c818cf5126d0555c2828151283989457c7da8844a422aeb21d8284",
+      "gatePools": 2,
+      "unadaptedControlTransfers": []
+    }
+  ],
+  "cases": [
+    {
+      "case": "direct-khicas",
+      "status": {
+        "ok": true,
+        "state": "running",
+        "pc": "80010070",
+        "cycles": 285059,
+        "reason": "running",
+        "error": "",
+        "osMenu": false
+      },
+      "playStatus": {
+        "ok": true,
+        "state": "running",
+        "pc": "80010070",
+        "cycles": 285059,
+        "reason": "running",
+        "error": "",
+        "osMenu": false
+      },
+      "blocked": false,
+      "log": "",
+      "syscalls": {
+        "total": 138,
+        "implemented": 126,
+        "stubs": 12,
+        "missing": 0
+      }
+    },
+    {
+      "case": "loader-khicas",
+      "status": {
+        "ok": true,
+        "state": "exited",
+        "pc": "DEAD0000",
+        "cycles": 62734,
+        "reason": "exited",
+        "error": "",
+        "osMenu": false
+      },
+      "playStatus": {
+        "ok": true,
+        "state": "running",
+        "pc": "80010070",
+        "cycles": 62713,
+        "reason": "running",
+        "error": "",
+        "osMenu": false
+      },
+      "blocked": true,
+      "log": "FXLOADER\nVersion=1\nTARGET=khicas\nALLOC_CONTEXT=00000BDC,88040008\nIMAGE_BYTES_PAGES=001FF56C,00000200\nREJECTED=Need file mapping",
+      "syscalls": {
+        "total": 44,
+        "implemented": 44,
+        "stubs": 0,
+        "missing": 0
+      }
+    },
+    {
+      "case": "direct-wolf",
+      "status": {
+        "ok": true,
+        "state": "running",
+        "pc": "003066BE",
+        "cycles": 142033337,
+        "reason": "running",
+        "error": "",
+        "osMenu": false
+      },
+      "playStatus": {
+        "ok": true,
+        "state": "running",
+        "pc": "0030A34C",
+        "cycles": 142012857,
+        "reason": "running",
+        "error": "",
+        "osMenu": false
+      },
+      "blocked": false,
+      "log": "",
+      "syscalls": {
+        "total": 10,
+        "implemented": 10,
+        "stubs": 0,
+        "missing": 0
+      }
+    },
+    {
+      "case": "loader-wolf",
+      "status": {
+        "ok": true,
+        "state": "running",
+        "pc": "00302902",
+        "cycles": 160139026,
+        "reason": "running",
+        "error": "",
+        "osMenu": false
+      },
+      "playStatus": {
+        "ok": true,
+        "state": "running",
+        "pc": "00306836",
+        "cycles": 160122642,
+        "reason": "running",
+        "error": "",
+        "osMenu": false
+      },
+      "blocked": false,
+      "log": "FXLOADER\nVersion=1\nTARGET=wolf\nALLOC_CONTEXT=00000BDC,88040008\nIMAGE_BYTES_PAGES=00018194,00000019\nALLOC_IMAGE=0001AFFF,88040BF0\nALLOC_RUNNER=00000B5C,8805BBF8\nSHA256_OK\nGATES_PATCHED=00000026,A805C718\nHANDOFF_PENDING\nMAPPING_INSTALLED=00000019,00000000\nTARGET_ENTER",
+      "syscalls": {
+        "total": 97,
+        "implemented": 97,
+        "stubs": 0,
+        "missing": 0
+      }
+    },
+    {
+      "case": "direct-fruit",
+      "status": {
+        "ok": true,
+        "state": "running",
+        "pc": "80010070",
+        "cycles": 86838395,
+        "reason": "running",
+        "error": "",
+        "osMenu": false
+      },
+      "playStatus": {
+        "ok": true,
+        "state": "running",
+        "pc": "80010070",
+        "cycles": 86838395,
+        "reason": "running",
+        "error": "",
+        "osMenu": false
+      },
+      "blocked": false,
+      "log": "",
+      "syscalls": {
+        "total": 168889,
+        "implemented": 168889,
+        "stubs": 0,
+        "missing": 0
+      }
+    },
+    {
+      "case": "loader-fruit",
+      "status": {
+        "ok": true,
+        "state": "running",
+        "pc": "A8054722",
+        "cycles": 102698257,
+        "reason": "running",
+        "error": "",
+        "osMenu": false
+      },
+      "playStatus": {
+        "ok": true,
+        "state": "running",
+        "pc": "00307AD8",
+        "cycles": 102671823,
+        "reason": "running",
+        "error": "",
+        "osMenu": false
+      },
+      "blocked": false,
+      "log": "FXLOADER\nVersion=1\nTARGET=fruit\nALLOC_CONTEXT=00000BDC,88040008\nIMAGE_BYTES_PAGES=000102BC,00000011\nALLOC_IMAGE=00012FFF,88040BF0\nALLOC_RUNNER=00000B5C,88053BF8\nSHA256_OK\nGATES_PATCHED=0000002E,A8054718\nHANDOFF_PENDING\nMAPPING_INSTALLED=00000011,00000000\nTARGET_ENTER",
+      "syscalls": {
+        "total": 130850,
+        "implemented": 130850,
+        "stubs": 0,
+        "missing": 0
+      }
+    },
+    {
+      "case": "direct-mines",
+      "status": {
+        "ok": true,
+        "state": "exited",
+        "pc": "0031173E",
+        "cycles": 54378429,
+        "reason": "exited",
+        "error": "",
+        "osMenu": false
+      },
+      "playStatus": {
+        "ok": true,
+        "state": "running",
+        "pc": "00313E0E",
+        "cycles": 50724867,
+        "reason": "running",
+        "error": "",
+        "osMenu": false
+      },
+      "blocked": false,
+      "log": "",
+      "syscalls": {
+        "total": 68,
+        "implemented": 68,
+        "stubs": 0,
+        "missing": 0
+      }
+    },
+    {
+      "case": "loader-mines",
+      "status": {
+        "ok": true,
+        "state": "exited",
+        "pc": "0031173E",
+        "cycles": 77129166,
+        "reason": "exited",
+        "error": "",
+        "osMenu": false
+      },
+      "playStatus": {
+        "ok": true,
+        "state": "running",
+        "pc": "00307A50",
+        "cycles": 72775833,
+        "reason": "running",
+        "error": "",
+        "osMenu": false
+      },
+      "blocked": false,
+      "log": "FXLOADER\nVersion=1\nTARGET=mines\nALLOC_CONTEXT=00000BDC,88040008\nIMAGE_BYTES_PAGES=0001EDF0,0000001F\nALLOC_IMAGE=00020FFF,88040BF0\nALLOC_RUNNER=00000B5C,88061BF8\nSHA256_OK\nGATES_PATCHED=00000002,A8062718\nHANDOFF_PENDING\nMAPPING_INSTALLED=0000001F,00000000\nTARGET_ENTER\nOS_CALLBACK=00000001,00000001\nTARGET_EXIT_GUARD=00000000,00000000\nMAPPING_RESTORED=00000000,00FC3901\nCLEANUP=00000000,00000001",
+      "syscalls": {
+        "total": 198,
+        "implemented": 198,
+        "stubs": 0,
+        "missing": 0
+      }
+    },
+    {
+      "case": "loader-mines-reentry",
+      "status": {
+        "ok": true,
+        "state": "exited",
+        "pc": "0031173E",
+        "cycles": 38655007,
+        "reason": "exited",
+        "error": "",
+        "osMenu": false
+      },
+      "log": "FXLOADER\nVersion=1\nTARGET=mines\nALLOC_CONTEXT=00000BDC,88040008\nIMAGE_BYTES_PAGES=0001EDF0,0000001F\nALLOC_IMAGE=00020FFF,88040BF0\nALLOC_RUNNER=00000B5C,88061BF8\nSHA256_OK\nGATES_PATCHED=00000002,A8062718\nHANDOFF_PENDING\nMAPPING_INSTALLED=0000001F,00000000\nTARGET_ENTER\nOS_CALLBACK=00000001,00000001\nTARGET_EXIT_GUARD=00000000,00000000\nMAPPING_RESTORED=00000000,00FC7501\nCLEANUP=00000000,00000001",
+      "syscalls": {
+        "total": 222,
+        "implemented": 222,
+        "stubs": 0,
+        "missing": 0
+      }
+    },
+    {
+      "case": "direct-quit-wolf",
+      "status": {
+        "ok": true,
+        "state": "error",
+        "pc": "A0000002",
+        "cycles": 138031181,
+        "reason": "error",
+        "error": "cpu: illegal or unimplemented instruction 0x0000 at 0xA0000000\ncpu: exception 0x180 at 0xA0000000 with no handler (VBR is 0)",
+        "osMenu": false
+      },
+      "log": "",
+      "syscalls": {
+        "total": 10,
+        "implemented": 10,
+        "stubs": 0,
+        "missing": 0
+      }
+    },
+    {
+      "case": "loader-quit-wolf",
+      "status": {
+        "ok": true,
+        "state": "error",
+        "pc": "A0000002",
+        "cycles": 157635564,
+        "reason": "error",
+        "error": "cpu: illegal or unimplemented instruction 0x0000 at 0xA0000000\ncpu: exception 0x180 at 0xA0000000 with no handler (VBR is 0)",
+        "osMenu": false
+      },
+      "log": "FXLOADER\nVersion=1\nTARGET=wolf\nALLOC_CONTEXT=00000BDC,88040008\nIMAGE_BYTES_PAGES=00018194,00000019\nALLOC_IMAGE=0001AFFF,88040BF0\nALLOC_RUNNER=00000B5C,8805BBF8\nSHA256_OK\nGATES_PATCHED=00000026,A805C718\nHANDOFF_PENDING\nMAPPING_INSTALLED=00000019,00000000\nTARGET_ENTER",
+      "syscalls": {
+        "total": 97,
+        "implemented": 97,
+        "stubs": 0,
+        "missing": 0
+      }
+    },
+    {
+      "case": "direct-quit-fruit",
+      "status": {
+        "ok": true,
+        "state": "error",
+        "pc": "00308432",
+        "cycles": 47239798,
+        "reason": "error",
+        "error": "unimplemented fx-9860G syscall 0x01E7 (r4=00000000 r5=B4000000 r6=00000000 r7=00000008), called from 0x00308432",
+        "osMenu": false
+      },
+      "log": "",
+      "syscalls": {
+        "total": 91987,
+        "implemented": 91986,
+        "stubs": 0,
+        "missing": 1
+      }
+    },
+    {
+      "case": "loader-quit-fruit",
+      "status": {
+        "ok": true,
+        "state": "error",
+        "pc": "00308432",
+        "cycles": 60879662,
+        "reason": "error",
+        "error": "unimplemented fx-9860G syscall 0x01E7 (r4=00000000 r5=A8053E62 r6=00000000 r7=000003DC), called from 0x00308432",
+        "osMenu": false
+      },
+      "log": "FXLOADER\nVersion=1\nTARGET=fruit\nALLOC_CONTEXT=00000BDC,88040008\nIMAGE_BYTES_PAGES=000102BC,00000011\nALLOC_IMAGE=00012FFF,88040BF0\nALLOC_RUNNER=00000B5C,88053BF8\nSHA256_OK\nGATES_PATCHED=0000002E,A8054718\nHANDOFF_PENDING\nMAPPING_INSTALLED=00000011,00000000\nTARGET_ENTER",
+      "syscalls": {
+        "total": 72135,
+        "implemented": 72134,
+        "stubs": 0,
+        "missing": 1
+      }
+    },
+    {
+      "case": "edge-return",
+      "status": {
+        "ok": true,
+        "state": "exited",
+        "pc": "DEAD0000",
+        "cycles": 828572,
+        "reason": "exited",
+        "error": "",
+        "osMenu": false
+      },
+      "assertionsPassed": true,
+      "log": "FXLOADER\nVersion=1\nTARGET=fixture\nALLOC_CONTEXT=00000BDC,88040008\nIMAGE_BYTES_PAGES=00000254,00000001\nALLOC_IMAGE=00002FFF,88040BF0\nALLOC_RUNNER=00000B5C,88043BF8\nSHA256_OK\nGATES_PATCHED=00000001,A8044718\nHANDOFF_PENDING\nMAPPING_INSTALLED=00000001,00000000\nTARGET_ENTER\nTARGET_QUIT_REGISTERED=00300230,00000000\nTARGET_RETURN=0000002A,00000000\nTARGET_EXIT_GUARD=00000000,00300230\nTARGET_CALLBACK_RETURNED\nMAPPING_RESTORED=00000000,00FC8D01\nCLEANUP=00000000,00000000",
+      "syscalls": {
+        "total": 62,
+        "implemented": 62,
+        "stubs": 0,
+        "missing": 0
+      }
+    },
+    {
+      "case": "edge-low-heap",
+      "status": {
+        "ok": true,
+        "state": "exited",
+        "pc": "DEAD0000",
+        "cycles": 61690,
+        "reason": "exited",
+        "error": "",
+        "osMenu": false
+      },
+      "assertionsPassed": true,
+      "log": "FXLOADER\nVersion=1\nTARGET=fixture\nALLOC_CONTEXT=00000BDC,88040008\nIMAGE_BYTES_PAGES=000102BC,00000011\nALLOC_IMAGE=00012FFF,00000000\nREJECTED=No image memory",
+      "syscalls": {
+        "total": 39,
+        "implemented": 39,
+        "stubs": 0,
+        "missing": 0
+      }
+    },
+    {
+      "case": "edge-context-oom",
+      "status": {
+        "ok": true,
+        "state": "exited",
+        "pc": "DEAD0000",
+        "cycles": 6562,
+        "reason": "exited",
+        "error": "",
+        "osMenu": false
+      },
+      "assertionsPassed": true,
+      "log": "",
+      "syscalls": {
+        "total": 19,
+        "implemented": 19,
+        "stubs": 0,
+        "missing": 0
+      }
+    },
+    {
+      "case": "edge-image-oom",
+      "status": {
+        "ok": true,
+        "state": "exited",
+        "pc": "DEAD0000",
+        "cycles": 60884,
+        "reason": "exited",
+        "error": "",
+        "osMenu": false
+      },
+      "assertionsPassed": true,
+      "log": "FXLOADER\nVersion=1\nTARGET=fixture\nALLOC_CONTEXT=00000BDC,88040008\nIMAGE_BYTES_PAGES=00000254,00000001\nALLOC_IMAGE=00002FFF,00000000\nREJECTED=No image memory",
+      "syscalls": {
+        "total": 39,
+        "implemented": 39,
+        "stubs": 0,
+        "missing": 0
+      }
+    },
+    {
+      "case": "edge-runner-oom",
+      "status": {
+        "ok": true,
+        "state": "exited",
+        "pc": "DEAD0000",
+        "cycles": 62468,
+        "reason": "exited",
+        "error": "",
+        "osMenu": false
+      },
+      "assertionsPassed": true,
+      "log": "FXLOADER\nVersion=1\nTARGET=fixture\nALLOC_CONTEXT=00000BDC,88040008\nIMAGE_BYTES_PAGES=00000254,00000001\nALLOC_IMAGE=00002FFF,88040BF0\nALLOC_RUNNER=00000B5C,00000000\nREJECTED=No runner memory",
+      "syscalls": {
+        "total": 41,
+        "implemented": 41,
+        "stubs": 0,
+        "missing": 0
+      }
+    },
+    {
+      "case": "edge-bad-bin",
+      "status": {
+        "ok": true,
+        "state": "exited",
+        "pc": "DEAD0000",
+        "cycles": 146917,
+        "reason": "exited",
+        "error": "",
+        "osMenu": false
+      },
+      "assertionsPassed": true,
+      "log": "FXLOADER\nVersion=1\nTARGET=fixture\nALLOC_CONTEXT=00000BDC,88040008\nIMAGE_BYTES_PAGES=00000254,00000001\nALLOC_IMAGE=00002FFF,88040BF0\nALLOC_RUNNER=00000B5C,88043BF8\nREJECTED=BIN hash mismatch",
+      "syscalls": {
+        "total": 46,
+        "implemented": 46,
+        "stubs": 0,
+        "missing": 0
+      }
+    },
+    {
+      "case": "edge-no-bin",
+      "status": {
+        "ok": true,
+        "state": "exited",
+        "pc": "DEAD0000",
+        "cycles": 63536,
+        "reason": "exited",
+        "error": "",
+        "osMenu": false
+      },
+      "assertionsPassed": true,
+      "log": "FXLOADER\nVersion=1\nTARGET=fixture\nALLOC_CONTEXT=00000BDC,88040008\nIMAGE_BYTES_PAGES=00000254,00000001\nALLOC_IMAGE=00002FFF,88040BF0\nALLOC_RUNNER=00000B5C,88043BF8\nREJECTED=Missing BIN",
+      "syscalls": {
+        "total": 43,
+        "implemented": 43,
+        "stubs": 0,
+        "missing": 0
+      }
+    },
+    {
+      "case": "edge-wrong-size",
+      "status": {
+        "ok": true,
+        "state": "exited",
+        "pc": "DEAD0000",
+        "cycles": 64216,
+        "reason": "exited",
+        "error": "",
+        "osMenu": false
+      },
+      "assertionsPassed": true,
+      "log": "FXLOADER\nVersion=1\nTARGET=fixture\nALLOC_CONTEXT=00000BDC,88040008\nIMAGE_BYTES_PAGES=00000254,00000001\nALLOC_IMAGE=00002FFF,88040BF0\nALLOC_RUNNER=00000B5C,88043BF8\nREJECTED=BIN size mismatch",
+      "syscalls": {
+        "total": 45,
+        "implemented": 45,
+        "stubs": 0,
+        "missing": 0
+      }
+    },
+    {
+      "case": "edge-bad-profile",
+      "status": {
+        "ok": true,
+        "state": "exited",
+        "pc": "DEAD0000",
+        "cycles": 58474,
+        "reason": "exited",
+        "error": "",
+        "osMenu": false
+      },
+      "assertionsPassed": true,
+      "log": "FXLOADER\nVersion=1\nTARGET=fixture\nALLOC_CONTEXT=00000BDC,88040008\nREJECTED=Profile invalid",
+      "syscalls": {
+        "total": 38,
+        "implemented": 38,
+        "stubs": 0,
+        "missing": 0
+      }
+    },
+    {
+      "case": "edge-bad-patch",
+      "status": {
+        "ok": true,
+        "state": "exited",
+        "pc": "DEAD0000",
+        "cycles": 58637,
+        "reason": "exited",
+        "error": "",
+        "osMenu": false
+      },
+      "assertionsPassed": true,
+      "log": "FXLOADER\nVersion=1\nTARGET=fixture\nALLOC_CONTEXT=00000BDC,88040008\nREJECTED=Profile patch range",
+      "syscalls": {
+        "total": 38,
+        "implemented": 38,
+        "stubs": 0,
+        "missing": 0
+      }
+    },
+    {
+      "case": "edge-bad-gate",
+      "status": {
+        "ok": true,
+        "state": "exited",
+        "pc": "DEAD0000",
+        "cycles": 212618,
+        "reason": "exited",
+        "error": "",
+        "osMenu": false
+      },
+      "assertionsPassed": true,
+      "log": "FXLOADER\nVersion=1\nTARGET=fixture\nALLOC_CONTEXT=00000BDC,88040008\nIMAGE_BYTES_PAGES=00000254,00000001\nALLOC_IMAGE=00002FFF,88040BF0\nALLOC_RUNNER=00000B5C,88043BF8\nSHA256_OK\nREJECTED=Gate patch mismatch",
+      "syscalls": {
+        "total": 46,
+        "implemented": 46,
+        "stubs": 0,
+        "missing": 0
+      }
+    },
+    {
+      "case": "edge-bad-catalog",
+      "status": {
+        "ok": true,
+        "state": "exited",
+        "pc": "DEAD0000",
+        "cycles": 3674,
+        "reason": "exited",
+        "error": "",
+        "osMenu": false
+      },
+      "assertionsPassed": true,
+      "log": "",
+      "syscalls": {
+        "total": 11,
+        "implemented": 11,
+        "stubs": 0,
+        "missing": 0
+      }
+    },
+    {
+      "case": "edge-no-profile",
+      "status": {
+        "ok": true,
+        "state": "exited",
+        "pc": "DEAD0000",
+        "cycles": 57547,
+        "reason": "exited",
+        "error": "",
+        "osMenu": false
+      },
+      "assertionsPassed": true,
+      "log": "FXLOADER\nVersion=1\nTARGET=fixture\nALLOC_CONTEXT=00000BDC,88040008\nREJECTED=Profile read/size",
+      "syscalls": {
+        "total": 35,
+        "implemented": 35,
+        "stubs": 0,
+        "missing": 0
+      }
+    },
+    {
+      "case": "edge-foreign-log",
+      "status": {
+        "ok": true,
+        "state": "exited",
+        "pc": "DEAD0000",
+        "cycles": 26533,
+        "reason": "exited",
+        "error": "",
+        "osMenu": false
+      },
+      "assertionsPassed": true,
+      "log": "keep this unrelated file",
+      "syscalls": {
+        "total": 24,
+        "implemented": 24,
+        "stubs": 0,
+        "missing": 0
+      }
+    },
+    {
+      "case": "edge-ram-conflict",
+      "status": {
+        "ok": true,
+        "state": "exited",
+        "pc": "DEAD0000",
+        "cycles": 62849,
+        "reason": "exited",
+        "error": "",
+        "osMenu": false
+      },
+      "assertionsPassed": true,
+      "log": "FXLOADER\nVersion=1\nTARGET=fixture\nALLOC_CONTEXT=00000BDC,88040008\nIMAGE_BYTES_PAGES=00000254,00000001\nALLOC_IMAGE=00002FFF,88040BF0\nALLOC_RUNNER=00000B5C,88043BF8\nREJECTED=Target RAM conflict",
+      "syscalls": {
+        "total": 42,
+        "implemented": 42,
+        "stubs": 0,
+        "missing": 0
+      }
+    }
+  ]
+}
