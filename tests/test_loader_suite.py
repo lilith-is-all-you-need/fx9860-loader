@@ -5,6 +5,7 @@ from pathlib import Path
 import struct
 import tempfile
 import unittest
+from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
 spec=importlib.util.spec_from_file_location('loader_suite',ROOT/'tooling/loader_suite.py')
@@ -76,5 +77,23 @@ class SuiteTests(unittest.TestCase):
         r=suite.prepare(self.src,self.root/'out',review={**self.review,'sha256':suite.sha(b)})
         self.assertEqual(r['status'],'needs-review')
         self.assertFalse((self.root/'out/calculator').exists())
+
+    def test_private_payload_requires_exact_registered_runtime(self):
+        data=bytearray(2097153);data[:16]=b'KHICAS-MAPPED/1\0';self.src.write_bytes(data)
+        with self.assertRaises(ValueError):suite.analyze(self.src)
+        profile={'sha256':suite.sha(data),'adapter':'extended-giac-v1','limitations':['hardware pending'],'launcherSha256':suite.sha(b'paired launcher')}
+        original=suite.read_json
+        def read(path):
+            return {'programs':[profile]} if Path(path)==suite.ROOT/'profiles/registry.json' else original(path)
+        with patch.object(suite,'read_json',side_effect=read):
+            r=suite.prepare(self.src,self.root/'extended',artifacts=self.root/'missing')
+            self.assertEqual(r['status'],'profile-only')
+            self.assertEqual((self.root/'extended/calculator/KHICAS.BIN').read_bytes(),data)
+            artifacts=self.root/'artifacts';artifacts.mkdir();bad=b'wrong paired launcher'
+            (artifacts/'KhiMap.g1a').write_bytes(bad)
+            (artifacts/'manifest.json').write_text(json.dumps({'files':{'KhiMap.g1a':suite.sha(bad)}}))
+            with self.assertRaisesRegex(ValueError,'reviewed source-integrated'):
+                suite.prepare(self.src,self.root/'rejected',artifacts=artifacts)
+            self.assertFalse((self.root/'rejected').exists())
 
 if __name__=='__main__':unittest.main(verbosity=2)

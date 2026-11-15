@@ -25,7 +25,7 @@
     "probes/native-loader/tools/verify.py": "8bcf189ba266077fc6ed0c93de48726a5beca6d3812a9588a4c1b855419c0a2e",
     "probes/native-loader/validation-results.json": "02bddb4b71aa2f3dce0c960fd9e56d1b32b3d0726ccd44ec800359a423f4728c",
     "profiles/registry.json": "60d96ff8e10fcad6702587cde4846eee2c65235e5488104dd73ca27120876f0f",
-    "tests/test_loader_suite.py": "27c39b05fbde1c525014f2b87023628ffcf6e4679ee949dc3673e153d5bbb38d",
+    "tests/test_loader_suite.py": "c6c38ef65def8ef37e105fdb7d4787e04d8b842b93a077bf2c73cff5004d3d72",
     "tooling/loader_suite.py": "9767783c7ce1cd34af04c5a0fb67b54e292c126ba0c2e177f256bbe61522d989"
   }
 }
