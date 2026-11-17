@@ -1,0 +1,87 @@
+<Window x:Class="ProfileStudio.MainWindow"
+ xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+ xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+ xmlns:local="using:ProfileStudio" Title="FX Profile Studio">
+ <Grid x:Name="RootPanel" Background="#F5F6F8" RequestedTheme="Light" Loaded="OnLoaded" AllowDrop="True" DragOver="OnDragOver" Drop="OnDrop">
+  <Grid.Resources>
+   <Style x:Key="SectionTitle" TargetType="TextBlock"><Setter Property="FontSize" Value="17"/><Setter Property="FontWeight" Value="SemiBold"/></Style>
+   <Style x:Key="Muted" TargetType="TextBlock"><Setter Property="Foreground" Value="#596579"/><Setter Property="TextWrapping" Value="Wrap"/></Style>
+   <Style x:Key="Card" TargetType="Border"><Setter Property="Background" Value="White"/><Setter Property="CornerRadius" Value="12"/><Setter Property="Padding" Value="20"/><Setter Property="BorderBrush" Value="#E3E7ED"/><Setter Property="BorderThickness" Value="1"/></Style>
+  </Grid.Resources>
+  <Grid.ColumnDefinitions><ColumnDefinition Width="198"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+  <Border Background="#132A3A" Padding="24,28,20,24">
+   <Grid><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+    <StackPanel Spacing="16">
+     <Border Background="#C4F1DD" Width="46" Height="46" CornerRadius="12" HorizontalAlignment="Left"><TextBlock Text="FX" FontWeight="Bold" FontSize="21" Foreground="#132A3A" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border>
+     <TextBlock Text="Profile Studio" FontSize="20" FontWeight="SemiBold" Foreground="White"/>
+     <TextBlock Text="fx-9860GIII" FontSize="13" Foreground="#B8C7D1"/>
+     <Border Background="#294453" CornerRadius="8" Padding="13,12" Margin="0,16,0,0"><StackPanel Orientation="Horizontal" Spacing="10"><TextBlock Text="01" FontSize="13" Foreground="#C4F1DD"/><TextBlock Text="准备加载文件" Foreground="White"/></StackPanel></Border>
+    </StackPanel>
+    <StackPanel Grid.Row="2" Spacing="10">
+     <TextBlock Text="全部在本机处理" Foreground="#C4F1DD" FontWeight="SemiBold"/>
+     <TextBlock Text="离线生成 · 无需 LLM&#xA;保留原始镜像布局" Foreground="#B8C7D1" FontSize="12" TextWrapping="Wrap"/>
+     <TextBlock Text="预览版 0.1" Foreground="#8EA4B2" FontSize="12" Margin="0,12,0,0"/>
+    </StackPanel>
+   </Grid>
+  </Border>
+  <ScrollViewer Grid.Column="1" HorizontalScrollBarVisibility="Disabled">
+   <StackPanel Padding="28" Spacing="20">
+    <StackPanel Spacing="7"><TextBlock Text="准备计算器加载文件" FontSize="28" FontWeight="SemiBold"/><TextBlock Text="导入 G1A 或 BIN，生成配套 profile、加载文件和分页分析。" Style="{StaticResource Muted}"/></StackPanel>
+    <InfoBar IsOpen="True" IsClosable="False" Severity="Informational" Title="自动生成 ≠ 已验证兼容" Message="普通 G1A 使用通用映射；超过 2 MiB 的未知程序仍需运行时适配。真实物理页地址由计算器查询。"/>
+    <Grid ColumnSpacing="20">
+     <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="330"/></Grid.ColumnDefinitions>
+     <StackPanel Spacing="16">
+      <Border Style="{StaticResource Card}">
+       <StackPanel Spacing="14">
+        <Grid><TextBlock Text="文件队列" Style="{StaticResource SectionTitle}"/><StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8"><Button x:Name="ClearButton" Content="清空" Click="ClearClick"/><Button x:Name="AddButton" Content="添加文件" Click="AddClick"/></StackPanel></Grid>
+        <TextBlock Text="也可将多个 .g1a / .bin 拖入窗口。每个文件单独生成一套结果。" Style="{StaticResource Muted}" FontSize="12"/>
+        <ListView x:Name="QueueList" ItemsSource="{x:Bind Items}" SelectionChanged="SelectionChanged" Height="223" SelectionMode="Single">
+         <ListView.ItemTemplate><DataTemplate x:DataType="local:QueueItem"><Grid Padding="2,10" ColumnSpacing="12">
+          <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="132"/></Grid.ColumnDefinitions>
+          <StackPanel Spacing="4"><TextBlock Text="{x:Bind Name}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/><TextBlock Text="{x:Bind Size}" FontSize="12" Foreground="#687486"/></StackPanel>
+          <StackPanel Grid.Column="1" Spacing="4"><TextBlock Text="{x:Bind Status, Mode=OneWay}" Foreground="{x:Bind StatusColor, Mode=OneWay}" FontSize="13"/><TextBlock Text="{x:Bind Backend, Mode=OneWay}" FontSize="11" Foreground="#687486"/></StackPanel>
+         </Grid></DataTemplate></ListView.ItemTemplate>
+        </ListView>
+       </StackPanel>
+      </Border>
+      <Border Style="{StaticResource Card}">
+       <StackPanel Spacing="12"><TextBlock Text="保存位置" Style="{StaticResource SectionTitle}"/>
+        <Grid ColumnSpacing="8"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><TextBox x:Name="OutputBox" PlaceholderText="选择结果根目录"/><Button Grid.Column="1" Content="浏览" Click="OutputBrowse"/></Grid>
+        <TextBlock Text="为每个输入创建新目录，保留原文件；不会覆盖已有结果。" FontSize="12" Style="{StaticResource Muted}"/>
+       </StackPanel>
+      </Border>
+      <Expander x:Name="Advanced" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" Header="Ghidra 深度分析（可选）">
+       <StackPanel Spacing="12">
+        <ToggleSwitch x:Name="DeepSwitch" Header="导出交叉引用、控制流和反编译样本" OnContent="本次启用" OffContent="仅生成基础 profile"/>
+        <TextBlock Text="需要 Ghidra 与 JDK。分析可帮助定位地址用途，不能自动证明所有地址或完成超限运行库接入。" Style="{StaticResource Muted}" FontSize="12"/>
+        <TextBox x:Name="GhidraBox" Header="Ghidra 安装目录" PlaceholderText="包含 Ghidra 和 support 的目录"/>
+        <TextBox x:Name="JavaBox" Header="JDK 目录" PlaceholderText="Ghidra 12.2 配套 JDK 25"/>
+        <Button Content="检查依赖" Click="CheckDependencies"/><TextBlock x:Name="DependencyText" TextWrapping="Wrap" FontSize="12" Foreground="#596579"/>
+       </StackPanel>
+      </Expander>
+     </StackPanel>
+     <StackPanel Grid.Column="1" Spacing="16">
+      <Border Style="{StaticResource Card}"><StackPanel Spacing="12">
+       <TextBlock Text="任务详情" Style="{StaticResource SectionTitle}"/>
+       <TextBlock x:Name="DetailName" Text="选择一个文件" FontSize="20" FontWeight="SemiBold" TextWrapping="Wrap"/>
+       <TextBlock x:Name="DetailSize" Text="先添加需要转换的程序。" Style="{StaticResource Muted}"/>
+       <ProgressBar x:Name="PageBar" Maximum="1024" Value="0" Foreground="#218467"/>
+       <TextBlock Text="OS 原有窗口为 512 页，每页 4 KiB。" Style="{StaticResource Muted}" FontSize="12"/>
+       <Border Height="1" Background="#E3E7ED" Margin="0,4"/>
+       <TextBlock x:Name="DetailStatus" Text="等待导入" FontWeight="SemiBold" Foreground="#166A55"/>
+       <TextBlock x:Name="DetailBody" Text="生成后可查看加载方式、阻塞原因和完整报告。" TextWrapping="Wrap" FontSize="13"/>
+       <Button x:Name="OpenButton" Content="打开此项结果" IsEnabled="False" Click="OpenResult"/>
+       <Expander Header="原始诊断" HorizontalAlignment="Stretch"><TextBox x:Name="RawDetail" IsReadOnly="True" TextWrapping="Wrap" AcceptsReturn="True" MaxHeight="240" FontSize="11"/></Expander>
+      </StackPanel></Border>
+      <Border Background="#E8F3EF" CornerRadius="12" Padding="20"><StackPanel Spacing="10"><TextBlock Text="结果里有什么" FontWeight="SemiBold" Foreground="#1B5E49"/><TextBlock Text="calculator /  配套测试文件&#xA;paging-plan.json / 逐页布局&#xA;analysis.json / 适配判断&#xA;ghidra / 可选深度分析" FontSize="12" Foreground="#35594D" LineHeight="24" TextWrapping="Wrap"/><TextBlock Text="未通过检查的项目只输出分析材料。" FontSize="12" Foreground="#35594D" TextWrapping="Wrap"/></StackPanel></Border>
+     </StackPanel>
+    </Grid>
+    <Border Style="{StaticResource Card}"><Grid ColumnSpacing="16"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+     <StackPanel Spacing="8" VerticalAlignment="Center"><TextBlock x:Name="ProgressText" Text="准备就绪" TextWrapping="Wrap"/><ProgressBar x:Name="Progress" IsIndeterminate="False" Value="0" Height="3"/></StackPanel>
+     <Button x:Name="CancelButton" Grid.Column="1" Content="取消" IsEnabled="False" Click="CancelClick" VerticalAlignment="Center"/>
+     <Button x:Name="GenerateButton" Grid.Column="2" Content="分析并生成" Style="{StaticResource AccentButtonStyle}" Click="GenerateClick" VerticalAlignment="Center"/>
+    </Grid></Border>
+   </StackPanel>
+  </ScrollViewer>
+ </Grid>
+</Window>

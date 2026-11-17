@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Self-contained logging avoids XInclude resolving Unicode jar URLs.
+     Ghidra replaces detail/script placeholders with its own file appenders. -->
+<Configuration>
+ <Appenders>
+  <Console name="console" target="SYSTEM_OUT"><PatternLayout pattern="%-5p %m (%c{1}) %ex %n"/></Console>
+  <Console name="detail" target="SYSTEM_OUT"><PatternLayout pattern="%m%n"/></Console>
+  <Console name="script" target="SYSTEM_OUT"><PatternLayout pattern="%m%n"/></Console>
+ </Appenders>
+ <Loggers><Root level="INFO">
+  <AppenderRef ref="console" level="INFO"/><AppenderRef ref="detail" level="INFO"/><AppenderRef ref="script" level="INFO"/>
+ </Root></Loggers>
+</Configuration>

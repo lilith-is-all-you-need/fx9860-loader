@@ -2,6 +2,16 @@
   "schemaVersion": 1,
   "component": "loader",
   "files": {
+    "desktop/ProfileStudio/App.xaml": "a5a5fbb056e690914bd67a7409c561e5f2a228427fc18faff8d3317ddd7315f9",
+    "desktop/ProfileStudio/App.xaml.cs": "964701f1e9f47a410e28eb94a09ce8edc1fd9f499fc368e200348c5aa04c4be6",
+    "desktop/ProfileStudio/MainWindow.xaml": "3cbe236a587f1b869fdd5ef5cce8b961545cd32a29d12d03a7e44c731b3b448e",
+    "desktop/ProfileStudio/MainWindow.xaml.cs": "795f156ff2b30d3a429118b5f838a92e7e8202414325f8e0185250f72131e36b",
+    "desktop/ProfileStudio/Models.cs": "12db4fc8371a6280312dc0962ab6d3d9ae7b837cf0918e3ccd89e29381902240",
+    "desktop/ProfileStudio/ProfileStudio.csproj": "5adafa9476e2e85ce8b895f3ed4c5feeca73d22bba996929536f977cff4686b4",
+    "desktop/ProfileStudio/README.zh-CN.md": "b444406fec92c162a3031c1b57add5a38e359db394dc642215a728aacf4a54fa",
+    "desktop/ProfileStudio/THIRD-PARTY.md": "6ab96eb7bb9b7f1a10fa60a8785492992fcccbb40a2e87d9707dbb572dc6d472",
+    "desktop/ProfileStudio/VALIDATION.json": "8ea3ef2763dd7f7f8b03ef3aec8412d15192ddc74c67d5a4767dcdf5353a7811",
+    "desktop/ProfileStudio/app.manifest": "329fa6ed1a978a95903ccea0e9d938c436fa9583b7164187f38cf8475c4ac2b9",
     "probes/mapped-loader/tools/prepare.py": "09b53c576a4b31fc68e292c3680e2d0bfc83f64d667764985b198e8049232007",
     "probes/native-loader/CMakeLists.txt": "b44730709c8c6cccec5e4e8ad92ac413f69eb111383f82c20b66c445470ba704",
     "probes/native-loader/KHICAS-BLOCKERS.md": "e804d78ed5e4d21c465d63a11e48860c9abe7397dae3c7ed1b5e4a3ee6ac1c61",
@@ -48,6 +58,12 @@
     "profiles/registry.json": "3feae6f6514c1bae80f9ecb68cd88f1f445d5a2ce05b0d397f56c6b9abbaa5c7",
     "tests/test_flash_profiles.py": "afc762adc7ceaf6e949511fff0548fe895c01bec138964906454fb18e0a662b3",
     "tests/test_loader_suite.py": "dec6d485ab55e3b7566fb5137d320ef649d8645b1d9d2eb62e2f60b55990968f",
-    "tooling/loader_suite.py": "cf69d74d74cae8f46202d3d3915b0e1982db474fbe59ca24e36a54d9fe3a17a4"
+    "tests/test_profile_job.py": "1aa9fd9cfda56027fb0b1c3599890c91d21e7d2d5f2828fd78f56a46319abea9",
+    "tooling/ghidra/ExportG1aEvidence.java": "c537f1524eea83cdc8a97beb769c8f6f04f22e5232d9237dfa4d80a63c2e7ec6",
+    "tooling/ghidra/PrepareG1a.java": "c82cbed94af3c01d11cc5a12f8b1279521f4a8e1929b22eb43e6e1c58d781dbc",
+    "tooling/ghidra/log4j.xml": "b8afd0dca30a57330c23f4239b4f92101eb444acaef254c48449f4db80a9b4ee",
+    "tooling/loader_suite.py": "cf69d74d74cae8f46202d3d3915b0e1982db474fbe59ca24e36a54d9fe3a17a4",
+    "tooling/package_profile_studio.py": "517704a801115ab765c1148be2a294d235df2bf935b90c67273aae7d5f5f9257",
+    "tooling/profile_job.py": "4a19fc5a212022fd26e5507d78902b3c6dd9a34afbb20302ed306cb330976690"
   }
 }

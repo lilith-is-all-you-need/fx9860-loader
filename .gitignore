@@ -8,3 +8,6 @@ loader-artifacts/
 *.g1a
 *.bin
 *.log
+**/bin/
+**/obj/
+**/.vs/

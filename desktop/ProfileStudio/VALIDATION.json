@@ -1,0 +1,111 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-11-17",
+  "scope": "PC generation and native WinUI application; no new hardware validation",
+  "build": "Release / WinUI 3 / Windows App SDK 2.6.5 / net10.0 / win-x64 self-contained",
+  "pythonUnitTests": 25,
+  "actualUiBatch": [
+    {
+      "name": "fruit.bin",
+      "status": "candidate",
+      "sha256": "5c5bd8f2c42add4feb9eb4112f134d00c45066eb80be805c3f872b27f451eaf6",
+      "backend": "flash"
+    },
+    {
+      "name": "mines.bin",
+      "status": "candidate",
+      "sha256": "0cf3f1fa10c818cf5126d0555c2828151283989457c7da8844a422aeb21d8284",
+      "backend": "flash"
+    },
+    {
+      "name": "Tetris-original.g1a",
+      "status": "candidate",
+      "sha256": "a2d77cfbd27aad4edb1889a5f2bc7c3638827b89a82ce466251c53a418a456e0",
+      "backend": "flash"
+    },
+    {
+      "name": "Tetris-gint-release.g1a",
+      "status": "candidate",
+      "sha256": "cf31b2284b2c90deaad1b2a5ee3bfefd9fcecf4c2f74b45d4d905bf0f84c4079",
+      "backend": "flash"
+    },
+    {
+      "name": "AMINE.g1a",
+      "status": "candidate",
+      "sha256": "6e26a889c00dd549990ff618594b3a5ce469816c6b857bc0ae38919c881c43f6",
+      "backend": "flash"
+    },
+    {
+      "name": "WSC.g1a",
+      "status": "candidate",
+      "sha256": "21ae395249ca02a154ff3cac28315dfcee07e65f34fe39568e3def89f26e1110",
+      "backend": "flash"
+    },
+    {
+      "name": "khicas.bin",
+      "status": "candidate",
+      "sha256": "4a9d1c18009d987dc7c8745b7fc099b3c6e8006ebbb2ee5e4b483934be757473",
+      "backend": "mapped"
+    },
+    {
+      "name": "KHICAS.BIN",
+      "status": "candidate",
+      "sha256": "176a10ffa918f24f0b98ef89156dc04b02df09190dae0fbe0e3d59780e9455f8",
+      "backend": "extended"
+    },
+    {
+      "name": "unknown-513-pages.g1a",
+      "status": "needs-review",
+      "sha256": "296507d8a15f177c7d11021f3009f125ce580dda3ad436fab830c207e5e63e0d",
+      "backend": "extended"
+    },
+    {
+      "name": "bad-header.g1a",
+      "status": "invalid-input",
+      "sha256": null,
+      "backend": null
+    }
+  ],
+  "realGhidra122": [
+    {
+      "inputName": "Tetris-original.g1a",
+      "sha256": "a2d77cfbd27aad4edb1889a5f2bc7c3638827b89a82ce466251c53a418a456e0",
+      "pages": 4,
+      "backend": "flash",
+      "status": "candidate",
+      "seconds": 7.1,
+      "functionCount": 73,
+      "instructionCount": 3896,
+      "analysisComplete": true
+    },
+    {
+      "inputName": "khicas.bin",
+      "sha256": "4a9d1c18009d987dc7c8745b7fc099b3c6e8006ebbb2ee5e4b483934be757473",
+      "pages": 512,
+      "backend": "mapped",
+      "status": "candidate",
+      "seconds": 79.4,
+      "functionCount": 2627,
+      "instructionCount": 743912,
+      "analysisComplete": true
+    },
+    {
+      "inputName": "KHICAS.BIN",
+      "sha256": "176a10ffa918f24f0b98ef89156dc04b02df09190dae0fbe0e3d59780e9455f8",
+      "pages": 699,
+      "backend": "extended",
+      "status": "candidate",
+      "seconds": 60.1,
+      "functionCount": 2933,
+      "instructionCount": 737190,
+      "analysisComplete": true
+    }
+  ],
+  "packagedGhidraUi": "completed: SDK Tetris, 73 functions / 3896 instructions",
+  "cancellation": "Interrupted KhiCAS deep analysis after 4 seconds; no candidate published and no owned process left running",
+  "limits": [
+    "Ghidra evidence never turns unknown oversized G1As into runnable bundles",
+    "Physical page addresses are queried on the calculator",
+    "GUI tests use the same generation path as the interactive button; file picker and drag gesture are not automated in this report"
+  ]
+}

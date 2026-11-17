@@ -3,6 +3,12 @@
 Offline G1A preparation and generic Flash/RAM loaders. Standard-library Python;
 no LLM service or network is required for analysis or conversion.
 
+The standalone **[FX Profile Studio WinUI 3 desktop app](desktop/ProfileStudio/README.zh-CN.md)**
+adds batch import, bounded offline generation, per-page plans and optional real
+Ghidra headless analysis. Ghidra evidence never upgrades an unsupported oversized
+binary into a runnable bundle. Dependencies and source build instructions are
+documented with the desktop app.
+
 ```
 python tooling/loader_suite.py input.g1a --output new-result
 python tooling/loader_suite.py --batch jobs.json --artifacts C:/LoaderSuite/loader-artifacts
