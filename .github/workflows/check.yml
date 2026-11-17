@@ -12,3 +12,12 @@ jobs:
       - run: |
           python -m unittest discover -s tests -v
           python probes/native-loader/tools/test_prepare.py
+      - name: Check large runtime and profile contracts
+        working-directory: large
+        run: |
+          python probes/extended-loader/tools/test_payload.py
+          python -m unittest discover -s tests -v
+          python tooling/sync_sample_library.py --check
+      - name: Check shared offline source copies
+        run: |
+          python -c "from pathlib import Path; a=['tooling/ext_profile.py','probes/mapped-loader/tools/prepare.py','probes/native-loader/tools/prepare.py']; stale=[p for p in a if Path(p).read_bytes()!=Path('large',p).read_bytes()]; assert not stale, stale"

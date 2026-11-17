@@ -138,7 +138,7 @@ class DesktopJobTests(unittest.TestCase):
         with contextlib.redirect_stdout(io.StringIO()):r=job.generate(self.source,output_root=self.root/'stable')
         output=Path(r['output']);name='calculator/FXAPPS/'+r['identity']['calculatorId']+'/APP.FPF'
         profile=bytearray((output/name).read_bytes());profile[-1]=1;(output/name).write_bytes(profile)
-        sums=json.loads((output/'checksums.json').read_text());sums[name]=job.suite.sha(profile)
+        sums=json.loads((output/'checksums.json').read_text(encoding='utf-8'));sums[name]=job.suite.sha(profile)
         (output/'checksums.json').write_text(json.dumps(sums))
         with self.assertRaises(ValueError),contextlib.redirect_stdout(io.StringIO()):
             job.generate(self.source,output_root=self.root/'stable')

@@ -1,88 +1,49 @@
-# fx9860-loader
+# FX Universal Loader
 
-Offline G1A preparation and generic Flash/RAM loaders. Standard-library Python;
-no LLM service or network is required for analysis or conversion.
+Prepare and launch add-ins on the Casio fx-9860GIII. The Windows app, calculator
+launchers and profile tools share one release. FxProfile appears as **FX Profile
+Studio** in the Windows UI.
 
-## Folder packages (0.2)
+**[Download v0.2.0-beta.1 / 下载测试版](https://github.com/lilith-is-all-you-need/fx_universal_loader/releases/tag/v0.2.0-beta.1)** · [中文使用说明](desktop/ProfileStudio/README.zh-CN.md) · [English guide](desktop/ProfileStudio/README.en.md)
 
-The current desktop engine creates stable **name + short SHA** program folders.
-It exports dependencies by default; including the shared launcher is optional.
-The separate export action needs no source file:
+| Download | Use |
+| --- | --- |
+| `FxProfile-win-x64.zip` | Extract the whole archive and open `ProfileStudio.exe`. It includes all three calculator launchers. Ordinary preparation works offline. For optional deep analysis select an installed Ghidra and JDK. |
+| `fx_universal_loader-calculator.zip` | Install a launcher when you already have a prepared program folder. Keep the original G1A filename. |
+| `SHA256SUMS` | Verify the downloaded archives. |
+
+在 FxProfile 中选择 G1A 或 BIN，第一次安装时勾选“同时导出 Loader”。将输出目录中
+`calculator` 的内容复制到计算器存储根目录，保留 `FXAPPS/<ID>/` 层级。
+再次添加程序默认只需复制新程序目录。已有程序目录且缺启动器时，也可单独导出 Loader。
+
+| Calculator file | Programs | Source |
+| --- | --- | --- |
+| `FlashLd.g1a` | Ordinary G1As up to 2 MiB using the Flash backend. Use Full verification for the first run. | [Folder protocol](probes/storage-loader/FOLDERS.en.md) |
+| `ExtLoad.g1a` | Programs built against the large runtime ABI, including the adapted Giac build. Table capacity and storage reserve come from the profile. | [Large runtime](large/docs/runtime.en.md) |
+| `KLoad.g1a` | The reviewed original KhiCAS image, which requires its own memory-pool adapter. FxProfile identifies it by SHA-256. | [KhiCAS adapter](large/probes/mapped-loader/README.zh-CN.md) |
+
+This beta has emulator coverage for directory launch and arithmetic in both CAS
+paths. Hardware acceptance for these launcher builds, including direct MENU
+re-entry, is pending. Unknown oversized binaries can receive an analysis report
+and may still require a runtime adapter. See the [Flash checks](probes/storage-loader/FOLDER-VALIDATION.json)
+and [large-runtime checks](large/VALIDATION-DYNAMIC-20261118.json).
+
+## Development
+
+The [desktop project](desktop/ProfileStudio) and [offline preparation engine](tooling/profile_job.py)
+prepare immutable images. [CallerSession](sdk/caller-session/README.en.md) provides cooperative
+state management. General caller return/resume still requires calculator backend support.
+[LargeRuntime](large) is the source library for extended paging. The emulator is
+maintained in [fx9860-emulator](https://github.com/lilith-is-all-you-need/fx9860-emulator).
+[FxStudio](https://github.com/lilith-is-all-you-need/fx-9860giii-sdk) consumes a pinned source snapshot.
 
 ```powershell
 python tooling/profile_job.py generate --input program.g1a --output-root results
-python tooling/profile_job.py generate --input program.g1a --output-root with-loader --include-loader --artifacts loader-artifacts
-python tooling/profile_job.py export-loader --output launchers --artifacts loader-artifacts
-```
-
-Copy `calculator` contents to storage root, preserving `FXAPPS/<ID>/`.
-`FlashLd.g1a` scans folders and displays English icon cards. Full verification is
-the default; explicit Fast uses a cache created by a prior successful Full pass.
-Fast still queries physical pages but can miss same-size content changes between
-launches. See [folder protocol](probes/storage-loader/FOLDERS.en.md),
-[中文协议](probes/storage-loader/FOLDERS.zh-CN.md) and
-[tested cases](probes/storage-loader/FOLDER-VALIDATION.json).
-
-`program-ready` means dependencies ready for a shared launcher; `candidate` also
-contains that launcher. Both need hardware testing. Version-2 artifact manifests
-prevent accidentally attaching old, flat-layout launchers. Unknown oversized
-binaries receive `needs-adapter`, even after successful Ghidra analysis.
-Source-integrated payloads use dynamic `EXT.PRF` and the sibling `ExtLoad.g1a`.
-
-[CallerSession](sdk/caller-session/README.en.md) provides cooperative state
-transactions and MENU policies. A general resident caller-return backend is still
-missing; the current Flash backend is rejected by capability checks, rather than
-pretending to preserve arbitrary caller stacks/heaps. Nested calls are refused.
-
-Ghidra now exports original bytes, VBR/exception ownership sites, delay slots and
-recovered control flow. `hook-review.json` checks byte provenance and records
-runtime obligations. It does not generate executable arbitrary-binary hooks.
-The historical flat-layout CLI below remains available for old probe packages.
-
-The standalone **[FX Profile Studio WinUI 3 desktop app](desktop/ProfileStudio/README.zh-CN.md)**
-adds batch import, bounded offline generation, per-page plans and optional real
-Ghidra headless analysis. Ghidra evidence never upgrades an unsupported oversized
-binary into a runnable bundle. Dependencies and source build instructions are
-documented with the desktop app.
-
-```
-python tooling/loader_suite.py input.g1a --output new-result
-python tooling/loader_suite.py --batch jobs.json --artifacts C:/LoaderSuite/loader-artifacts
 python -m unittest discover -s tests -v
-python probes/native-loader/tools/test_prepare.py
+python -m unittest discover -s large/tests -v
 ```
 
-The converter preserves every original byte, emits page hashes and instruction
-evidence, and uses the generic Flash backend for ordinary G1As within 2 MiB.
-This backend has no program-name or SHA whitelist. Structurally unsupported
-inputs produce a report; accepted inputs remain test candidates. Exit codes:
-0 = candidate bundle, 2 = analysis/profile only, 1 = error.
-
-Build `probes/storage-loader` with the FxStudio offline SDK (target `flashloader`).
-See its [instructions and limits](probes/storage-loader/README.md) and
-[validation](probes/storage-loader/VALIDATION.json). Legacy RAM remains available
-in `probes/native-loader` (target `loader`).
-Put `Loader.g1a` and the sibling project's `KLoad.g1a` in `loader-artifacts/`
-with `manifest.json` hashes; ordinary bundles also require `FlashLd.g1a` there.
-The calculator reads the generated index and profiles and uses EXE to launch.
-
-RAM images are limited to 160 KiB *and* available contiguous heap, which may be
-much smaller on hardware. The mapped KhiCAS adapter is exact-version only.
-Real-device Fruit/Minesweeper image allocations failed; their RAM profiles are
-blocked only for RAM. The generic Flash backend uses a smaller resident
-allocation and still needs hardware acceptance. See [historical findings](HARDWARE-20261117.md).
-For >2 MiB, [fx9860-large-loader](https://github.com/lilith-is-all-you-need/fx9860-large-loader)
-owns the experimental guest-refill backend. Arbitrary oversized G1As are not
-automatically made compatible by changing their filename.
-
-Optional review JSON requires schemaVersion=1, exact sha256, backend=ram,
-memoryReviewed=true, callbacksReviewed=true and forbiddenPhysicalRam ranges.
-It is data, never executed as a script. This is an expert review record, not
-a self-issued hardware compatibility certificate.
-
-Batch JSON is an array of source/output/optional profile/reviewProfile objects;
-paths resolve relative to the batch file. Existing outputs are never overwritten.
-Original commercial/user G1As are not distributed. Code is MIT.
-
-Shared mapped profile encoder is a synchronized snapshot from the large-loader
-component. Integration checksums are recorded in source-manifest.json.
+The original Loader history continues at the repository root. Large Loader
+history was imported under `large/`. Legacy probes and flat-format preparation
+remain available for reproducing older hardware results. Third-party add-ins and
+Casio firmware are supplied by their owners. See [LICENSE](LICENSE).
