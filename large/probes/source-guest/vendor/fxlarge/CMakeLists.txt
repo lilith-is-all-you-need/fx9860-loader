@@ -1,0 +1,6 @@
+cmake_minimum_required(VERSION 3.15)
+project(FxLargeRuntime LANGUAGES C ASM)
+add_library(fxlarge-runtime STATIC src/runtime.c)
+add_library(FxStudio::LargeRuntime ALIAS fxlarge-runtime)
+target_include_directories(fxlarge-runtime PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")
+target_compile_options(fxlarge-runtime PRIVATE -m4-nofpu -ffreestanding -fno-builtin -Wall -Wextra -Werror)

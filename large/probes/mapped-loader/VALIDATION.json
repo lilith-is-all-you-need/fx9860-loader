@@ -1,0 +1,53 @@
+{
+  "date": "2026-11-16",
+  "hardwareValidated": false,
+  "inputSha256": "4a9d1c18009d987dc7c8745b7fc099b3c6e8006ebbb2ee5e4b483934be757473",
+  "loader": {
+    "bytes": 14176,
+    "sha256": "b4287bf64dcc12b98485db4a5950da968d0117068491e245818c365058d88aea",
+    "elfSha256": "3eba2ff2f1d7b53da86019b28bff6ad84d33844655cae460813c16aa969b51b5",
+    "configuration": "Release",
+    "elfG1aPairVerified": true
+  },
+  "emulator": {
+    "bytes": 1959552,
+    "sha256": "19fa9d448249536508c39975a78fa4d75c3219334518d63ceb1f2b9e666df6be",
+    "completeCasioOs": false
+  },
+  "memory": {
+    "allocationBytes": 39264,
+    "residentBytes": 6224,
+    "shadowBytes": 16384,
+    "arenaBefore": 169984,
+    "arenaAfter": 108544
+  },
+  "checks": {
+    "cpu": "all passed",
+    "pythonWithoutPrivateFirmware": {
+      "passed": 58,
+      "skipped": 8
+    },
+    "privateFirmwareBranches": 9,
+    "checksPerFirmwareBranch": 12,
+    "coverageAudit": "passed after regenerating dispatch report",
+    "preflightRejections": 5,
+    "realTarget": [
+      "startup",
+      "2+2=4",
+      "2^10=1024",
+      "MENU replacement/target quit/Loader free",
+      "nonzero session.xw persisted",
+      "fresh process loaded earlier history",
+      "7+8=15 after reentry",
+      "fragmented file pages and forced table reset after writes"
+    ]
+  },
+  "hostTestNote": "Some temporary-directory cleanup attempts hit transient Windows stderr.log file locks; all semantic assertions and the sequential rerun of the affected firmware suite passed. Earlier failed attempts remain in local evidence.",
+  "limits": [
+    "New KLoad hardware test still pending",
+    "Long-running target timer callback not exercised by short arithmetic",
+    "No full Flash compaction/copy-back cache/interruption timing equivalence",
+    "Exact reviewed KhiCAS version only",
+    "Log holds latest run; arena reduced by 60 KiB"
+  ]
+}

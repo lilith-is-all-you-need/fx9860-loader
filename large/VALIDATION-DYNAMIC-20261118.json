@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-11-18",
+  "scope": "Firmware-assisted HLE emulator; no new hardware acceptance",
+  "hardwareValidated": false,
+  "hostWritesTargetMemory": false,
+  "emulatorSha256": "b1027c579bede23e36c17d5ef3153cf45b06de50e7f2246249972977ec324739",
+  "firmwareSha256": "d65d6667ee437a0b45b709224488a4b98b9ea3b7b284215aab9d19fa06b82552",
+  "builds": {
+    "workflow": "FxStudio skill helper; owned sessions, Debug then Release",
+    "ExtLoad.g1a": {"bytes": 12212, "sha256": "2a53cc82ecb628f30fc7500637b6dc78f743028aac778a1dbaff7440f11f944e"},
+    "KLoad.g1a": {"bytes": 16024, "sha256": "a184d966fb422cc9c07be82f6d7c4560857ff242394b1e301c3fd742cf2a5bb0"},
+    "sourceGuestRelease": {"bytes": 976, "sha256": "26bc59a85b88104a8ab02dbaba03b47ffeba9f278c9122fa065a1f8fd48a9015"}
+  },
+  "offlineTests": {"command": "python -m unittest discover -s tests -v", "passed": 10},
+  "finalArtifacts": [
+    {"case": "Giac directory, capacity 768", "imageBytes": 2859236, "validPages": 699, "pageCapacity": 768, "freeReserve": 8192, "observedCalculation": "2+2 = 4", "framebufferReviewed": true},
+    {"case": "original KhiCAS directory", "imageBytes": 2094444, "metadataKind": 3, "observedCalculation": "2+2 = 4", "framebufferReviewed": true},
+    {"case": "compiled source guest", "imageBytes": 2097156, "validPages": 513, "pageCapacity": 528, "refills": 522, "highRefills": 1, "spareAllZero": true, "normalReturn": true, "allocationReleased": true},
+    {"case": "ExtLoad empty directory", "residentAllocated": false, "imageMappingAttempted": false, "exitReturned": true, "framebufferReviewed": true},
+    {"case": "KLoad empty directory", "residentAllocated": false, "imageMappingAttempted": false, "exitReturned": true}
+  ],
+  "priorCandidateSameMapper": {
+    "sha256": "7f5639a278f449cbf68323a5f7199079e4acbdd0fb18c8651be779c069a4ae17",
+    "differenceFromFinal": "Final adds explicit empty-directory handling before legacy fallback",
+    "cases": [
+      {"imageBytes": 4100, "validPages": 2, "pageCapacity": 768, "refills": 2, "highRefills": 0, "spareAllZero": true, "normalReturn": true, "allocationReleased": true},
+      {"imageBytes": 2988000, "validPages": 730, "pageCapacity": 768, "refills": 743, "highRefills": 218, "spareAllZero": true, "normalReturn": true, "allocationReleased": true}
+    ]
+  },
+  "limits": [
+    "No arbitrary binary hook execution; evidence verifier always returns runnable=false",
+    "No guarantee for unmodified unknown oversized G1As",
+    "No arbitrary caller stack or nested-call preservation in this library",
+    "No byte-granular protection of a partially used final 4 KiB page",
+    "Final MENU/reentry and partial-initialization fault recovery still need hardware testing",
+    "Expected handled TLB faults can remain in the HLE status error text while the target runs successfully"
+  ]
+}

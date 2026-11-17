@@ -1,0 +1,219 @@
+{
+  "status": "simulator-validated-hardware-candidate",
+  "hardwareVerified": false,
+  "target": "fx-9860GIII OS 03.70.0200",
+  "mathKernel": "existing calculator Giac baseline, full static restoration",
+  "pythonRuntimeSymbols": false,
+  "release": {
+    "KhiMap.g1a": {
+      "bytes": 9880,
+      "sha256": "45b3021c77663b2d955480a3d230c1c8fb97bccea9ca8b161c11f0d3d4a760c8"
+    },
+    "KHICAS.BIN": {
+      "bytes": 2859236,
+      "sha256": "176a10ffa918f24f0b98ef89156dc04b02df09190dae0fbe0e3d59780e9455f8"
+    }
+  },
+  "normalBoot": "No target memory writes or host injection; G1A starts normally and loads BIN",
+  "emulator": "unchanged isolated map698 lab executable from prior probe",
+  "emulatorInputEvidence": "integrations\\mapped-cas-20261116\\evidence\\release-40k\\inputs.json",
+  "heapBytes": 40960,
+  "fragmentedFileMap": true,
+  "contextBeforeFirstExit": {
+    "refills": 5906,
+    "above2MiB": 3008,
+    "faultAddress": 0,
+    "deniedSyscall": 0,
+    "firstFailureStage": 0,
+    "residentBytes": 3512,
+    "allocationBytes": 6912
+  },
+  "cycles": {
+    "allocations": [
+      {
+        "bytes": 6912,
+        "pointer": 2282029728
+      },
+      {
+        "bytes": 32768,
+        "pointer": 2282036648
+      },
+      {
+        "bytes": 6912,
+        "pointer": 2282029728
+      },
+      {
+        "bytes": 32768,
+        "pointer": 2282036648
+      }
+    ],
+    "frees": [
+      2282036648,
+      2282029728,
+      2282036648,
+      2282029728
+    ],
+    "repeatAddressesReused": true,
+    "finalState": "exited"
+  },
+  "screensReviewed": [
+    {
+      "input": "simplify(2x+x)",
+      "observed": "3*x",
+      "screen": "integrations\\mapped-cas-20261116\\evidence\\release-40k\\responses\\0019.bmp",
+      "passed": true,
+      "method": "visual review plus state/syscall evidence"
+    },
+    {
+      "input": "solve(2x=10,x)",
+      "observed": "list[5]",
+      "screen": "integrations\\mapped-cas-20261116\\evidence\\release-40k\\responses\\0039.bmp",
+      "passed": true,
+      "method": "visual review plus state/syscall evidence"
+    },
+    {
+      "input": "diff(x^3,x)",
+      "observed": "3*x^2",
+      "screen": "integrations\\mapped-cas-20261116\\evidence\\release-40k\\responses\\0050.bmp",
+      "passed": true,
+      "method": "visual review plus state/syscall evidence"
+    },
+    {
+      "input": "integrate(sin(x),x)",
+      "observed": "-cos(x)",
+      "screen": "integrations\\mapped-cas-20261116\\evidence\\release-40k\\responses\\0062.bmp",
+      "passed": true,
+      "method": "visual review plus state/syscall evidence"
+    },
+    {
+      "input": "limit(sin(x)/x,x,0)",
+      "observed": "1",
+      "screen": "integrations\\mapped-cas-20261116\\evidence\\release-40k\\responses\\0079.bmp",
+      "passed": true,
+      "method": "visual review plus state/syscall evidence"
+    },
+    {
+      "input": "plot(x^2,x)",
+      "observed": "Parabola drawn",
+      "screen": "integrations\\mapped-cas-20261116\\evidence\\release-40k\\responses\\0091.bmp",
+      "passed": true,
+      "method": "visual review plus state/syscall evidence"
+    },
+    {
+      "input": "plot pan and zoom",
+      "observed": "Changed view, EXIT returned to text",
+      "screen": "integrations\\mapped-cas-20261116\\evidence\\release-40k\\responses\\0094.bmp",
+      "passed": true,
+      "method": "visual review plus state/syscall evidence"
+    },
+    {
+      "input": "x:=7",
+      "observed": "7",
+      "screen": "integrations\\mapped-cas-20261116\\evidence\\release-40k\\responses\\0103.bmp",
+      "passed": true,
+      "method": "visual review plus state/syscall evidence"
+    },
+    {
+      "input": "expand((Y+1)^1000)",
+      "observed": "Memory limit; variables preserved",
+      "screen": "integrations\\mapped-cas-20261116\\evidence\\release-40k\\responses\\0122.bmp",
+      "passed": true,
+      "method": "visual review plus state/syscall evidence"
+    },
+    {
+      "input": "x+1 after OOM",
+      "observed": "8",
+      "screen": "integrations\\mapped-cas-20261116\\evidence\\release-40k\\responses\\0128.bmp",
+      "passed": true,
+      "method": "visual review plus state/syscall evidence"
+    },
+    {
+      "input": "simplify(2+",
+      "observed": "Parser error; application remains responsive",
+      "screen": "integrations\\mapped-cas-20261116\\evidence\\release-40k\\responses\\0146.bmp",
+      "passed": true,
+      "method": "visual review plus state/syscall evidence"
+    },
+    {
+      "input": "2+2 after parser error",
+      "observed": "4",
+      "screen": "integrations\\mapped-cas-20261116\\evidence\\release-40k\\responses\\0152.bmp",
+      "passed": true,
+      "method": "visual review plus state/syscall evidence"
+    },
+    {
+      "input": "det([[1,2],[3,4]])",
+      "observed": "-2",
+      "screen": "integrations\\mapped-cas-20261116\\evidence\\release-40k\\responses\\0178.bmp",
+      "passed": true,
+      "method": "visual review plus state/syscall evidence"
+    },
+    {
+      "input": "EXIT",
+      "observed": "OS menu, allocations freed",
+      "screen": "integrations\\mapped-cas-20261116\\evidence\\release-40k\\responses\\0201.bmp",
+      "passed": true,
+      "method": "visual review plus state/syscall evidence"
+    },
+    {
+      "input": "reenter",
+      "observed": "Fresh empty UI",
+      "screen": "integrations\\mapped-cas-20261116\\evidence\\release-40k\\responses\\0212.bmp",
+      "passed": true,
+      "method": "visual review plus state/syscall evidence"
+    },
+    {
+      "input": "x+1 after reenter",
+      "observed": "x+1 (old binding cleared)",
+      "screen": "integrations\\mapped-cas-20261116\\evidence\\release-40k\\responses\\0224.bmp",
+      "passed": true,
+      "method": "visual review plus state/syscall evidence"
+    },
+    {
+      "input": "MENU",
+      "observed": "OS menu, allocations freed",
+      "screen": "integrations\\mapped-cas-20261116\\evidence\\release-40k\\responses\\0231.bmp",
+      "passed": true,
+      "method": "visual review plus state/syscall evidence"
+    },
+    {
+      "input": "HLE app replacement",
+      "observed": "CPU state exited",
+      "screen": "integrations\\mapped-cas-20261116\\evidence\\release-40k\\responses\\0233.bmp",
+      "passed": true,
+      "method": "visual review plus state/syscall evidence"
+    }
+  ],
+  "negativeBootCases": {
+    "count": 5,
+    "debugOnly": true,
+    "evidence": [
+      "evidence/loader-rejections-debug",
+      "evidence/loader-rejections-extended-debug"
+    ],
+    "cases": [
+      "missing BIN",
+      "wrong length",
+      "loader heap insufficient",
+      "CAS reservation insufficient with cleanup",
+      "same length wrong SHA-256 with cleanup"
+    ]
+  },
+  "sha256CReferenceVectors": 11,
+  "staticReview": "../../audit/mapped-integration-20261116/runtime-review.json",
+  "knownLimits": [
+    "No physical device test yet",
+    "No real OS suspend/resume or power-off verification",
+    "No copy-back D-cache model; payload Flash is uncached",
+    "HLE menu consumes resume key then waits for another key",
+    "Math budget 24 KiB inside 32 KiB arena; large expressions can be refused",
+    "Partial kinit failures fail-stop and can require RESET",
+    "OS file/page routine fingerprints must match; unsupported OS is refused",
+    "No claim of speed improvement or universal stability"
+  ],
+  "incompleteHarnessRuns": {
+    "debug-first": "Failed before emulator boot due relative firmware/output path; fixed resolver",
+    "debug-boot": "Stopped during preflight by host harness encoding spelling error; fixed utf-8-sig",
+    "release-40k/commands/0202.json": "Invalid JSON .5 was skipped; actual resume keys were 0203 and 0211"
+  }
+}

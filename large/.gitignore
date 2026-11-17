@@ -1,0 +1,10 @@
+**/__pycache__/
+**/.fxstudio/
+**/build/
+**/evidence/
+loader-artifacts/
+*.zip
+*.elf
+*.g1a
+*.bin
+*.log

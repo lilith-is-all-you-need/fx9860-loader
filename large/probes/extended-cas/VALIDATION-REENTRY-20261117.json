@@ -1,0 +1,133 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-11-17",
+  "hardwareValidated": false,
+  "limits": [
+    "Explicit HLE menu VRAM stress is a scenario, not a complete physical OS reproduction.",
+    "Original KhiCAS hardware same-icon return remains unresolved.",
+    "Giac RC2 launcher hardware retest pending; first-launch report concerns RC1."
+  ],
+  "tests": {
+    "emulatorPythonUniqueCasesPassed": 71,
+    "privateFirmwareCasesIncluded": 8,
+    "upstreamCpuSuite": "passed",
+    "pcAnalyzerTestsPassed": 10,
+    "profileTestsPassed": 8,
+    "ramEdgeCasesPassed": 15,
+    "mappedRejectionsPassed": 5,
+    "realImageRamRejectionsReproduced": 2
+  },
+  "cases": {
+    "giac-baseline": {
+      "hashes": {
+        "KhiMap.g1a": "45b3021c77663b2d955480a3d230c1c8fb97bccea9ca8b161c11f0d3d4a760c8",
+        "FxEmulator.exe": "3cff30a69eb23ec9181643517938e615410c462357d31e0fa8c2b2fca41c26eb",
+        "KHICAS.BIN": "176a10ffa918f24f0b98ef89156dc04b02df09190dae0fbe0e3d59780e9455f8"
+      },
+      "allocations": [
+        {
+          "bytes": 6912,
+          "address": 2282029728
+        },
+        {
+          "bytes": 32768,
+          "address": 2282036648
+        },
+        {
+          "bytes": 6912,
+          "address": 2282029728
+        },
+        {
+          "bytes": 32768,
+          "address": 2282036648
+        }
+      ],
+      "frees": [
+        2282036648,
+        2282029728,
+        2282036648,
+        2282029728
+      ],
+      "menuVramStress": true,
+      "hostWritesTargetMemory": false,
+      "finalState": "exited",
+      "screensReviewed": {
+        "firstCalculation": "2+2=4",
+        "secondCalculation": "3+4=7",
+        "sameIconReturn": "Checking KHICAS.BIN / Starting CAS..."
+      }
+    },
+    "giac-patched": {
+      "hashes": {
+        "KhiMap.g1a": "a5032870f6f3da6a76ab6848ae36e2e0da23053e805794aa8958e0f511aa1d1d",
+        "FxEmulator.exe": "3cff30a69eb23ec9181643517938e615410c462357d31e0fa8c2b2fca41c26eb",
+        "KHICAS.BIN": "176a10ffa918f24f0b98ef89156dc04b02df09190dae0fbe0e3d59780e9455f8"
+      },
+      "allocations": [
+        {
+          "bytes": 6912,
+          "address": 2282029728
+        },
+        {
+          "bytes": 32768,
+          "address": 2282036648
+        },
+        {
+          "bytes": 6912,
+          "address": 2282029728
+        },
+        {
+          "bytes": 32768,
+          "address": 2282036648
+        }
+      ],
+      "frees": [
+        2282036648,
+        2282029728,
+        2282036648,
+        2282029728
+      ],
+      "menuVramStress": true,
+      "hostWritesTargetMemory": false,
+      "finalState": "exited",
+      "screensReviewed": {
+        "firstCalculation": "2+2=4",
+        "secondCalculation": "3+4=7",
+        "sameIconReturn": "CAS session closed / EXE: reload CAS"
+      }
+    },
+    "khicas-final-v2": {
+      "hashes": {
+        "KLoad.g1a": "658d6e3199d11faa49ef4372832597c1dd1bce5a727b15716426452f8ff9c886",
+        "FxEmulator.exe": "3cff30a69eb23ec9181643517938e615410c462357d31e0fa8c2b2fca41c26eb",
+        "khicas.bin": "4a9d1c18009d987dc7c8745b7fc099b3c6e8006ebbb2ee5e4b483934be757473",
+        "khicas.kpf": "a653cd89fe5024d0db4aaeeca14b981381adf1975b58f957c73366895f16c996",
+        "KLoad.txt": "86070f505154b96f759f43a0a83321a03ee091df720593ce28fe27cfb8d06aa4"
+      },
+      "allocations": [
+        {
+          "bytes": 39264,
+          "address": 2282029728
+        }
+      ],
+      "frees": [
+        2282029728
+      ],
+      "menuVramStress": true,
+      "hostWritesTargetMemory": false,
+      "finalState": "exited",
+      "screensReviewed": {
+        "firstCalculation": "2+2=4",
+        "secondCalculation": "3+4=7",
+        "sameIconReturn": "Target calculation screen; no Loading reproduced"
+      }
+    }
+  },
+  "release": {
+    "files": {
+      "KhiMap.g1a": "a5032870f6f3da6a76ab6848ae36e2e0da23053e805794aa8958e0f511aa1d1d",
+      "KLoad.g1a": "658d6e3199d11faa49ef4372832597c1dd1bce5a727b15716426452f8ff9c886",
+      "Loader.g1a": "7765549e341c17db842e04836d4537094a37d513ffb9a69bca817b57584bee91"
+    }
+  }
+}

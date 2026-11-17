@@ -1,0 +1,17 @@
+# gint project
+
+gint (pronounce “guin”) is an add-in unikernel for CASIO calculators of the
+fx-9860G II and fx-CG 50 families. It provides a mostly free-standing runtime
+and is used to develop add-ins under Linux, along with specialized GCC
+toolchains and the [fxSDK](/Lephenixnoir/fxsdk).
+
+When running in an add-in, gint takes control of the calculator's hardware
+from the operating system, and manages it with its own drivers. It exposes a
+new, richer API that takes advantage of the full capabilities of the machine.
+
+This is free software: you may use it for any purpose, share it, modify it, and
+share your changes. Credit is not required, but please let me know!
+
+gint used to include third-party code that has now been moved to the FxLibc. If
+you stumble upon it in the history, check the README file at that time for
+license details.

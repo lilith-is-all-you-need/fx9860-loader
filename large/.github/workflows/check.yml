@@ -1,0 +1,16 @@
+name: Offline contracts
+on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  contracts:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          persist-credentials: false
+      - run: |
+          python -m compileall -q probes
+          python probes/extended-loader/tools/test_payload.py
+          python -m unittest discover -s tests -v
+          python tooling/sync_sample_library.py --check
