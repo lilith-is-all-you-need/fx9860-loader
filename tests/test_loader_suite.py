@@ -103,7 +103,8 @@ class SuiteTests(unittest.TestCase):
         original=suite.read_json
         def read(path):
             return {'programs':[profile]} if Path(path)==suite.ROOT/'profiles/registry.json' else original(path)
-        with patch.object(suite,'read_json',side_effect=read):
+        import ext_profile
+        with patch.object(suite,'read_json',side_effect=read), patch.object(ext_profile,'LEGACY_SHA256',suite.sha(data)):
             r=suite.prepare(self.src,self.root/'extended',artifacts=self.root/'missing')
             self.assertEqual(r['status'],'profile-only')
             self.assertEqual((self.root/'extended/calculator/KHICAS.BIN').read_bytes(),data)

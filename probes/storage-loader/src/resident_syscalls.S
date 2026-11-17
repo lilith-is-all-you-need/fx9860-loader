@@ -37,3 +37,7 @@ _\name:
 
  SC r_any_key,0x24a
  SC r_clear_keys,0x241
+ SC r_find_first,0x43b
+ SC r_find_next,0x43c
+ SC r_find_close,0x43d
+ SC r_vram,0x135

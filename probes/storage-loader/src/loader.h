@@ -36,7 +36,8 @@ struct Context {
  uintptr_t guest_quit;
  struct {uintptr_t callback;int id;} timers[10];
  unsigned timer_calls,timer_skipped;
- uint16_t log_path[32],bin_path[32],self_path[32];
+ unsigned fast,started_tick,verify_ticks,release_ticks,map_ticks,ready_ticks;
+ uint16_t log_path[64],bin_path[64],self_path[32];
  char log[LOG_BUFFER];
 };
 typedef struct {uint32_t r[8],pr,sr,sp,out_sr,mach,macl;} Frame;
@@ -52,6 +53,10 @@ int r_getkey(int *);void r_quit(void (*)(void));void *r_malloc(unsigned);void r_
 int r_version(unsigned char *,unsigned char *,unsigned short *,unsigned short *);
 int r_open(const uint16_t *,int,int);int r_close(int);int r_size(int);int r_read(int,void *,int,int);
 int r_seek(int,int);int r_create(const uint16_t *,int,int *);int r_write(int,const void *,int);
+ typedef struct {uint16_t id,type;uint32_t fsize,dsize,property,address;} FileInfo;
+ int r_find_first(const uint16_t *,int *,uint16_t *,FileInfo *);
+ int r_find_next(int,uint16_t *,FileInfo *);int r_find_close(int);
+ unsigned char *r_vram(void);
 int r_ticks(void);void r_sleep(int);int r_timer_install(int,void (*)(void),int);
 int r_timer_start(int);int r_timer_stop(int);int r_timer_remove(int);void r_reset(void);
 typedef struct {uint32_t h[8],total,used;unsigned char block[64];} Sha256;

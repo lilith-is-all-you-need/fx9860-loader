@@ -15,6 +15,24 @@ import java.util.*;
 
 public class ExportG1aEvidence extends HeadlessScript {
     private String hex(long n) { return String.format("%08X",n & 0xffffffffL); }
+    private String bytesHex(byte[] data) {
+        StringBuilder text=new StringBuilder();for(byte b:data)text.append(String.format("%02x",b&255));return text.toString();
+    }
+    private Map<String,Object> site(Instruction ins) throws Exception {
+        Map<String,Object> result=new LinkedHashMap<>();
+        result.put("address",ins.getAddress().toString());
+        result.put("fileOffset",ins.getAddress().getOffset()-0x300000L);
+        result.put("instruction",ins.toString());result.put("originalBytes",bytesHex(ins.getBytes()));
+        result.put("computed",ins.getFlowType().isComputed());result.put("delaySlotDepth",ins.getDelaySlotDepth());
+        result.put("inDelaySlot",ins.isInDelaySlot());
+        Function f=currentProgram.getFunctionManager().getFunctionContaining(ins.getAddress());
+        result.put("function",f==null?null:f.getEntryPoint().toString());
+        List<String> targets=new ArrayList<>();for(Address a:ins.getFlows())targets.add(a.toString());
+        result.put("recoveredTargets",targets);
+        List<String> pcode=new ArrayList<>();for(var op:ins.getPcode())if(pcode.size()<32)pcode.add(op.toString());
+        result.put("pcode",pcode);
+        return result;
+    }
     private String kind(long n,long end) {
         n&=0xffffffffL;
         if(n==0x80010070L)return "syscall-gate";
@@ -37,7 +55,7 @@ public class ExportG1aEvidence extends HeadlessScript {
         root.put("schemaVersion",1);root.put("kind","ghidra-analysis-evidence");root.put("inputSha256",digest.toString());
         root.put("language",currentProgram.getLanguageID().toString());root.put("imageBytes",data.length);
         root.put("imageBase",0x300000);root.put("entry",0x300200);root.put("executableProfile",false);
-        List<Object> constants=new ArrayList<>(),control=new ArrayList<>(),functions=new ArrayList<>(),decompiled=new ArrayList<>();
+        List<Object> constants=new ArrayList<>(),control=new ArrayList<>(),functions=new ArrayList<>(),decompiled=new ArrayList<>(),hooks=new ArrayList<>();
         long end=0x300000L+data.length;int instructions=0,constantCount=0,controlCount=0;
         var iterator=currentProgram.getListing().getInstructions(true);
         while(iterator.hasNext()) {
@@ -47,7 +65,11 @@ public class ExportG1aEvidence extends HeadlessScript {
                 if(k!=null){constantCount++;if(constants.size()<8192)constants.add(Map.of("instruction",ins.getAddress().toString(),"text",ins.toString(),"value",hex(value),"classification",k));}
             }
             if(ins.getFlowType().isComputed() || ins.getMnemonicString().equalsIgnoreCase("ldc") || ins.getMnemonicString().equalsIgnoreCase("rte")) {
-                controlCount++;if(control.size()<4096)control.add(Map.of("address",ins.getAddress().toString(),"instruction",ins.toString(),"computed",ins.getFlowType().isComputed()));
+                controlCount++;if(control.size()<4096)control.add(site(ins));
+            }
+            String mnemonic=ins.getMnemonicString().toLowerCase(Locale.ROOT),text=ins.toString().toLowerCase(Locale.ROOT);
+            if((mnemonic.startsWith("ldc") && (text.contains("vbr") || text.contains("sr"))) || mnemonic.equals("ldtlb") || mnemonic.equals("rte") || mnemonic.equals("trapa")) {
+                if(hooks.size()<4096)hooks.add(site(ins));
             }
         }
         List<Object> pools=new ArrayList<>();int poolCount=0;
@@ -83,6 +105,9 @@ public class ExportG1aEvidence extends HeadlessScript {
         root.put("functions",functions);root.put("constantOperands",constants);root.put("constantOperandCount",constantCount);
         root.put("candidateLiteralPools",pools);root.put("candidateLiteralCount",poolCount);
         root.put("controlFlowSites",control);root.put("controlFlowSiteCount",controlCount);root.put("decompilationSamples",decompiled);
+        root.put("exceptionOwnershipSites",hooks);
+        root.put("hookAnalysis",Map.of("executableProfile",false,"adapterRequired",true,
+            "checksRemaining",List.of("All VBR writers including indirect/data-generated code", "Exception stack, SR/SSR/SPC and register ABI", "Original handler forwarding and unsupported-event behavior", "OS entry/return and cache/TLB ownership", "Normal exit and both MENU policies")));
         root.put("analysisComplete",!analysisTimeoutOccurred());
         root.put("limits",List.of("Indirect targets and code/data separation can remain unresolved","Only up to 24 functions are decompiled; arrays are bounded","This report never authorizes new relocation or runtime patches"));
         Files.writeString(Path.of(args[0]),new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create().toJson(root),StandardCharsets.UTF_8);

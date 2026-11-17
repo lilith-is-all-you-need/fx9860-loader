@@ -25,6 +25,14 @@ def assemble(publish,python,artifacts,output,ghidra=None,jdk=None):
     if output.exists():raise FileExistsError('Choose a new output directory')
     for file in (publish/'ProfileStudio.exe',python/'python.exe',artifacts/'manifest.json'):
         if not file.is_file():raise FileNotFoundError(file)
+    manifest=json.loads((artifacts/'manifest.json').read_text('utf-8-sig'))
+    if manifest.get('schemaVersion')!=2 or manifest.get('bundleFormat')!=2:
+        raise ValueError('Profile Studio 0.2 requires bundle format 2 Loader artifacts')
+    for name in ('FlashLd.g1a','KLoad.g1a','ExtLoad.g1a'):
+        source=artifacts/name
+        if not source.is_file():raise FileNotFoundError(source)
+        if manifest.get('files',{}).get(name)!=hashlib.sha256(source.read_bytes()).hexdigest():
+            raise ValueError('Loader artifact hash mismatch: '+name)
     shutil.copytree(publish,output)
     shutil.copytree(python,output/'runtime/python',ignore=shutil.ignore_patterns('__pycache__'))
     # The embedded Python path file is deliberately independent of FxStudio.
@@ -32,7 +40,7 @@ def assemble(publish,python,artifacts,output,ghidra=None,jdk=None):
         entries=[p.name for p in pth.parent.glob('python*.zip')]+['.','Lib/site-packages','../../engine/tooling']
         pth.write_text('\n'.join(entries)+'\n',encoding='utf-8')
     engine=output/'engine'
-    for name in ['tooling/loader_suite.py','tooling/profile_job.py','profiles/registry.json',
+    for name in ['tooling/loader_suite.py','tooling/profile_job.py','tooling/bundle_v2.py','tooling/ext_profile.py','tooling/hook_review.py','profiles/registry.json',
                  'probes/native-loader/tools/prepare.py','probes/storage-loader/tools/prepare.py','probes/mapped-loader/tools/prepare.py']:
         dest=engine/name;dest.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(ROOT/name,dest)
     shutil.copytree(ROOT/'tooling/ghidra',engine/'tooling/ghidra')
@@ -41,11 +49,12 @@ def assemble(publish,python,artifacts,output,ghidra=None,jdk=None):
         if src:shutil.copytree(src,output/'dependencies'/src.name)
     shutil.copyfile(ROOT/'LICENSE',output/'LICENSE.txt')
     shutil.copyfile(ROOT/'desktop/ProfileStudio/README.zh-CN.md',output/'使用说明.md')
+    shutil.copyfile(ROOT/'desktop/ProfileStudio/README.en.md',output/'User-guide.en.md')
     shutil.copyfile(ROOT/'desktop/ProfileStudio/THIRD-PARTY.md',output/'THIRD-PARTY.md')
     shutil.copyfile(ROOT/'desktop/ProfileStudio/VALIDATION.json',output/'VALIDATION.json')
     copy_build_notices(output)
     files={p.relative_to(output).as_posix():hashlib.sha256(p.read_bytes()).hexdigest() for p in output.rglob('*') if p.is_file()}
-    (output/'package-manifest.json').write_text(json.dumps({'schemaVersion':1,'product':'FX Profile Studio','version':'0.1.0','files':files},indent=2)+'\n',encoding='utf-8')
+    (output/'package-manifest.json').write_text(json.dumps({'schemaVersion':1,'product':'FX Profile Studio','version':'0.2.0','files':files},indent=2)+'\n',encoding='utf-8')
     print(json.dumps({'output':str(output),'files':len(files)},ensure_ascii=False))
 
 if __name__=='__main__':

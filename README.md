@@ -3,6 +3,42 @@
 Offline G1A preparation and generic Flash/RAM loaders. Standard-library Python;
 no LLM service or network is required for analysis or conversion.
 
+## Folder packages (0.2)
+
+The current desktop engine creates stable **name + short SHA** program folders.
+It exports dependencies by default; including the shared launcher is optional.
+The separate export action needs no source file:
+
+```powershell
+python tooling/profile_job.py generate --input program.g1a --output-root results
+python tooling/profile_job.py generate --input program.g1a --output-root with-loader --include-loader --artifacts loader-artifacts
+python tooling/profile_job.py export-loader --output launchers --artifacts loader-artifacts
+```
+
+Copy `calculator` contents to storage root, preserving `FXAPPS/<ID>/`.
+`FlashLd.g1a` scans folders and displays English icon cards. Full verification is
+the default; explicit Fast uses a cache created by a prior successful Full pass.
+Fast still queries physical pages but can miss same-size content changes between
+launches. See [folder protocol](probes/storage-loader/FOLDERS.en.md),
+[中文协议](probes/storage-loader/FOLDERS.zh-CN.md) and
+[tested cases](probes/storage-loader/FOLDER-VALIDATION.json).
+
+`program-ready` means dependencies ready for a shared launcher; `candidate` also
+contains that launcher. Both need hardware testing. Version-2 artifact manifests
+prevent accidentally attaching old, flat-layout launchers. Unknown oversized
+binaries receive `needs-adapter`, even after successful Ghidra analysis.
+Source-integrated payloads use dynamic `EXT.PRF` and the sibling `ExtLoad.g1a`.
+
+[CallerSession](sdk/caller-session/README.en.md) provides cooperative state
+transactions and MENU policies. A general resident caller-return backend is still
+missing; the current Flash backend is rejected by capability checks, rather than
+pretending to preserve arbitrary caller stacks/heaps. Nested calls are refused.
+
+Ghidra now exports original bytes, VBR/exception ownership sites, delay slots and
+recovered control flow. `hook-review.json` checks byte provenance and records
+runtime obligations. It does not generate executable arbitrary-binary hooks.
+The historical flat-layout CLI below remains available for old probe packages.
+
 The standalone **[FX Profile Studio WinUI 3 desktop app](desktop/ProfileStudio/README.zh-CN.md)**
 adds batch import, bounded offline generation, per-page plans and optional real
 Ghidra headless analysis. Ghidra evidence never upgrades an unsupported oversized

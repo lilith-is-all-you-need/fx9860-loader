@@ -1,0 +1,223 @@
+{
+  "version": "0.2",
+  "date": "2026-11-18",
+  "hardwareValidated": false,
+  "hostWritesTargetMemory": false,
+  "loaderSha256": "30478e2852179458820171ce1a2e4fea204daf2cc7e70b083fa7c4277fb71466",
+  "loaderBytes": 19324,
+  "emulatorSha256": "b1027c579bede23e36c17d5ef3153cf45b06de50e7f2246249972977ec324739",
+  "builds": [
+    "Debug",
+    "Release"
+  ],
+  "heapBytes": 40960,
+  "folderCases": [
+    {
+      "case": "full-amine",
+      "passed": true,
+      "verifyAndReleaseTicks": [
+        59,
+        0
+      ],
+      "mapAndReadyTicks": [
+        98,
+        158
+      ],
+      "finalState": "exited"
+    },
+    {
+      "case": "full-fruit",
+      "passed": true,
+      "verifyAndReleaseTicks": [
+        38,
+        0
+      ],
+      "mapAndReadyTicks": [
+        82,
+        121
+      ],
+      "finalState": "exited"
+    },
+    {
+      "case": "full-mines",
+      "passed": true,
+      "verifyAndReleaseTicks": [
+        72,
+        0
+      ],
+      "mapAndReadyTicks": [
+        112,
+        186
+      ],
+      "finalState": "exited"
+    },
+    {
+      "case": "full-wsc",
+      "passed": true,
+      "verifyAndReleaseTicks": [
+        34,
+        0
+      ],
+      "mapAndReadyTicks": [
+        71,
+        107
+      ],
+      "finalState": "exited"
+    },
+    {
+      "case": "fast-valid",
+      "passed": true,
+      "verifyAndReleaseTicks": [
+        0,
+        0
+      ],
+      "mapAndReadyTicks": [
+        35,
+        36
+      ],
+      "finalState": "exited"
+    },
+    {
+      "case": "fast-corrupt-cache-falls-back",
+      "passed": true,
+      "verifyAndReleaseTicks": [
+        59,
+        0
+      ],
+      "mapAndReadyTicks": [
+        97,
+        158
+      ],
+      "finalState": "exited"
+    },
+    {
+      "case": "fast-empty-cache-falls-back",
+      "passed": true,
+      "verifyAndReleaseTicks": [
+        59,
+        0
+      ],
+      "mapAndReadyTicks": [
+        98,
+        158
+      ],
+      "finalState": "exited"
+    },
+    {
+      "case": "full-rejects-same-size-edit",
+      "passed": true,
+      "verifyAndReleaseTicks": null,
+      "mapAndReadyTicks": null,
+      "finalState": "exited"
+    },
+    {
+      "case": "fast-documented-same-size-blind-spot",
+      "passed": true,
+      "verifyAndReleaseTicks": [
+        0,
+        0
+      ],
+      "mapAndReadyTicks": [
+        35,
+        36
+      ],
+      "finalState": "exited"
+    }
+  ],
+  "legacyEdgeCases": [
+    {
+      "case": "return",
+      "passed": true
+    },
+    {
+      "case": "oom",
+      "passed": true
+    },
+    {
+      "case": "bad-bin",
+      "passed": true
+    },
+    {
+      "case": "no-bin",
+      "passed": true
+    },
+    {
+      "case": "wrong-size",
+      "passed": true
+    },
+    {
+      "case": "bad-profile",
+      "passed": true
+    },
+    {
+      "case": "bad-patch",
+      "passed": true
+    },
+    {
+      "case": "bad-gate",
+      "passed": true
+    },
+    {
+      "case": "bad-catalog",
+      "passed": true
+    },
+    {
+      "case": "no-profile",
+      "passed": true
+    },
+    {
+      "case": "foreign-log",
+      "passed": true
+    },
+    {
+      "case": "ram-conflict",
+      "passed": true
+    }
+  ],
+  "oversizedFolderBlocked": true,
+  "visualReview": {
+    "browser": "two rows, original icons, mode and key hints",
+    "amine": "mines board and HUD after key interaction",
+    "mines": "in-game START menu after interaction, not Loading",
+    "fruit": "Fruit Ninja title/play prompt",
+    "wsc": "Programs root browser",
+    "oversized": "Over 2 MiB window; Use EXT loader"
+  },
+  "limitations": [
+    "Emulator evidence only; hardware acceptance pending.",
+    "Fast can miss any same-size BIN edit, including when pages moved between launches: it stores no historical physical addresses. Only address changes later within the current run trigger a recheck. The existing unused-header-byte test demonstrates one same-size blind spot.",
+    "Full tests use file-map and menu-VRAM stress; raw timing is not a controlled hardware benchmark.",
+    "Preserves the minimal Loader shell, not arbitrary caller stack/heap/resources; no general A-to-B-to-A API claim.",
+    "Current emulator may log handled guest TLB misses in its error field; these also occur in the prior baseline and did not prevent gameplay or normal cleanup.",
+    "The ordinary backend remains limited to the OS 512-page / 2 MiB mapping window."
+  ],
+  "folderCasesLoaderSha256": "70e10adc152c8335daf35629189509ef08e0abc4f836cb6b57721c1b7cbb465a",
+  "legacyEdgeCasesLoaderSha256": "70e10adc152c8335daf35629189509ef08e0abc4f836cb6b57721c1b7cbb465a",
+  "oversizedFolderLoaderSha256": "70e10adc152c8335daf35629189509ef08e0abc4f836cb6b57721c1b7cbb465a",
+  "reviewRevision": {
+    "changes": [
+      "Cross-check APP.MET image size against APP.FPF before allocating the backend.",
+      "Clarify that Fast has no historical physical addresses and may miss any same-size BIN edits across launches."
+    ],
+    "builds": [
+      "Debug",
+      "Release"
+    ],
+    "loaderSha256": "30478e2852179458820171ce1a2e4fea204daf2cc7e70b083fa7c4277fb71466",
+    "targetedChecks": [
+      {
+        "case": "metadata-match",
+        "passed": true,
+        "log": "FXFLASH1\nBUILD=0.2\nLOG_FORMAT=2\nRUN_ID_MODE=00000000,00000000\nCONTEXT_BYTES=880502A0,00005B80\nRESIDENT_BYTES=A8051480,00001974\nSHADOW_STACK=88053000,8804F4C8\nOS_PROFILE=00000000,8008EF68\nVERIFY_MAP_PENDING\n                                                                                                                                                                                                                                                                                                         READY_ENTRY=00300200,00000001\n                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         TARGET_RETURNED=0000002A,00000000\nCLEANUP_BEGIN=00300230,00000494\nTARGET_CLEANUP_DONE=00000001,00000000\nREFRESH_CHANGED=00000003,00000001\nTIMER_CALLS_SKIPPED=00000000,00000000\nTICKS_VERIFY_RELEASE=00000000,00000000\nTICKS_MAP_READY=0000001C,0000001E\nRESTORE_PENDING=00000000,00000000",
+        "backendAllocationAttempted": true
+      },
+      {
+        "case": "metadata-mismatch",
+        "passed": true,
+        "log": "FXFLASH1\nSTART_FAILED=MET/profile size\nREQUIRED_BYTES=00000000",
+        "backendAllocationAttempted": false
+      }
+    ],
+    "validationScope": "Earlier broad cases above retain their explicitly recorded baseline hash; only the relevant positive/negative metadata checks were rerun for this revision."
+  }
+}

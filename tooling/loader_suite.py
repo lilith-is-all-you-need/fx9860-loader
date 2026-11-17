@@ -17,6 +17,7 @@ import tempfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / 'tooling'))
 RAM_LIMIT = 160 * 1024
 OS_LIMIT = 2 * 1024 * 1024
 ANALYSIS_LIMIT = 4 * 1024 * 1024
@@ -56,13 +57,20 @@ def analyze(source, requested='auto', review=None):
     registry = read_json(ROOT / 'profiles/registry.json')
     approved = next((x for x in registry['programs'] if x['sha256'] == digest), None)
     source_runtime = approved and approved.get('adapter') == 'extended-giac-v1'
+    source_contract = None
+    if data[:16] == b'FXLARGE-PAYLOAD1' or source_runtime:
+        from ext_profile import inspect_image, encode_profile
+        source_contract = inspect_image(data)
+        source_runtime = True
+        # Reject impossible table/storage budgets before generating any files.
+        encode_profile(data)
     if bytes(x ^ 255 for x in data[:8]) != b'USBPower':
-        if not source_runtime or data[:16] != b'KHICAS-MAPPED/1\0':
+        if not source_runtime:
             raise ValueError('Not a G1A or a registered source-integrated payload')
-    backend = ('extended' if size > OS_LIMIT else
+    backend = ('extended' if source_runtime or size > OS_LIMIT else
                'mapped' if approved and approved.get('adapter') == 'mapped-khicas-v1' else 'flash')
     if requested != 'auto':
-        if requested not in ('flash','ram','mapped','extended') or (requested == 'ram' and size > RAM_LIMIT) or (requested in ('flash','mapped') and size > OS_LIMIT) or (requested == 'extended' and size <= OS_LIMIT):
+        if requested not in ('flash','ram','mapped','extended') or (requested == 'ram' and size > RAM_LIMIT) or (requested in ('flash','mapped') and size > OS_LIMIT) or (requested == 'extended' and size <= OS_LIMIT and not source_runtime) or (source_runtime and requested != 'extended'):
             raise ValueError(f'{size} bytes cannot use {requested}')
         backend = requested
     report = {'schemaVersion': 1, 'inputName': source.name, 'sha256': digest,
@@ -72,6 +80,8 @@ def analyze(source, requested='auto', review=None):
               'status': 'needs-review', 'hardwareValidated': False,
               'blockers': [], 'warnings': [], 'approvedProfile': approved,
               'pageHashes': [sha(data[o:o+4096]) for o in range(0, size, 4096)]}
+    if source_contract:
+        report['sourceRuntimeContract'] = source_contract
     if backend == 'ram':
         report['requiredContiguousImageBytes'] = report['pages'] * 4096 + 8191
         report['warnings'].append('Image allocation excludes the context, resident runner, allocator overhead and guest heap')
@@ -86,7 +96,7 @@ def analyze(source, requested='auto', review=None):
             _, scan = scanner.profile(data, (review or {}).get('forbiddenPhysicalRam', ()))
             report['staticAnalysis'] = scan
         else:
-            report['staticAnalysis'] = {'method': 'source-integrated resident API, exact SHA-256', 'runtimeContract': 'extended-giac-v1', 'imagePatches': []}
+            report['staticAnalysis'] = {'method': 'source-declared resident API and immutable SHA-256 binding', 'runtimeContract': 'fxlarge-map-api-v1', 'imagePatches': []}
     except ValueError as ex:
         report['blockers'].append(str(ex))
     if review is not None:
@@ -102,8 +112,10 @@ def analyze(source, requested='auto', review=None):
     if backend == 'extended':
         if source_runtime:
             report['status'] = 'candidate'
-            report['requiredRuntime'] = 'extended-giac-v1'
-            report['warnings'].extend(approved['limitations'])
+            report['requiredRuntime'] = 'fxlarge-map-api-v1'
+            report['historicalAdapterLimitations'] = (approved or {}).get('limitations', [])
+            report['warnings'].append('Resident RAM depends on this profile capacity and runtime build; the payload arena is additional. Unsupported OS/callback paths still require source adaptation.')
+            report['warnings'].append('The source ABI header is a declaration, not proof that every exception path obeys it; test the actual source-integrated build.')
         else:
             report['blockers'].append('Requires guest-owned page table/refill and runtime integration; OS table has only 512 entries')
             report['requiredRuntime'] = 'extended-vbr-v1 (source integration; experimental)'

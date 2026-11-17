@@ -1,111 +1,179 @@
 {
-  "schemaVersion": 1,
-  "date": "2026-11-17",
-  "scope": "PC generation and native WinUI application; no new hardware validation",
+  "schemaVersion": 2,
+  "date": "2026-11-18",
+  "productVersion": "0.2.0",
+  "scope": "Real native WinUI application and PC preparation; no hardware validation",
   "build": "Release / WinUI 3 / Windows App SDK 2.6.5 / net10.0 / win-x64 self-contained",
-  "pythonUnitTests": 25,
   "actualUiBatch": [
     {
-      "name": "fruit.bin",
-      "status": "candidate",
-      "sha256": "5c5bd8f2c42add4feb9eb4112f134d00c45066eb80be805c3f872b27f451eaf6",
-      "backend": "flash"
-    },
-    {
-      "name": "mines.bin",
-      "status": "candidate",
-      "sha256": "0cf3f1fa10c818cf5126d0555c2828151283989457c7da8844a422aeb21d8284",
-      "backend": "flash"
-    },
-    {
-      "name": "Tetris-original.g1a",
-      "status": "candidate",
+      "name": "03-Tetris-SDK.g1a",
+      "status": "program-ready",
       "sha256": "a2d77cfbd27aad4edb1889a5f2bc7c3638827b89a82ce466251c53a418a456e0",
-      "backend": "flash"
+      "backend": "flash",
+      "includesLoader": false
     },
     {
-      "name": "Tetris-gint-release.g1a",
-      "status": "candidate",
-      "sha256": "cf31b2284b2c90deaad1b2a5ee3bfefd9fcecf4c2f74b45d4d905bf0f84c4079",
-      "backend": "flash"
-    },
-    {
-      "name": "AMINE.g1a",
-      "status": "candidate",
-      "sha256": "6e26a889c00dd549990ff618594b3a5ce469816c6b857bc0ae38919c881c43f6",
-      "backend": "flash"
-    },
-    {
-      "name": "WSC.g1a",
-      "status": "candidate",
-      "sha256": "21ae395249ca02a154ff3cac28315dfcee07e65f34fe39568e3def89f26e1110",
-      "backend": "flash"
-    },
-    {
-      "name": "khicas.bin",
-      "status": "candidate",
-      "sha256": "4a9d1c18009d987dc7c8745b7fc099b3c6e8006ebbb2ee5e4b483934be757473",
-      "backend": "mapped"
-    },
-    {
-      "name": "KHICAS.BIN",
-      "status": "candidate",
-      "sha256": "176a10ffa918f24f0b98ef89156dc04b02df09190dae0fbe0e3d59780e9455f8",
-      "backend": "extended"
+      "name": "02-Fruit.bin",
+      "status": "program-ready",
+      "sha256": "5c5bd8f2c42add4feb9eb4112f134d00c45066eb80be805c3f872b27f451eaf6",
+      "backend": "flash",
+      "includesLoader": false
     },
     {
       "name": "unknown-513-pages.g1a",
-      "status": "needs-review",
-      "sha256": "296507d8a15f177c7d11021f3009f125ce580dda3ad436fab830c207e5e63e0d",
-      "backend": "extended"
+      "status": "needs-adapter",
+      "backend": "extended",
+      "includesLoader": false
     },
     {
       "name": "bad-header.g1a",
-      "status": "invalid-input",
-      "sha256": null,
-      "backend": null
+      "status": "failed",
+      "result": null
     }
   ],
-  "realGhidra122": [
+  "renderedViews": [
     {
-      "inputName": "Tetris-original.g1a",
-      "sha256": "a2d77cfbd27aad4edb1889a5f2bc7c3638827b89a82ce466251c53a418a456e0",
-      "pages": 4,
+      "language": "zh-CN",
+      "window": {
+        "width": 1360,
+        "height": 960
+      },
+      "verified": "Two-column task view with independent Loader controls and always-visible footer"
+    },
+    {
+      "language": "en",
+      "window": {
+        "width": 1100,
+        "height": 740
+      },
+      "verified": "Responsive single-column content with always-visible footer"
+    }
+  ],
+  "evidenceRoot": "C:/fxstudio-build/profile-studio-v2-checks",
+  "packagerHelp": "Passed",
+  "pending": [],
+  "limits": [
+    "UI tests call the actual generation methods; file picker and drag gestures were not automated",
+    "No hardware compatibility or stability assertion"
+  ],
+  "includedLoaderBatch": [
+    {
+      "name": "03-Tetris-SDK.g1a",
       "backend": "flash",
       "status": "candidate",
-      "seconds": 7.1,
-      "functionCount": 73,
-      "instructionCount": 3896,
-      "analysisComplete": true
+      "includesLoader": true
     },
     {
-      "inputName": "khicas.bin",
-      "sha256": "4a9d1c18009d987dc7c8745b7fc099b3c6e8006ebbb2ee5e4b483934be757473",
-      "pages": 512,
+      "name": "02-Fruit.bin",
+      "backend": "flash",
+      "status": "candidate",
+      "includesLoader": true
+    },
+    {
+      "name": "04-KhiCAS.bin",
       "backend": "mapped",
       "status": "candidate",
-      "seconds": 79.4,
-      "functionCount": 2627,
-      "instructionCount": 743912,
-      "analysisComplete": true
+      "includesLoader": true
     },
     {
-      "inputName": "KHICAS.BIN",
-      "sha256": "176a10ffa918f24f0b98ef89156dc04b02df09190dae0fbe0e3d59780e9455f8",
-      "pages": 699,
+      "name": "05-Giac-699.bin",
       "backend": "extended",
       "status": "candidate",
-      "seconds": 60.1,
-      "functionCount": 2933,
-      "instructionCount": 737190,
-      "analysisComplete": true
+      "includesLoader": true
     }
   ],
-  "packagedGhidraUi": "completed: SDK Tetris, 73 functions / 3896 instructions",
-  "cancellation": "Interrupted KhiCAS deep analysis after 4 seconds; no candidate published and no owned process left running",
-  "limits": [
-    "Ghidra evidence never turns unknown oversized G1As into runnable bundles",
-    "Physical page addresses are queried on the calculator",
-    "GUI tests use the same generation path as the interactive button; file picker and drag gesture are not automated in this report"
-  ]
+  "independentLoaderExport": {
+    "loaders": [
+      "FlashLd.g1a",
+      "KLoad.g1a",
+      "ExtLoad.g1a"
+    ],
+    "status": "loader-exported",
+    "inputCount": 0
+  },
+  "stableReuse": {
+    "programs": 4,
+    "reused": true,
+    "sameDirectory": true
+  },
+  "packagedGhidraUi": {
+    "seconds": 8.5,
+    "status": "program-ready",
+    "instructionCount": 3896,
+    "functionCount": 73,
+    "ghidraStatus": "completed",
+    "input": "03-Tetris-SDK.g1a",
+    "bundledDependencies": true
+  },
+  "cancellation": {
+    "afterMilliseconds": 4000,
+    "note": "Incomplete temporary directory may remain; no ready result was published",
+    "matchingJavaProcessesRemaining": 0,
+    "input": "04-KhiCAS.bin",
+    "status": "cancelled"
+  },
+  "languagePersistence": {
+    "restoredFromSettings": true,
+    "explicitLanguageArgument": false,
+    "language": "en"
+  },
+  "packagerLegacyArtifactRejection": {
+    "outputCreated": false,
+    "exitCode": 1
+  },
+  "finalPortableValidation": {
+    "bundledExecution": true,
+    "engineOverrides": false,
+    "includedPrograms": [
+      "03-Tetris-SDK.g1a",
+      "02-Fruit.bin",
+      "04-KhiCAS.bin",
+      "05-Giac-699.bin"
+    ],
+    "allIncludedCandidates": true,
+    "allFourReusedSameDirectory": true,
+    "independentExportInputCount": 0,
+    "exportedLoadersMatchManifest": true,
+    "loaderArtifacts": {
+      "KLoad.g1a": "a184d966fb422cc9c07be82f6d7c4560857ff242394b1e301c3fd742cf2a5bb0",
+      "ExtLoad.g1a": "2a53cc82ecb628f30fc7500637b6dc78f743028aac778a1dbaff7440f11f944e",
+      "FlashLd.g1a": "30478e2852179458820171ce1a2e4fea204daf2cc7e70b083fa7c4277fb71466"
+    },
+    "defaultIndependentDependencies": [
+      {
+        "name": "03-Tetris-SDK.g1a",
+        "status": "program-ready",
+        "includesLoader": false
+      },
+      {
+        "name": "04-KhiCAS.bin",
+        "status": "program-ready",
+        "includesLoader": false
+      },
+      {
+        "name": "05-Giac-699.bin",
+        "status": "program-ready",
+        "includesLoader": false
+      }
+    ]
+  },
+  "packageManifest": {
+    "verifiedFiles": 6606,
+    "algorithm": "SHA-256",
+    "manifestSelfExcluded": true
+  },
+  "finalEngineNoteValidation": {
+    "sourceFile": "tooling/loader_suite.py",
+    "sha256": "d551eaa689b33de08d6e555923ac8b54ae259191a407a5326290268bc74cb896",
+    "packagedBytesMatchSource": true,
+    "change": "Historical fixed 6912-byte resident estimate moved out of active warnings; current RAM warning depends on profile capacity, runtime build and payload arena.",
+    "freshOutputRoot": true,
+    "input": "05-Giac-699.bin",
+    "firstStatus": "candidate",
+    "firstReused": false,
+    "secondStatus": "candidate",
+    "secondReused": true,
+    "sameOutputDirectory": true,
+    "noHistorical6912InActiveWarnings": true
+  }
 }

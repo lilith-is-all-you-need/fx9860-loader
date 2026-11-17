@@ -1,5 +1,12 @@
 # Generic Flash Loader (experimental)
 
+Version 0.2 adds independent `FXAPPS/<name+hash>/` folders, a two-row icon browser,
+explicit Full/Fast verification modes, per-program logs and startup counters.
+See [English usage and binary protocol](FOLDERS.en.md) or
+[中文使用说明](FOLDERS.zh-CN.md). The older flat catalog below remains a fallback.
+`FOLDER-VALIDATION.json` records the directory release; `VALIDATION.json` is the
+earlier 0.1 baseline and must not be interpreted as a test of a different binary.
+
 `FlashLd.g1a` runs structurally accepted G1As at their original virtual addresses.
 The loader has no program-name or SHA-256 whitelist and does not delete the CRT.
 The PC tool copies the complete G1A unchanged to BIN. A SHA-bound FPF profile
@@ -45,7 +52,8 @@ the SH7305 cache. The calculator measures the actual required allocation and
 reports failure before starting the guest. A small file alone is insufficient.
 
 The runner validates the OS fingerprint, queries physical file pages, checks
-SHA-256 before execution, and refreshes/rechecks moved pages after file calls and
+SHA-256 in the default Full mode (Fast trusts a prior matching cache as described
+in the linked manual), and refreshes/rechecks moved pages after file calls and
 OS key waits. It also restores the launcher's own file pages. A TLB exception
 through syscall 0003 uses the already maintained table; it performs no file I/O.
 OS timers and quit callbacks have resident wrappers, with busy-state guards.

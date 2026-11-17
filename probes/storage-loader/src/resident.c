@@ -38,9 +38,9 @@ static void restore(Context *c)
 static int address(Context *c,int fd,unsigned offset,uint32_t *out)
 {return ((int(*)(int,int,uint32_t *))(uintptr_t)c->os.query)(fd,offset,out);}
 static void text(Context *c,const char *s)
-{while(*s&&c->log_used<LOG_BUFFER-1)c->log[c->log_used++]=*s++;}
+{while(*s&&c->log_used<LOG_BUFFER-17)c->log[c->log_used++]=*s++;}
 static void hex(Context *c,uint32_t n)
-{for(int k=7;k>=0;k--){unsigned d=(n>>(k*4))&15;if(c->log_used<LOG_BUFFER-1)c->log[c->log_used++]=(char)(d<10?'0'+d:'A'+d-10);}}
+{for(int k=7;k>=0;k--){unsigned d=(n>>(k*4))&15;if(c->log_used<LOG_BUFFER-17)c->log[c->log_used++]=(char)(d<10?'0'+d:'A'+d-10);}}
 static void event(Context *c,const char *s,uint32_t a,uint32_t b)
 {text(c,s);text(c,"=");hex(c,a);text(c,",");hex(c,b);text(c,"\n");}
 static uint32_t hash(uintptr_t p,unsigned n)
@@ -48,15 +48,18 @@ static uint32_t hash(uintptr_t p,unsigned n)
 static int save(Context *c)
 {
  if(c->io_error||!c->log_used)return !c->io_error;
- unsigned n=(c->log_used+511)&~511u;
+ unsigned n=(c->log_used+9+511)&~511u;
  if(c->log_saved+n>LOG_BYTES){c->io_error=1;return 0;}
  for(unsigned i=c->log_used;i<n;i++)c->log[i]=' ';
+ const char *end="\nRUN_END\n";for(unsigned i=0;i<9;i++)c->log[n-9+i]=end[i];
  c->file_busy++;
  int fd=r_open(c->log_path,2,0),rc=-1,got=-1;
  if(fd>=0){if(r_seek(fd,c->log_saved)>=0)got=r_write(fd,c->log,n);rc=r_close(fd);}
  c->file_busy--;
  if(got!=(int)n||rc<0){c->io_error=1;return 0;}
- c->log_saved+=n;c->log_used=0;return 1;
+ /* The next write replaces this terminator. Readers stop here, never at a
+  * stale tail left by an older, longer run. No whole-file clear is needed. */
+ c->log_saved+=n-9;c->log_used=0;return 1;
 }
 static int start_log(Context *c)
 {
@@ -65,13 +68,7 @@ static int start_log(Context *c)
  if(r_close(fd)<0)ok=0;
  const char *magic="FXFLASH1";for(unsigned i=0;i<8;i++)if(b[i]!=magic[i])ok=0;
  if(!ok)return 0;
- text(c,"FXFLASH1\nBUILD=0.1\n");
- /* Clear old results only after validating the dedicated result file. */
- for(unsigned i=0;i<LOG_BUFFER;i++)c->log[i]=' ';
- fd=r_open(c->log_path,2,0);if(fd<0)return 0;
- for(unsigned i=0;i<LOG_BYTES;i+=LOG_BUFFER)if(r_write(fd,c->log,LOG_BUFFER)!=LOG_BUFFER)ok=0;
- if(r_close(fd)<0)ok=0;
- c->log_used=0;text(c,"FXFLASH1\nBUILD=0.1\n");return ok;
+ c->log_used=0;text(c,"FXFLASH1\nBUILD=0.2\nLOG_FORMAT=2\n");event(c,"RUN_ID_MODE",c->started_tick,c->fast);return ok;
 }
 /* File queries stay in P2. Never call Bfile from a TLB fault or timer.
  * Refresh the Loader's own pages too: file operations can move either file. */
@@ -101,7 +98,10 @@ static int refresh(Context *c)
   if(span!=4096||(pa&4095)||pa<0x10000||pa>0x1fff000){ok=0;break;}
   if(c->pages[i]!=pa){
    unsigned n=c->image_bytes-i*4096;if(n>4096)n=4096;
-   if(hash(pa|0xa0000000u,n)!=c->hashes[i]){ok=0;break;}
+   /* Fast trusts a prior full verification on the first lookup. The cache
+    * has no historical physical addresses: moves between launches do not
+    * force a rehash. Only later address changes within this run rehash. */
+   if((!c->fast||c->refreshes)&&hash(pa|0xa0000000u,n)!=c->hashes[i]){ok=0;break;}
    c->changed++;c->pages[i]=pa;
   }
  }
@@ -206,6 +206,8 @@ static void cleanup(Context *c)
  event(c,"TARGET_CLEANUP_DONE",c->syscalls,c->key_calls);
  event(c,"REFRESH_CHANGED",c->refreshes,c->changed);
  event(c,"TIMER_CALLS_SKIPPED",c->timer_calls,c->timer_skipped);
+ event(c,"TICKS_VERIFY_RELEASE",c->verify_ticks,c->release_ticks);
+ event(c,"TICKS_MAP_READY",c->map_ticks,c->ready_ticks);
  event(c,"RESTORE_PENDING",0,0);
  save(c);
  if(!refresh(c))fatal(c,16);
@@ -223,8 +225,11 @@ int resident_main(Context *c)
  int result=fx_os_profile(rom_read,0,&c->os);event(c,"OS_PROFILE",result,c->os.query);
  if(result||!(REG(0xff000010)&1)||!BYTE(c->os.enabled)||REG(c->os.cursor)>54){text(c,"FAIL_OS_MAP\n");save(c);return 3;}
  snapshot(c);text(c,"VERIFY_MAP_PENDING\n");if(!save(c))return 4;
+ unsigned mt=(unsigned)r_ticks();
  if(!refresh(c)||!shadows(c)){text(c,"FAIL_MAP_OR_PATCH\n");save(c);return 5;}
+ c->map_ticks=(unsigned)r_ticks()-mt;
  event(c,"READY_ENTRY",c->profile.entry,c->shadow_count);if(!save(c)||!refresh(c))return 6;
+ c->ready_ticks=(unsigned)r_ticks()-c->started_tick;
  r_quit(resident_quit_entry);install(c);
  for(unsigned k=0;k<c->image_pages;k++)if(c->shadow_slot[k]!=255)for(unsigned j=0;j<4096;j+=32)invalidate(BASE+k*4096+j);
  BARRIER();

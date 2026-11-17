@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "component": "fx-caller-session",
+  "status": "host-contract-tested-backend-required",
+  "implementation": {
+    "language": "C99",
+    "heapAllocation": false,
+    "directOSCalls": false,
+    "maximumBusinessStateBytes": 65536,
+    "recordHeaderBytes": 96,
+    "nestedCalls": "rejected-before-pause-and-store",
+    "menuPolicies": ["restore-caller", "resume-target"],
+    "rawStackOrHeapPreservation": false
+  },
+  "hostValidation": {
+    "compiler": "Windows MinGW GCC, -std=c99 -O2 -Wall -Wextra -Werror",
+    "command": "python -m unittest discover -s tests -p test_caller_session.py -v",
+    "lifecycleGroups": 9,
+    "singleByteCorruptionCases": 100,
+    "result": "passed"
+  },
+  "calculatorBackendImplemented": false,
+  "calculatorCrossBuildValidated": false,
+  "hardwareValidated": false,
+  "remaining": [
+    "Resident trampoline safely restoring caller mapping and recovery entry",
+    "Actual caller/target RAM, stack, OS heap, callbacks, VBR and MMU ownership",
+    "Transactional calculator storage implementation with interrupted-write validation",
+    "Resident boot/session/foreground event proof",
+    "Target continuation retention for direct-MENU resume policy",
+    "Calculator and hardware acceptance for the concrete backend"
+  ]
+}
