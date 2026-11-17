@@ -77,7 +77,7 @@
     "tests/test_flash_profiles.py": "afc762adc7ceaf6e949511fff0548fe895c01bec138964906454fb18e0a662b3",
     "tests/test_hook_review.py": "f4ed716eddf1498d5fb49e951fa31c3158a2499365b72ce0bd8cc1333ef8c9eb",
     "tests/test_loader_suite.py": "2da8001aa157a0663f0af5169699dda295ca3156650a37c26826266342d604f6",
-    "tests/test_profile_job.py": "981b2448a28ebc28af83225971064be968c6edd4395763cdd7a3d5078c2803b7",
+    "tests/test_profile_job.py": "c326c097d79af21305a57eac49a4aa2d48e73dec968f90e1355f6c923d3fe43b",
     "tooling/bundle_v2.py": "3a03423e1b47173c9dd2d9d86fd65dbb34b300d61785834c825f47498ae9d431",
     "tooling/ext_profile.py": "d96b589f210bbe87a752c23f9963234c94622a2ffbfff899807aad353d18a511",
     "tooling/ghidra/ExportG1aEvidence.java": "5e18dba0cbaaba817bd6e1990b3f24d1f90b6d686707d969e0c02068c5d98a90",

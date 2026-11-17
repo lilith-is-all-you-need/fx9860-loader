@@ -115,7 +115,7 @@ class DesktopJobTests(unittest.TestCase):
             first=job.generate(self.source,output_root=self.root/'stable')
             (self.root/'stable').rename(self.root/'moved')
             second=job.generate(self.source,output_root=self.root/'moved')
-        self.assertTrue(second['reused']);self.assertEqual(Path(second['output']).parent,self.root/'moved')
+        self.assertTrue(second['reused']);self.assertEqual(Path(second['output']).parent,(self.root/'moved').resolve())
         self.assertTrue(Path(second['output']).is_dir());self.assertFalse(Path(first['output']).exists())
 
     def test_new_blocker_cannot_be_bypassed_by_old_ready_result(self):
