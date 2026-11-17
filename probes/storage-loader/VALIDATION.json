@@ -1,0 +1,169 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-11-17",
+  "hardwareValidated": false,
+  "programWhitelist": false,
+  "guestImagePatches": "Only classified syscall gate literals in RAM shadow pages; original BIN unchanged",
+  "heapBytes": 40960,
+  "firmwareProfile": "3071 local image, no firmware redistributed",
+  "fileMapStress": true,
+  "menuVramStress": true,
+  "hostWritesTargetMemory": false,
+  "loaderSha256": "02c91df1fe576f402b52be21a0f64cfac2a734df2ab39f233354fabaded4dc31",
+  "emulatorSha256": "b1027c579bede23e36c17d5ef3153cf45b06de50e7f2246249972977ec324739",
+  "builds": [
+    "Debug",
+    "Release"
+  ],
+  "cases": [
+    {
+      "id": "fruit",
+      "bytes": 66236,
+      "sha256": "5c5bd8f2c42add4feb9eb4112f134d00c45066eb80be805c3f872b27f451eaf6",
+      "started": true,
+      "screenReviewed": "Fruit play screen with stroke/fruit; F6 and MENU cleanup completed",
+      "residentAllocationBytes": 39616,
+      "menuEntered": true,
+      "resumeFinalState": "running",
+      "cleanupPassed": true,
+      "fullScenarioPassed": true,
+      "finalState": "exited"
+    },
+    {
+      "id": "mines",
+      "bytes": 126448,
+      "sha256": "0cf3f1fa10c818cf5126d0555c2828151283989457c7da8844a422aeb21d8284",
+      "started": true,
+      "screenReviewed": "Minesweeper 1.0.13 board revealed; key actions and cleanup completed",
+      "residentAllocationBytes": 23328,
+      "menuEntered": true,
+      "resumeFinalState": "running",
+      "cleanupPassed": true,
+      "fullScenarioPassed": true,
+      "finalState": "exited"
+    },
+    {
+      "id": "terold",
+      "bytes": 13700,
+      "sha256": "a2d77cfbd27aad4edb1889a5f2bc7c3638827b89a82ce466251c53a418a456e0",
+      "started": true,
+      "screenReviewed": "SDK Tetris board and moving pieces displayed; scripted MENU exit not completed",
+      "residentAllocationBytes": 23104,
+      "menuEntered": false,
+      "resumeFinalState": null,
+      "cleanupPassed": false,
+      "fullScenarioPassed": false,
+      "finalState": "running"
+    },
+    {
+      "id": "tergint",
+      "bytes": 39284,
+      "sha256": "cf31b2284b2c90deaad1b2a5ee3bfefd9fcecf4c2f74b45d4d905bf0f84c4079",
+      "started": true,
+      "screenReviewed": "gint Tetris board and moving pieces displayed; scripted MENU exit not completed",
+      "residentAllocationBytes": 23168,
+      "menuEntered": false,
+      "resumeFinalState": null,
+      "cleanupPassed": false,
+      "fullScenarioPassed": false,
+      "finalState": "running"
+    },
+    {
+      "id": "amine",
+      "bytes": 103160,
+      "sha256": "6e26a889c00dd549990ff618594b3a5ce469816c6b857bc0ae38919c881c43f6",
+      "started": true,
+      "screenReviewed": "103160-byte AMINE board revealed; key actions and cleanup completed",
+      "residentAllocationBytes": 23296,
+      "menuEntered": true,
+      "resumeFinalState": "running",
+      "cleanupPassed": true,
+      "fullScenarioPassed": true,
+      "finalState": "exited"
+    },
+    {
+      "id": "wsc",
+      "bytes": 60028,
+      "sha256": "21ae395249ca02a154ff3cac28315dfcee07e65f34fe39568e3def89f26e1110",
+      "started": true,
+      "screenReviewed": "Program browser displayed and reacted; empty input directory; menu replacement cleaned up",
+      "residentAllocationBytes": 23200,
+      "menuEntered": true,
+      "resumeFinalState": "running",
+      "cleanupPassed": true,
+      "fullScenarioPassed": true,
+      "finalState": "exited"
+    }
+  ],
+  "edges": [
+    {
+      "case": "return",
+      "passed": true
+    },
+    {
+      "case": "oom",
+      "passed": true
+    },
+    {
+      "case": "bad-bin",
+      "passed": true
+    },
+    {
+      "case": "no-bin",
+      "passed": true
+    },
+    {
+      "case": "wrong-size",
+      "passed": true
+    },
+    {
+      "case": "bad-profile",
+      "passed": true
+    },
+    {
+      "case": "bad-patch",
+      "passed": true
+    },
+    {
+      "case": "bad-gate",
+      "passed": true
+    },
+    {
+      "case": "bad-catalog",
+      "passed": true
+    },
+    {
+      "case": "no-profile",
+      "passed": true
+    },
+    {
+      "case": "foreign-log",
+      "passed": true
+    },
+    {
+      "case": "ram-conflict",
+      "passed": true
+    }
+  ],
+  "tests": {
+    "emulatorPythonUniquePassed": 75,
+    "privateFirmwareCasesIncluded": 9,
+    "upstreamCpu": "passed",
+    "unifiedPcTests": 16,
+    "legacyProfileTests": 8,
+    "loaderFileEdges": 12,
+    "wpfKnowledgeSearch": "passed, 4162 embedded entries"
+  },
+  "limits": [
+    "No all-G1A guarantee or device stability acceptance.",
+    "Tetris MENU scripts also fail when directly executing the originals; startup/play are supported by screenshots, exit remains unverified.",
+    "No user program whitelist; direct reset transfers, unknown gateway forms and images above 2 MiB are rejected by this backend.",
+    "Memory coexistence, custom MMU/VBR, RAM callbacks, computed OS calls and full copy-back cache require further validation."
+  ],
+  "debuggingFindings": [
+    "Old full-image RAM allocation failures are historical; this backend does not copy the full image.",
+    "A 512-entry scan on every OS-version/VRAM query delayed Fruit polling; known read-only queries now directly forward.",
+    "AMINE initially exhausted the 40 KiB heap with 27392 resident bytes; dynamic cache-color placement reduced this to 23296 and its scenario passed.",
+    "gint needs syscall 0003 after its own VBR is installed; SDK Tetris/WSC need legacy bitmap syscall 001E."
+  ]
+}

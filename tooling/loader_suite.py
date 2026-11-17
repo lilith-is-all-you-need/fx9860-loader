@@ -1,8 +1,9 @@
 """Offline G1A analysis and SHA-bound bundle preparation. Python standard library only.
 
 No LLM, network, original-image relocation, or executable profile plugins.
-Unknown programs produce review reports; recognition of syscall stubs alone is
-not a proof of memory coexistence. All output directories must be new.
+Ordinary images use a generic Flash backend without a program whitelist.
+Structural acceptance is not proof of memory coexistence or stability.
+All output directories must be new.
 """
 import argparse
 import hashlib
@@ -58,10 +59,12 @@ def analyze(source, requested='auto', review=None):
     if bytes(x ^ 255 for x in data[:8]) != b'USBPower':
         if not source_runtime or data[:16] != b'KHICAS-MAPPED/1\0':
             raise ValueError('Not a G1A or a registered source-integrated payload')
-    backend = ('ram' if size <= RAM_LIMIT else 'mapped' if size <= OS_LIMIT else 'extended')
+    backend = ('extended' if size > OS_LIMIT else
+               'mapped' if approved and approved.get('adapter') == 'mapped-khicas-v1' else 'flash')
     if requested != 'auto':
-        if requested != backend:
-            raise ValueError(f'{size} bytes requires {backend}; selected {requested}')
+        if requested not in ('flash','ram','mapped','extended') or (requested == 'ram' and size > RAM_LIMIT) or (requested in ('flash','mapped') and size > OS_LIMIT) or (requested == 'extended' and size <= OS_LIMIT):
+            raise ValueError(f'{size} bytes cannot use {requested}')
+        backend = requested
     report = {'schemaVersion': 1, 'inputName': source.name, 'sha256': digest,
               'bytes': size, 'pages': (size + 4095) // 4096,
               'lastPageBytes': size % 4096 or 4096, 'backend': backend,
@@ -73,11 +76,12 @@ def analyze(source, requested='auto', review=None):
         report['requiredContiguousImageBytes'] = report['pages'] * 4096 + 8191
         report['warnings'].append('Image allocation excludes the context, resident runner, allocator overhead and guest heap')
     if approved and approved.get('hardwareEvidence'):
-        report['hardwareEvidence'] = approved['hardwareEvidence']
+        report['priorBackendEvidence'] = {'adapter':approved.get('adapter'), **approved['hardwareEvidence']}
+        if backend != 'flash': report['hardwareEvidence'] = approved['hardwareEvidence']
     # These offsets describe bytes in the image. Physical Flash addresses must
     # always be obtained afresh on the calculator, never stored in a PC profile.
     try:
-        scanner = module('probes/native-loader/tools/prepare.py', 'fx_gate_scan')
+        scanner = module('probes/storage-loader/tools/prepare.py' if backend == 'flash' else 'probes/native-loader/tools/prepare.py', 'fx_gate_scan')
         if not source_runtime:
             _, scan = scanner.profile(data, (review or {}).get('forbiddenPhysicalRam', ()))
             report['staticAnalysis'] = scan
@@ -104,6 +108,15 @@ def analyze(source, requested='auto', review=None):
             report['blockers'].append('Requires guest-owned page table/refill and runtime integration; OS table has only 512 entries')
             report['requiredRuntime'] = 'extended-vbr-v1 (source integration; experimental)'
             report['warnings'].append('698-page synthetic probe passed simulation; arbitrary oversized G1A runtime integration is still required')
+    elif backend == 'flash':
+        report['programWhitelist'] = False
+        report['requiredContiguousImageBytes'] = 0
+        if not report['blockers']:
+            report['status'] = 'candidate'
+        report['warnings'].extend([
+            'Original image layout and CRT are preserved; only syscall gate pages are shadowed in RAM',
+            'Actual heap coexistence, custom MMU/VBR, RAM callbacks and direct OS calls require runtime validation',
+            'A small image alone does not guarantee compatibility; the calculator checks its actual resident allocation'])
     elif backend == 'mapped':
         if approved and approved.get('adapter') == 'mapped-khicas-v1':
             report['status'] = 'candidate'
@@ -128,6 +141,7 @@ def analyze(source, requested='auto', review=None):
 
 
 def prepare(source, output, requested='auto', review=None, artifacts=None):
+    source = Path(source)
     output = Path(output).resolve()
     if output.exists():
         raise FileExistsError(f'Use a new output directory: {output}')
@@ -142,8 +156,15 @@ def prepare(source, output, requested='auto', review=None, artifacts=None):
         loader = None
         if report['status'] == 'candidate':
             files = stage / 'calculator'
-            files.mkdir()
-            if report['backend'] == 'ram':
+            if report['backend'] != 'flash': files.mkdir()
+            if report['backend'] == 'flash':
+                known = report['approvedProfile'] or {}
+                item = {'id':'target','title':known.get('title',source.stem)[:15].encode('ascii','replace').decode(),
+                        'source':str(stage/'original.bin'),'expectedSha256':report['sha256'],
+                        'forbiddenPhysicalRam':(review or {}).get('forbiddenPhysicalRam',[])}
+                module('probes/storage-loader/tools/prepare.py','fx_flash_prepare').prepare([item],files)
+                loader = 'FlashLd.g1a'
+            elif report['backend'] == 'ram':
                 ident = 'target'
                 known = report['approvedProfile'] or {}
                 forbidden = (review or known).get('forbiddenPhysicalRam', [])
@@ -166,7 +187,7 @@ def prepare(source, output, requested='auto', review=None, artifacts=None):
                 expected = artifact_manifest.get('files', {}).get(loader)
                 if expected != sha(binary.read_bytes()):
                     raise ValueError('Loader artifact hash does not match its build manifest')
-                bound = (report['approvedProfile'] or {}).get('launcherSha256')
+                bound = (report['approvedProfile'] or {}).get('launcherSha256') if report['backend']=='extended' else None
                 if bound and expected != bound:
                     raise ValueError('Launcher differs from the reviewed source-integrated build')
                 shutil.copyfile(binary, files / loader)
@@ -176,7 +197,8 @@ def prepare(source, output, requested='auto', review=None, artifacts=None):
                 report['warnings'].append(f'Build and supply {loader}; this folder is not yet installable')
         write_json(stage / 'analysis.json', report)
         note = ('将 calculator 文件夹中的全部文件复制到计算器存储根目录。\n'
-                f'启动 {loader}；Loader 使用 EXE 选择，KLoad 阅读提示后按 EXE，KhiMap 自动加载 BIN。\n'
+                f'启动 {loader}；FlashLd/Loader 使用 EXE 选择，KLoad 阅读提示后按 EXE，KhiMap 自动加载 BIN。\n'
+                'FlashLd 使用通用映射，不保证所有程序；首次实机测试后请回传 FlashLd.txt。请勿重命名 FlashLd.g1a。\n'
                 'KhiMap 从 MENU 选回后按 EXE 重新加载；此前计算不会保留。\n'
                 'KLoad 的实机直接选回路径仍待验证；需要全新启动时先进入 RUN-MAT 再打开 KLoad。\n'
                 'Loader/KLoad 保留结果文件；KhiMap 显示阶段和错误码，当前版本不写文件。\n'
@@ -192,7 +214,7 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('source', type=Path, nargs='?')
     parser.add_argument('--output', type=Path)
-    parser.add_argument('--profile', choices=['auto', 'ram', 'mapped', 'extended'], default='auto')
+    parser.add_argument('--profile', choices=['auto', 'flash', 'ram', 'mapped', 'extended'], default='auto')
     parser.add_argument('--review-profile', type=Path)
     parser.add_argument('--artifacts', type=Path)
     parser.add_argument('--batch', type=Path, help='JSON array of source/output/profile/reviewProfile, paths relative to JSON')

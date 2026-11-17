@@ -10,5 +10,5 @@ jobs:
         with:
           persist-credentials: false
       - run: |
-          python tests/test_loader_suite.py
+          python -m unittest discover -s tests -v
           python probes/native-loader/tools/test_prepare.py

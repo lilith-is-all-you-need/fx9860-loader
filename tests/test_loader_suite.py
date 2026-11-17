@@ -25,11 +25,14 @@ class SuiteTests(unittest.TestCase):
                      'memoryReviewed':True,'callbacksReviewed':True,'forbiddenPhysicalRam':[]}
 
     def test_unknown_small_keeps_image_without_claiming_compatibility(self):
-        out=self.root/'out';r=suite.prepare(self.src,out)
-        self.assertEqual(r['status'],'needs-review')
+        out=self.root/'out';r=suite.prepare(self.src,out,artifacts=self.root/'missing')
+        self.assertEqual(r['status'],'profile-only')
         self.assertEqual((out/'original.bin').read_bytes(),self.src.read_bytes())
-        self.assertFalse((out/'calculator/Loader.idx').exists())
-        self.assertEqual(r['requiredContiguousImageBytes'],12287)
+        self.assertEqual((out/'calculator/target.bin').read_bytes(),self.src.read_bytes())
+        self.assertEqual((out/'calculator/target.fpf').read_bytes()[:8],b'FXLDF001')
+        self.assertFalse(r['programWhitelist'])
+        self.assertFalse(r['hardwareValidated'])
+        self.assertEqual(r['requiredContiguousImageBytes'],0)
 
     def test_hardware_block_cannot_be_overridden_by_static_review(self):
         profile={'sha256':suite.sha(self.src.read_bytes()),'adapter':'ram-v1',
@@ -39,7 +42,7 @@ class SuiteTests(unittest.TestCase):
         def read(path):
             return {'programs':[profile]} if Path(path)==suite.ROOT/'profiles/registry.json' else original(path)
         with patch.object(suite,'read_json',side_effect=read):
-            report=suite.prepare(self.src,self.root/'blocked',review=self.review)
+            report=suite.prepare(self.src,self.root/'blocked',requested='ram',review=self.review)
         self.assertEqual(report['status'],'needs-review')
         self.assertIn(profile['blocked'],report['blockers'])
         self.assertEqual(report['hardwareEvidence'],profile['hardwareEvidence'])
@@ -48,31 +51,31 @@ class SuiteTests(unittest.TestCase):
     def test_review_bound_to_bytes_and_backend(self):
         for change in ({'sha256':'0'*64},{'backend':'mapped'},{'memoryReviewed':False}):
             with self.subTest(change=change),self.assertRaises(ValueError):
-                suite.prepare(self.src,self.root/'rejected',review={**self.review,**change})
+                suite.prepare(self.src,self.root/'rejected',requested='ram',review={**self.review,**change})
             self.assertFalse((self.root/'rejected').exists())
 
     def test_complete_candidate_has_paired_files(self):
         artifacts=self.root/'artifacts';artifacts.mkdir();binary=b'authored loader test fixture'
         (artifacts/'Loader.g1a').write_bytes(binary)
         (artifacts/'manifest.json').write_text(json.dumps({'files':{'Loader.g1a':suite.sha(binary)}}))
-        r=suite.prepare(self.src,self.root/'ready',review=self.review,artifacts=artifacts)
+        r=suite.prepare(self.src,self.root/'ready',requested='ram',review=self.review,artifacts=artifacts)
         self.assertEqual(r['status'],'candidate')
         self.assertEqual((self.root/'ready/calculator/target.bin').read_bytes(),self.src.read_bytes())
         self.assertEqual(len((self.root/'ready/calculator/target.lpf').read_bytes()),384)
         self.assertEqual(len((self.root/'ready/calculator/Loader.idx').read_bytes()),204)
 
     def test_missing_artifact_is_not_installable(self):
-        r=suite.prepare(self.src,self.root/'out',review=self.review,artifacts=self.root/'missing')
+        r=suite.prepare(self.src,self.root/'out',requested='ram',review=self.review,artifacts=self.root/'missing')
         self.assertEqual(r['status'],'profile-only')
 
     def test_bad_artifact_does_not_publish(self):
         artifacts=self.root/'artifacts';artifacts.mkdir();(artifacts/'Loader.g1a').write_bytes(b'x')
         (artifacts/'manifest.json').write_text('{"files":{"Loader.g1a":"wrong"}}')
-        with self.assertRaises(ValueError):suite.prepare(self.src,self.root/'bad',review=self.review,artifacts=artifacts)
+        with self.assertRaises(ValueError):suite.prepare(self.src,self.root/'bad',requested='ram',review=self.review,artifacts=artifacts)
         self.assertFalse((self.root/'bad').exists())
 
     def test_size_boundaries_and_tail_hash(self):
-        for size,backend in [(163840,'ram'),(163841,'mapped'),(2097152,'mapped'),(2097153,'extended'),(2857444,'extended')]:
+        for size,backend in [(163840,'flash'),(163841,'flash'),(2097152,'flash'),(2097153,'extended'),(2857444,'extended')]:
             with self.subTest(size=size):
                 data=fixture()+bytearray(size-len(fixture()));self.src.write_bytes(data)
                 _,r=suite.analyze(self.src)
@@ -89,7 +92,7 @@ class SuiteTests(unittest.TestCase):
 
     def test_unrecognized_literals_block_even_reviewed_image(self):
         b=fixture();struct.pack_into('>I',b,0x250,0x80010070);self.src.write_bytes(b)
-        r=suite.prepare(self.src,self.root/'out',review={**self.review,'sha256':suite.sha(b)})
+        r=suite.prepare(self.src,self.root/'out',requested='ram',review={**self.review,'sha256':suite.sha(b)})
         self.assertEqual(r['status'],'needs-review')
         self.assertFalse((self.root/'out/calculator').exists())
 
