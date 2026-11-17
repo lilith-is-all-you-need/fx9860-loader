@@ -1,10 +1,76 @@
 {
   "schemaVersion": 1,
   "programs": [
-    {"title":"Giac mapped RC1","sha256":"176a10ffa918f24f0b98ef89156dc04b02df09190dae0fbe0e3d59780e9455f8","adapter":"extended-giac-v1","launcherSha256":"45b3021c77663b2d955480a3d230c1c8fb97bccea9ca8b161c11f0d3d4a760c8","imageBytes":2859236,"pages":699,"entry":3146240,"hardwareValidated":false,"evidence":"probes/extended-cas/VALIDATION.json","limitations":["Source-integrated Giac build only; arbitrary oversized G1As still need runtime integration","6912-byte resident allocation plus 32768-byte CAS arena; 24576-byte tracked math budget","Payload file operations, OS timer/quit callback registration and direct reset/poweroff are denied; MENU/OFF clean up first","Some failures during partial initialization can require RESET; physical hardware acceptance remains pending"]},
-    {"title":"KhiCAS","sha256":"4a9d1c18009d987dc7c8745b7fc099b3c6e8006ebbb2ee5e4b483934be757473","adapter":"mapped-khicas-v1","evidence":"probes/mapped-loader/VALIDATION.json"},
-    {"title":"Minesweeper","sha256":"0cf3f1fa10c818cf5126d0555c2828151283989457c7da8844a422aeb21d8284","adapter":"ram-v1","forbiddenPhysicalRam":[],"evidence":"probes/native-loader/validation-results.json"},
-    {"title":"Fruit Ninja","sha256":"5c5bd8f2c42add4feb9eb4112f134d00c45066eb80be805c3f872b27f451eaf6","adapter":"ram-v1","forbiddenPhysicalRam":[],"evidence":"probes/native-loader/validation-results.json"},
-    {"title":"Wolfenstein","sha256":"d8c8b567b7a2f108e4969ca0f3461a9e82d9669c834f26f7f476f1b5eebf88ca","adapter":"ram-v1","blocked":"Original and Loader paths can reset; exit/control transfer adapter remains unresolved"}
+    {
+      "title": "Giac mapped RC1",
+      "sha256": "176a10ffa918f24f0b98ef89156dc04b02df09190dae0fbe0e3d59780e9455f8",
+      "adapter": "extended-giac-v1",
+      "launcherSha256": "a5032870f6f3da6a76ab6848ae36e2e0da23053e805794aa8958e0f511aa1d1d",
+      "imageBytes": 2859236,
+      "pages": 699,
+      "entry": 3146240,
+      "hardwareValidated": false,
+      "evidence": "probes/extended-cas/VALIDATION.json",
+      "limitations": [
+        "Source-integrated Giac build only; arbitrary oversized G1As still need runtime integration",
+        "6912-byte resident allocation plus 32768-byte CAS arena; 24576-byte tracked math budget",
+        "Payload file operations, OS timer/quit callback registration and direct reset/poweroff are denied; MENU/OFF clean up first",
+        "Some failures during partial initialization can require RESET; first launch reported working; same-icon MENU resume failed with the RC1 launcher"
+      ],
+      "hardwareEvidence": {
+        "firstLaunch": "user-reported-working",
+        "sameIconMenuResume": "user-reported-stuck",
+        "stableLifecycleValidated": false,
+        "testedLauncherSha256": "45b3021c77663b2d955480a3d230c1c8fb97bccea9ca8b161c11f0d3d4a760c8"
+      }
+    },
+    {
+      "title": "KhiCAS",
+      "sha256": "4a9d1c18009d987dc7c8745b7fc099b3c6e8006ebbb2ee5e4b483934be757473",
+      "adapter": "mapped-khicas-v1",
+      "evidence": "probes/mapped-loader/VALIDATION.json",
+      "hardwareEvidence": {
+        "firstLaunch": "user-reported-working",
+        "sameIconMenuResume": "user-reported-stuck",
+        "stableLifecycleValidated": false,
+        "testedLauncherSha256": "b4287bf64dcc12b98485db4a5950da968d0117068491e245818c365058d88aea"
+      }
+    },
+    {
+      "title": "Minesweeper",
+      "sha256": "0cf3f1fa10c818cf5126d0555c2828151283989457c7da8844a422aeb21d8284",
+      "adapter": "ram-v1",
+      "forbiddenPhysicalRam": [],
+      "evidence": "probes/native-loader/validation-results.json",
+      "blocked": "fx-9860GIII hardware rejected the 135167-byte contiguous image allocation; this RAM adapter is not installable for this target",
+      "hardwareEvidence": {
+        "firstLaunch": "rejected-before-target",
+        "requiredImageAllocation": 135167,
+        "allocatedContextBytes": 3036,
+        "allocationReturned": 0,
+        "logSha256": "eeeb99071c1a8429111cb09918113779480015eb2fcc0396f2b5e1ebe8aadc3b"
+      }
+    },
+    {
+      "title": "Fruit Ninja",
+      "sha256": "5c5bd8f2c42add4feb9eb4112f134d00c45066eb80be805c3f872b27f451eaf6",
+      "adapter": "ram-v1",
+      "forbiddenPhysicalRam": [],
+      "evidence": "probes/native-loader/validation-results.json",
+      "blocked": "fx-9860GIII hardware rejected the 77823-byte contiguous image allocation; this RAM adapter is not installable for this target",
+      "hardwareEvidence": {
+        "firstLaunch": "rejected-before-target",
+        "requiredImageAllocation": 77823,
+        "allocatedContextBytes": 3036,
+        "allocationReturned": 0,
+        "logSha256": "4aa1840893852e856d6e999570b9d8df9598d86e92516c0e001d85887d5b6ec0"
+      }
+    },
+    {
+      "title": "Wolfenstein",
+      "sha256": "d8c8b567b7a2f108e4969ca0f3461a9e82d9669c834f26f7f476f1b5eebf88ca",
+      "adapter": "ram-v1",
+      "blocked": "Original and Loader paths can reset; exit/control transfer adapter remains unresolved"
+    }
   ]
 }

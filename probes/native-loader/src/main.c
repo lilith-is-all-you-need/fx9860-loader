@@ -53,7 +53,7 @@ int main(void)
  if(!c){show("No context memory","Target not started");int key=0;while(key!=30002)r_getkey(&key);return 1;}
  if(!p1(c)){r_free(c);show("Unsupported heap","Target not started");int key=0;while(key!=30002)r_getkey(&key);return 1;}
  zero(c,sizeof *c);c->finalize=finalize;
- const char *problem="Unknown failure";
+ const char *problem="Unknown failure";int image_oom=0;
  if(!log_open(c)){release(c);show("Log file protected","Keep Loader.txt");int key=0;while(key!=30002)r_getkey(&key);return 1;}
  log_text(c,"FXLOADER\nVersion=1\nTARGET=");log_text(c,item.id);log_text(c,"\n");
  log_event(c,"ALLOC_CONTEXT",sizeof *c,(uintptr_t)c);log_save(c);
@@ -68,7 +68,7 @@ int main(void)
  unsigned bytes=resident_end-resident_begin;
  c->image_allocation=r_malloc(c->mapped_bytes+8191);
  log_event(c,"ALLOC_IMAGE",c->mapped_bytes+8191,(uintptr_t)c->image_allocation);
- if(!c->image_allocation){problem="No image memory";goto failed;}
+ if(!c->image_allocation){problem="No image memory";image_oom=1;goto failed;}
  if(!p1(c->image_allocation)){problem="Image not P1";goto failed;}
  c->runner_allocation=r_malloc(bytes+32);
  log_event(c,"ALLOC_RUNNER",bytes+32,(uintptr_t)c->runner_allocation);
@@ -117,7 +117,15 @@ int main(void)
  int (*run)(Context *)=(int (*)(Context *))(c->resident+(uintptr_t)resident_main-(uintptr_t)resident_begin);
  int result=run(c);release(c);
  show(result?"Run needs review":"Target returned","Saved Loader.txt");int key=0;while(key!=30002)r_getkey(&key);return 1;
-failed:
+failed: ;
+ unsigned image_need=c->mapped_bytes+8191;
  log_text(c,"REJECTED=");log_text(c,problem);log_text(c,"\n");int saved=log_save(c);release(c);
- show(problem,saved?"Saved Loader.txt":"Log unavailable");{int key=0;while(key!=30002)r_getkey(&key);}return 1;
+ if(image_oom){
+  char detail[]="Need 000 KiB block";unsigned kib=(image_need+1023)/1024;
+  detail[5]=(char)('0'+kib/100%10);detail[6]=(char)('0'+kib/10%10);detail[7]=(char)('0'+kib%10);
+  show("Not enough RAM",detail);
+  r_print(0,44,(const unsigned char *)"Target not started",0);
+  r_print(0,54,(const unsigned char *)(saved?"Log saved; EXIT":"No log; EXIT"),0);r_display();
+ }else show(problem,saved?"Saved Loader.txt":"Log unavailable");
+ {int key=0;while(key!=30002)r_getkey(&key);}return 1;
 }

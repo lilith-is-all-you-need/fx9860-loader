@@ -29,6 +29,21 @@ class SuiteTests(unittest.TestCase):
         self.assertEqual(r['status'],'needs-review')
         self.assertEqual((out/'original.bin').read_bytes(),self.src.read_bytes())
         self.assertFalse((out/'calculator/Loader.idx').exists())
+        self.assertEqual(r['requiredContiguousImageBytes'],12287)
+
+    def test_hardware_block_cannot_be_overridden_by_static_review(self):
+        profile={'sha256':suite.sha(self.src.read_bytes()),'adapter':'ram-v1',
+                 'blocked':'Real device rejected image allocation',
+                 'hardwareEvidence':{'firstLaunch':'rejected-before-target'}}
+        original=suite.read_json
+        def read(path):
+            return {'programs':[profile]} if Path(path)==suite.ROOT/'profiles/registry.json' else original(path)
+        with patch.object(suite,'read_json',side_effect=read):
+            report=suite.prepare(self.src,self.root/'blocked',review=self.review)
+        self.assertEqual(report['status'],'needs-review')
+        self.assertIn(profile['blocked'],report['blockers'])
+        self.assertEqual(report['hardwareEvidence'],profile['hardwareEvidence'])
+        self.assertFalse((self.root/'blocked/calculator').exists())
 
     def test_review_bound_to_bytes_and_backend(self):
         for change in ({'sha256':'0'*64},{'backend':'mapped'},{'memoryReviewed':False}):

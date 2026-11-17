@@ -69,6 +69,11 @@ def analyze(source, requested='auto', review=None):
               'status': 'needs-review', 'hardwareValidated': False,
               'blockers': [], 'warnings': [], 'approvedProfile': approved,
               'pageHashes': [sha(data[o:o+4096]) for o in range(0, size, 4096)]}
+    if backend == 'ram':
+        report['requiredContiguousImageBytes'] = report['pages'] * 4096 + 8191
+        report['warnings'].append('Image allocation excludes the context, resident runner, allocator overhead and guest heap')
+    if approved and approved.get('hardwareEvidence'):
+        report['hardwareEvidence'] = approved['hardwareEvidence']
     # These offsets describe bytes in the image. Physical Flash addresses must
     # always be obtained afresh on the calculator, never stored in a PC profile.
     try:
@@ -102,7 +107,7 @@ def analyze(source, requested='auto', review=None):
     elif backend == 'mapped':
         if approved and approved.get('adapter') == 'mapped-khicas-v1':
             report['status'] = 'candidate'
-            report['warnings'].append('Exact KhiCAS adapter reduces its arena from 166 KiB to 106 KiB; hardware acceptance pending')
+            report['warnings'].append('Exact KhiCAS adapter reduces its arena from 166 KiB to 106 KiB; first launch reported working, same-icon MENU resume remains unverified')
         else:
             report['blockers'].append('No reviewed mapped runtime adapter for this SHA-256')
     else:
@@ -171,8 +176,9 @@ def prepare(source, output, requested='auto', review=None, artifacts=None):
                 report['warnings'].append(f'Build and supply {loader}; this folder is not yet installable')
         write_json(stage / 'analysis.json', report)
         note = ('将 calculator 文件夹中的全部文件复制到计算器存储根目录。\n'
-                f'启动 {loader}；Loader 使用 EXE 选择，KLoad/KhiMap 自动加载对应 BIN。\n'
-                '退出到系统后，重新打开启动器再加载。\n'
+                f'启动 {loader}；Loader 使用 EXE 选择，KLoad 阅读提示后按 EXE，KhiMap 自动加载 BIN。\n'
+                'KhiMap 从 MENU 选回后按 EXE 重新加载；此前计算不会保留。\n'
+                'KLoad 的实机直接选回路径仍待验证；需要全新启动时先进入 RUN-MAT 再打开 KLoad。\n'
                 'Loader/KLoad 保留结果文件；KhiMap 显示阶段和错误码，当前版本不写文件。\n'
                 if report['status'] == 'candidate' else
                 '尚未生成可直接测试的完整包。查看 analysis.json 的 blockers 和 warnings。\n')

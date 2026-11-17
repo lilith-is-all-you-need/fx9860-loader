@@ -23,6 +23,8 @@ The calculator reads the generated index and profiles and uses EXE to launch.
 
 RAM images are limited to 160 KiB *and* available contiguous heap, which may be
 much smaller on hardware. The mapped KhiCAS adapter is exact-version only.
+Real-device Fruit/Minesweeper image allocations failed; their RAM profiles are
+now blocked. See [the hardware findings](HARDWARE-20261117.md).
 For >2 MiB, [fx9860-large-loader](https://github.com/lilith-is-all-you-need/fx9860-large-loader)
 owns the experimental guest-refill backend. Arbitrary oversized G1As are not
 automatically made compatible by changing their filename.

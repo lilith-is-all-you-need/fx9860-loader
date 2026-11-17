@@ -12,7 +12,7 @@
     "probes/native-loader/src/callback.S": "81b5b7485490dba70091d699efd21de2e3894c2f27cf4aa6dda276f21e96f2be",
     "probes/native-loader/src/gateway.S": "bfa48f6f1c1d7d62b59080eba45e54d9836bade65a1451390fcad3abb21061dd",
     "probes/native-loader/src/loader.h": "b1ffdc57529d6d5141a64bf99deebe209c50c1b2eb8d6c9c91fe268f7b34b165",
-    "probes/native-loader/src/main.c": "306b5ce5cdc27489f089931428716562e56abe370049f390cfe0c54bc167f504",
+    "probes/native-loader/src/main.c": "7bfec2cbb30e47ea2f078ee0d065d3d92840e907c7fe526cf4ff3b74a91c555e",
     "probes/native-loader/src/probe.ld": "89f5a4db8a9b40b36348673378fadae67170611300907faec7b88c62ab088562",
     "probes/native-loader/src/resident.c": "69326a37d7dc164c9bb22e9c3c771899e1f4eef7d38862191df0c7a935949a1d",
     "probes/native-loader/src/resident_syscalls.S": "d03b94c38b6f794a0da51fe7d53e75a4a50c4b1a65edcc0125bb9ad59422fd96",
@@ -24,8 +24,9 @@
     "probes/native-loader/tools/test_prepare.py": "71ee2b737f2c8b41a89065d9a2357ed0da65c2444bee66d18ab2084bb4588a64",
     "probes/native-loader/tools/verify.py": "8bcf189ba266077fc6ed0c93de48726a5beca6d3812a9588a4c1b855419c0a2e",
     "probes/native-loader/validation-results.json": "02bddb4b71aa2f3dce0c960fd9e56d1b32b3d0726ccd44ec800359a423f4728c",
-    "profiles/registry.json": "60d96ff8e10fcad6702587cde4846eee2c65235e5488104dd73ca27120876f0f",
-    "tests/test_loader_suite.py": "c6c38ef65def8ef37e105fdb7d4787e04d8b842b93a077bf2c73cff5004d3d72",
-    "tooling/loader_suite.py": "9767783c7ce1cd34af04c5a0fb67b54e292c126ba0c2e177f256bbe61522d989"
+    "profiles/hardware-results-20261117.json": "c24be34640e3c44602b0de63a29f7a58b36a239173ca200b5609ef637ffc2f6c",
+    "profiles/registry.json": "3feae6f6514c1bae80f9ecb68cd88f1f445d5a2ce05b0d397f56c6b9abbaa5c7",
+    "tests/test_loader_suite.py": "7ddd4f8f6e31addba82d5cccec577d524ca18012fe6a9a35dabbd2df1075fa0f",
+    "tooling/loader_suite.py": "0d430bf45e3a9e99768e3aff1c667518acab5b3980e98573a24cd7ed8a07b50d"
   }
 }

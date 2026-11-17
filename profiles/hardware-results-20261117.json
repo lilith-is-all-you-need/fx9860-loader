@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 1,
+  "importedOn": "2026-11-17",
+  "source": "User device reports and returned Loader.txt files",
+  "menuOperation": "MENU then directly select the same Loader icon",
+  "screenReported": "Probably Loading; exact wording not confirmed",
+  "notes": [
+    "First-launch success is user-reported, not an instrumented lifecycle pass.",
+    "The allocation failures do not establish the maximum free contiguous heap.",
+    "No KLoad or Giac runtime log was returned in this result directory."
+  ],
+  "programs": [
+    {
+      "title": "Giac mapped RC1",
+      "sha256": "176a10ffa918f24f0b98ef89156dc04b02df09190dae0fbe0e3d59780e9455f8",
+      "firstLaunch": "user-reported-working",
+      "sameIconMenuResume": "user-reported-stuck",
+      "stableLifecycleValidated": false
+    },
+    {
+      "title": "KhiCAS",
+      "sha256": "4a9d1c18009d987dc7c8745b7fc099b3c6e8006ebbb2ee5e4b483934be757473",
+      "firstLaunch": "user-reported-working",
+      "sameIconMenuResume": "user-reported-stuck",
+      "stableLifecycleValidated": false
+    },
+    {
+      "title": "Minesweeper",
+      "sha256": "0cf3f1fa10c818cf5126d0555c2828151283989457c7da8844a422aeb21d8284",
+      "firstLaunch": "rejected-before-target",
+      "requiredImageAllocation": 135167,
+      "allocatedContextBytes": 3036,
+      "allocationReturned": 0,
+      "logSha256": "eeeb99071c1a8429111cb09918113779480015eb2fcc0396f2b5e1ebe8aadc3b",
+      "log": "FXLOADER\nVersion=1\nTARGET=target\nALLOC_CONTEXT=00000BDC,88050024\nIMAGE_BYTES_PAGES=0001EDF0,0000001F\nALLOC_IMAGE=00020FFF,00000000\nREJECTED=No image memory"
+    },
+    {
+      "title": "Fruit Ninja",
+      "sha256": "5c5bd8f2c42add4feb9eb4112f134d00c45066eb80be805c3f872b27f451eaf6",
+      "firstLaunch": "rejected-before-target",
+      "requiredImageAllocation": 77823,
+      "allocatedContextBytes": 3036,
+      "allocationReturned": 0,
+      "logSha256": "4aa1840893852e856d6e999570b9d8df9598d86e92516c0e001d85887d5b6ec0",
+      "log": "FXLOADER\nVersion=1\nTARGET=target\nALLOC_CONTEXT=00000BDC,88050024\nIMAGE_BYTES_PAGES=000102BC,00000011\nALLOC_IMAGE=00012FFF,00000000\nREJECTED=No image memory"
+    }
+  ]
+}
