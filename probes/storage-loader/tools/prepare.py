@@ -11,7 +11,10 @@ scanner=importlib.util.module_from_spec(spec);spec.loader.exec_module(scanner)
 def profile(data,forbidden=()):
     packed,report=scanner.profile(data,forbidden)
     if len(data)>2*1024*1024:raise ValueError('Flash mapping requires an image within the OS 2 MiB window')
-    if report['unadaptedControlTransfers']:raise ValueError('Direct reset/exit transfer requires a runtime adapter')
+    if report['unadaptedControlTransfers']:
+        raise scanner.ReviewRequired('Direct reset/exit transfer requires a runtime adapter',
+                                     {'unadaptedControlTransfers':report['unadaptedControlTransfers'],
+                                      'recognizedGateCount':len(report['patches'])})
     packed=bytearray(packed);packed[:8]=b'FXLDF001';struct.pack_into('>I',packed,20,2)
     pages=sorted({p['offset']//4096 for p in report['patches']})
     even=sum(p%2==0 for p in pages);odd=len(pages)-even

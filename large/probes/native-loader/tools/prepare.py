@@ -12,6 +12,25 @@ import struct
 
 BASE=0x300000
 
+class ReviewRequired(ValueError):
+    """Preserve the existing error string and retain the evidence for desktop reports."""
+    def __init__(self, message, evidence):
+        super().__init__(message)
+        self.evidence = evidence
+
+def reads_rom_signature(data, at):
+    # A compiler-emitted big-endian byte-read loop followed by comparison
+    # with the first ROM instruction word. This is a diagnostic, never a gate.
+    if at + 26 > len(data):
+        return False
+    tail = data[at + 2:at + 22]
+    if tail != bytes.fromhex('4f22 7ff4 0009 6270 4118 622c 4310 7701 8ff9 212b'):
+        return False
+    load, compare = struct.unpack_from('>HH', data, at + 22)
+    pool = ((at + 26) & ~3) + (load & 255) * 4
+    return (data[at] == 0xd7 and load >> 8 == 0xd2 and compare == 0x3120
+            and data[pool:pool + 4] == bytes.fromhex('d2024008'))
+
 def profile(data, forbidden=()):
     if len(data)<516 or len(data)>0x400000 or bytes(x^255 for x in data[:8])!=b'USBPower':
         raise ValueError('not a supported G1A container')
@@ -20,6 +39,7 @@ def profile(data, forbidden=()):
     u16=lambda n:struct.unpack_from('>H',data,n)[0]
     u32=lambda n:struct.unpack_from('>I',data,n)[0]
     gates={}
+    signature_reads=[]
     # MOV.L @(disp,PC),Rn; MOV.L @(disp,PC),R0; JMP @Rn; NOP.
     # The compiler emits both this shared-pool and per-function-pool form.
     for at in range(512,len(data)-7,2):
@@ -27,6 +47,8 @@ def profile(data, forbidden=()):
         if op>>12!=13 or reg in (0,15):continue
         pool=((at+4)&~3)+(op&255)*4
         if pool+4>len(data) or u32(pool)!=0x80010070:continue
+        if reads_rom_signature(data, at):
+            signature_reads.append({'literalOffset':pool,'instructionOffset':at})
         if u16(at+2)>>8==0xd0 and u16(at+4)==(0x402b|(reg<<8)) and u16(at+6)==9:
             number_pool=((at+6)&~3)+(u16(at+2)&255)*4
             if number_pool+4>len(data):continue
@@ -39,7 +61,10 @@ def profile(data, forbidden=()):
         gates.setdefault(pool,[]).append({'stubOffset':at,'number':number,'form':kind,'instructionHex':data[at:at+size].hex()})
     literals=[n for n in range(512,len(data)-3,4) if u32(n)==0x80010070]
     unclassified=sorted(set(literals)-set(gates))
-    if unclassified:raise ValueError('unclassified syscall gate literals: '+str(unclassified))
+    if unclassified or signature_reads:
+        raise ReviewRequired('unclassified syscall gate literals: '+str(sorted(set(unclassified)|{r['literalOffset'] for r in signature_reads})),
+                             {'unclassifiedGateLiterals':unclassified, 'romSignatureReads':signature_reads,
+                              'recognizedGateCount':len(gates)})
     if not gates:raise ValueError('no recognized syscall gate; adapter required')
     if len(gates)>64 or len(forbidden)>8:raise ValueError('profile table limit')
     hazards=[]
@@ -48,7 +73,7 @@ def profile(data, forbidden=()):
         pool=((at+4)&~3)+(op&255)*4
         if op>>12==13 and pool+4<=len(data) and u16(at+2)==(0x402b|(reg<<8)) and u16(at+4)==9 and u32(pool)==0xa0000000:
             hazards.append({'kind':'direct jump to boot-ROM alias; exit adapter required',
-                            'instructionOffset':at,'literalOffset':pool,'destination':0xa0000000})
+                            'instructionOffset':at,'jumpOffset':at+2,'literalOffset':pool,'destination':0xa0000000})
     digest=hashlib.sha256(data).digest()
     out=struct.pack('>8s6I',b'FXLDP001',1,len(data),BASE+512,1,len(gates),len(forbidden))+digest
     out+=b''.join(struct.pack('>II',*r) for r in forbidden)+bytes(8*(8-len(forbidden)))

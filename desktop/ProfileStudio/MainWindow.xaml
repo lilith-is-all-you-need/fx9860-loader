@@ -81,7 +81,8 @@
         <TextBlock x:Name="PageHint" Style="{StaticResource Muted}" FontSize="12"/>
         <Border Height="1" Background="#E3E7ED" Margin="0,4"/>
         <TextBlock x:Name="DetailStatus" FontWeight="SemiBold" Foreground="#166A55" TextWrapping="Wrap"/>
-        <TextBlock x:Name="DetailBody" TextWrapping="Wrap" FontSize="13"/>
+        <TextBlock x:Name="DetailBody" TextWrapping="Wrap" FontSize="13" IsTextSelectionEnabled="True"/>
+        <TextBlock x:Name="DetailAnalysis" Style="{StaticResource Muted}" FontSize="13" IsTextSelectionEnabled="True" Visibility="Collapsed"/>
         <TextBlock x:Name="DetailPath" TextWrapping="Wrap" FontSize="11" Foreground="#687486" IsTextSelectionEnabled="True"/>
         <StackPanel Orientation="Horizontal" Spacing="8">
          <Button x:Name="OpenButton" IsEnabled="False" Click="OpenResult"/>

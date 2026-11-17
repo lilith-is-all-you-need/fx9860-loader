@@ -20,8 +20,7 @@ runtime profile and log files together. Different program subfolders can coexist
 Follow analysis.json for the required launcher and any program-specific adaptation.
 Do not combine identically named files from different program subfolders.
 
-The same input and settings reuse an unchanged result directory. Different settings or modified results produce a conflict,
-preserving existing files and logs. Choose another output root when changing options.
+Use the same output root to compare modes. A new basic report uses the name and short hash. A deep report usually adds `-deep`. A new basic report alongside an older version can add `-basic`. Retrying an incomplete deep analysis preserves the earlier report. Matching inputs and settings reuse a verified complete result. Both modes use the same calculator program ID.
 
 ## Status and limits
 
@@ -29,14 +28,18 @@ preserving existing files and logs. Choose another output root when changing opt
 | --- | --- |
 | Dependencies ready | Program dependencies are ready for testing with their matching Loader |
 | Ready to test | Program dependencies and a matching Loader were exported together |
-| Adapter required | Analysis is available, but the program cannot run from the report alone |
-| Analysis incomplete | Analysis failed, timed out or lacked dependencies; review diagnostics |
+| Review required | Details identify the behavior the chosen Loader cannot verify, the relevant evidence and the next step. This can also apply to ordinary-sized files. |
+| Adapter required | Details identify the missing runtime support. |
 | Failed | Invalid input, output conflict or another error; see task details |
 
 Readiness is not proof of device compatibility or stability. Test launch, exit, MENU return and re-entry.
 Unknown oversized programs still need a runtime adapter contract. Ghidra does not automatically resolve exception dispatch,
 VBR, MMU ownership or memory coexistence. Extended profile capacity follows the input and runtime limits;
 699 pages is not a universal fixed capacity. Physical Flash page addresses are queried on the calculator.
+
+Select a file in the queue to read its specific diagnosis. For example, a program can reach its first screen and still restart the calculator on exit. File offsets are measured from the start of the input file.
+
+Task details show whether Ghidra ran for that file. A completed run displays function and instruction counts. Open `ghidra/evidence.json` to review references. Missing dependencies, timeouts and analysis errors have separate messages. Check the preparation result to see whether a calculator folder was generated.
 
 Basic analysis does not require Ghidra. Deep analysis requires Ghidra and a full JDK, bundled or supplied separately.
 Each file has a default ten-minute analysis limit. Tasks run sequentially and can be cancelled; completed results remain.

@@ -39,7 +39,7 @@ public sealed partial class MainWindow : Window
         SidebarStep.Text = L.T("01  准备加载文件", "01  Prepare files");
         OfflineTitle.Text = L.T("全部在本机处理", "Processed locally");
         OfflineBody.Text = L.T("离线生成 · 无需 LLM\n保留原始镜像布局", "Offline · No LLM required\nPreserves image layout");
-        VersionText.Text = L.T("预览版 0.2", "Preview 0.2");
+        VersionText.Text = L.T("测试版 0.2.0-beta.2", "Beta 0.2.0-beta.2");
         PageTitle.Text = L.T("准备计算器加载文件", "Prepare calculator files");
         PageSubtitle.Text = L.T("一份程序，一套固定目录。Loader 可共用，也可随时单独导出。", "One stable folder per program. Share a Loader or export it separately.");
         CompatibilityNote.Title = L.T("生成文件 ≠ 已验证兼容", "Generated does not mean verified");
@@ -50,7 +50,7 @@ public sealed partial class MainWindow : Window
         OutputTitle.Text = L.T("保存位置", "Output location");
         OutputBox.PlaceholderText = L.T("选择结果根目录", "Choose an output root");
         BrowseButton.Content = L.T("浏览", "Browse");
-        OutputHint.Text = L.T("目录由名称 + 短 hash 标识。同一输入与配置可复用；配置冲突会明确提示，不覆盖旧日志。", "Folders use a name + short hash. Matching input and settings reuse results; conflicts are reported without replacing logs.");
+        OutputHint.Text = L.T("目录按名称和短 hash 命名。可在同一保存位置对照基础分析和 Ghidra 深度分析。", "Folders use the name and a short hash. Compare basic and Ghidra results in the same output location.");
         IncludeLoaderBox.Content = L.T("同时导出配套 Loader", "Include matching Loader");
         LoaderHint.Text = L.T("默认只生成程序依赖。已有 Loader 时直接复制程序目录；丢失时可用下方按钮单独导出。", "The default export contains program dependencies only. Keep your shared Loader, or export a replacement below.");
         Advanced.Header = L.T("Ghidra 深度分析", "Ghidra analysis");
@@ -119,6 +119,7 @@ public sealed partial class MainWindow : Window
                 schemaVersion = 2, language = L.English ? "en" : "zh-CN", mode,
                 includeLoader = IncludeLoaderBox.IsChecked == true, operationError,
                 exportedOutput, exportResult, progress = ProgressText.Text,
+                selected = new { name = DetailName.Text, status = DetailStatus.Text, body = DetailBody.Text, analysis = DetailAnalysis.Text },
                 items = Items.Select(x => new { x.Name, x.StatusCode, x.Status, x.Output, x.Error, x.Result })
             }, new JsonSerializerOptions { WriteIndented = true }));
             if (cfg.TryGetProperty("screenshot", out var screenshot))
@@ -190,9 +191,72 @@ public sealed partial class MainWindow : Window
     void SelectionChanged(object sender, SelectionChangedEventArgs e) => UpdateDetail();
     static bool Flag(JsonElement result, string key) => result.TryGetProperty(key, out var value) && value.ValueKind == JsonValueKind.True;
     static string Field(JsonElement result, string key, string fallback = "") => result.TryGetProperty(key, out var value) && value.ValueKind == JsonValueKind.String ? value.GetString()! : fallback;
+    static IEnumerable<string> Strings(JsonElement obj, string key) =>
+        obj.TryGetProperty(key, out var list) && list.ValueKind == JsonValueKind.Array
+            ? list.EnumerateArray().Where(x => x.ValueKind == JsonValueKind.String).Select(x => x.GetString()!)
+            : Enumerable.Empty<string>();
+    static string LocalizedField(JsonElement obj, string key)
+    {
+        string zh = Field(obj, key + "Zh"), en = Field(obj, key + "En");
+        return L.English && en.Length > 0 || zh.Length == 0 ? en : zh;
+    }
+    static List<string> DiagnosticDetails(JsonElement result)
+    {
+        var lines = new List<string>();
+        if (result.TryGetProperty("diagnostics", out var diagnostics) && diagnostics.ValueKind == JsonValueKind.Array)
+            foreach (var item in diagnostics.EnumerateArray())
+            {
+                if (item.ValueKind != JsonValueKind.Object) continue;
+                string reason = LocalizedField(item, "reason"), next = LocalizedField(item, "next");
+                if (reason.Length == 0) continue;
+                lines.Add(next.Length == 0 ? reason : reason + "\n" + next);
+            }
+        if (lines.Count == 0) lines.AddRange(Strings(result, "blockers"));
+        return lines;
+    }
+    static string DependencyProblem(string problem) => !L.English ? problem : problem switch {
+        "请选择完整的 Ghidra 安装目录。" => "Select the complete Ghidra installation directory.",
+        "请选择 JDK 目录；只有 JRE 不足以运行分析脚本。" => "Select a full JDK directory with both java.exe and javac.exe.",
+        "JDK 版本低于所选 Ghidra 的要求。" => "Install a JDK that meets the selected Ghidra version's requirements.",
+        _ when problem.StartsWith("无法启动 JDK：", StringComparison.Ordinal) => "Could not start the JDK: " + problem["无法启动 JDK：".Length..],
+        _ => problem
+    };
+    static string DeepAnalysisText(JsonElement result)
+    {
+        if (!result.TryGetProperty("deepAnalysis", out var deep) || deep.ValueKind != JsonValueKind.Object)
+            return L.T("Ghidra：这份结果没有记录运行状态。", "Ghidra: this result has no recorded analysis status.");
+        string state = Field(deep, "status");
+        int Count(string field) => deep.TryGetProperty(field, out var value) && value.ValueKind == JsonValueKind.Number && value.TryGetInt32(out int n) ? n : 0;
+        switch (state)
+        {
+            case "not-requested":
+                return L.T("Ghidra：本次未启用，仅做了基础分析。", "Ghidra: disabled for this run. Basic analysis only.");
+            case "completed":
+            case "partial":
+                int funcs = Count("functionCount"), instructions = Count("instructionCount");
+                string outcome = state == "completed" ? L.T("已完成", "completed") : L.T("仅部分完成", "partially completed");
+                return L.T($"Ghidra：{outcome}，记录了 {funcs:N0} 个函数、{instructions:N0} 条指令。", $"Ghidra: {outcome}. Recorded {funcs:N0} functions and {instructions:N0} instructions.") +
+                    "\n" + Field(deep, "evidence", "ghidra/evidence.json");
+            case "unavailable":
+                return string.Join("\n", new[] { L.T("Ghidra：已启用，依赖检查未通过。", "Ghidra: requested. Dependency checks failed.") }.Concat(Strings(deep, "problems").Select(DependencyProblem)));
+            case "failed":
+                var issues = new List<string> { L.T("Ghidra 分析失败。", "Ghidra analysis failed.") };
+                if (deep.TryGetProperty("exitCode", out var exit) && exit.TryGetInt32(out int code))
+                    issues.Add(L.T($"进程退出码 {code}。", $"Process exit code {code}."));
+                issues.AddRange(Strings(deep, "problems").Select(DependencyProblem));
+                string log = Field(deep, "log");
+                if (log.Length > 0) issues.Add(log);
+                return string.Join("\n", issues);
+            case "timeout":
+                return L.T("Ghidra：分析超时。查看 ghidra/console.log 中的最后一条记录。", "Ghidra: analysis timed out. See the final entry in ghidra/console.log.");
+            default:
+                return L.T("Ghidra 状态：", "Ghidra status: ") + state;
+        }
+    }
     void UpdateDetail()
     {
         if (DetailName == null) return;
+        DetailAnalysis.Text = ""; DetailAnalysis.Visibility = Visibility.Collapsed;
         if (QueueList.SelectedItem is not QueueItem item)
         {
             DetailName.Text = L.T("选择一个文件", "Select a file"); DetailSize.Text = L.T("添加需要准备的程序。", "Add a program to prepare.");
@@ -206,27 +270,16 @@ public sealed partial class MainWindow : Window
         OpenButton.IsEnabled = item.Output != null && Directory.Exists(item.Output);
         ReportButton.IsEnabled = item.Output != null && File.Exists(Path.Combine(item.Output, "analysis.json"));
         if (item.Result is not { } r) { DetailBody.Text = item.Error ?? L.T("自动选择加载方式，检查文件与分页边界。", "Selects a loading method and checks the input and page boundaries."); RawDetail.Text = item.Error ?? ""; return; }
-        string status = Field(r, "status"), backend = Field(r, "backend");
-        string body = status switch {
-            "program-ready" => L.T("程序依赖已生成，无需重复安装已有 Loader。将 calculator 内的程序目录复制到计算器相应位置；需要 Loader 时，可单独导出或勾选随包附带。", "Program dependencies are ready. Copy the program folders from calculator to the matching calculator location. Use your existing Loader, export one separately, or enable Include matching Loader."),
-            "candidate" => L.T("已生成含配套 Loader 的实机测试包。请按报告复制文件，验证运行、退出与重入。此状态不代表稳定性保证。", "A device test bundle with its matching Loader is ready. Follow the report and test launch, exit and re-entry. This is not a stability guarantee."),
-            "needs-adapter" or "needs-review" => L.T("已生成分析材料，但未建立可执行的运行时适配。未知超限程序需要 Ghidra 证据和适配合约，不能仅凭分页表直接运行。", "Analysis is available, but an executable runtime adapter is missing. Unknown oversized programs need Ghidra evidence and an adapter contract; a page table alone is insufficient."),
-            _ => L.T("尚未生成完整可测试结果，请查看诊断和报告。", "The result is not ready for device testing. Review the diagnostics and report.")
-        };
-        DetailBody.Text = L.Backend(backend) + "\n\n" + body;
-        if (Flag(r, "reused")) DetailBody.Text += "\n\n" + L.T("已复用相同输入与配置的结果，原有日志保留。", "Reused the matching input and settings; existing logs were preserved.");
-        if (r.TryGetProperty("deepAnalysis", out var deep))
-        {
-            string state = Field(deep, "status");
-            if (state == "completed")
-            {
-                int funcs = deep.TryGetProperty("functionCount", out var f) ? f.GetInt32() : 0;
-                int instructions = deep.TryGetProperty("instructionCount", out var n) ? n.GetInt32() : 0;
-                DetailBody.Text += "\n\n" + L.T($"Ghidra：{funcs:N0} 个函数、{instructions:N0} 条指令。证据保存在 ghidra 目录。", $"Ghidra: {funcs:N0} functions, {instructions:N0} instructions. Evidence is in the ghidra folder.");
-            }
-            else if (state != "" && state != "not-requested")
-                DetailBody.Text += "\n\n" + L.T("Ghidra 分析未完成，请检查依赖和日志。", "Ghidra analysis did not complete. Check the dependencies and logs.");
-        }
+        var body = DiagnosticDetails(r);
+        if (Flag(r, "programReady") || Flag(r, "installableCandidate"))
+            body.Add(Flag(r, "includesLoader")
+                ? L.T("配套 Loader 已随包导出。将 calculator 中的内容复制到计算器存储根目录，然后测试启动、退出和重入。", "The bundle includes the matching Loader. Copy the contents of calculator to the storage root, then test launch, exit and re-entry.")
+                : L.T("将 calculator 中的程序目录复制到计算器，保留 FXAPPS 层级。可使用已有 Loader 或单独导出。", "Copy the program folder from calculator, keeping the FXAPPS layout. Use your existing Loader or export one separately."));
+        else if (body.Count == 0)
+            body.Add(L.T("本次没有生成可测试的程序目录，报告未记录具体原因。", "This run produced no testable program folder and the report supplied no reason."));
+        if (Flag(r, "reused")) body.Add(L.T("已复用相同输入与配置的结果。", "Reused results for the same input and settings."));
+        DetailBody.Text = string.Join("\n\n", body);
+        DetailAnalysis.Text = DeepAnalysisText(r); DetailAnalysis.Visibility = Visibility.Visible;
         RawDetail.Text = JsonSerializer.Serialize(r, new JsonSerializerOptions { WriteIndented = true });
     }
     void SaveSettings()
@@ -276,14 +329,14 @@ public sealed partial class MainWindow : Window
         cancellation = new(); var token = cancellation.Token;
         if (cancelAfterMs > 0) cancellation.CancelAfter(cancelAfterMs);
         SetBusy(true); operationError = null;
-        int completed = 0, ready = 0;
+        int completed = 0, ready = 0, failed = 0;
         try
         {
             SaveSettings();
             foreach (var item in Items)
             {
                 token.ThrowIfCancellationRequested(); QueueList.SelectedItem = item;
-                item.StatusCode = "working"; item.Result = null; item.Error = null; item.Output = null; UpdateDetail();
+                item.StatusCode = "working"; item.BackendCode = ""; item.Result = null; item.Error = null; item.Output = null; UpdateDetail();
                 var args = new List<string> { "generate", "--input", item.Source, "--output-root", settings.Output, "--artifacts", engine.Artifacts };
                 if (settings.IncludeLoader) args.Add("--include-loader");
                 if (settings.Deep) args.AddRange(new[] { "--deep", "--ghidra", settings.Ghidra, "--java", settings.Java });
@@ -293,13 +346,15 @@ public sealed partial class MainWindow : Window
                     item.Result = result; item.Output = Field(result, "output");
                     item.StatusCode = Field(result, "status"); item.BackendCode = Field(result, "backend");
                     if (Flag(result, "programReady") || Flag(result, "installableCandidate")) ready++;
-                    completed++;
+                    else if (item.StatusCode is "failed" or "invalid-input") failed++;
                 }
                 catch (OperationCanceledException) { item.StatusCode = "cancelled"; item.Error = L.T("任务已停止；未完成内容不作为可用结果。", "The task stopped; incomplete files are not published as ready."); throw; }
-                catch (Exception ex) { item.StatusCode = "failed"; item.Error = ex.Message; }
+                catch (Exception ex) { item.StatusCode = "failed"; item.Error = ex.Message; failed++; }
+                completed++;
                 UpdateDetail();
             }
-            ProgressText.Text = L.T($"处理结束：{ready} 个已准备，{completed - ready} 个需继续适配，{Items.Count - completed} 个失败。", $"Finished: {ready} prepared, {completed - ready} need further work, {Items.Count - completed} failed.");
+            int review = completed - ready - failed;
+            ProgressText.Text = L.T($"处理结束：{ready} 个已准备，{review} 个仅生成报告，{failed} 个失败。", $"Finished: {ready} prepared, {review} reports only, {failed} failed.");
         }
         catch (OperationCanceledException) { operationError = "cancelled"; ProgressText.Text = L.T("任务已取消，已完成结果保留。", "Cancelled. Completed results were retained."); UpdateDetail(); }
         catch (Exception ex) { operationError = ex.Message; ProgressText.Text = ex.Message; }
@@ -337,7 +392,7 @@ public sealed partial class MainWindow : Window
                 using var doc = JsonDocument.Parse(line); var r = doc.RootElement;
                 DependencyText.Text = r.GetProperty("available").GetBoolean()
                     ? L.T("可用：", "Available: ") + $"Ghidra {Field(r, "ghidraVersion")} / JDK {r.GetProperty("javaMajor").GetInt32()}"
-                    : string.Join("\n", r.GetProperty("problems").EnumerateArray().Select(x => x.GetString()));
+                    : string.Join("\n", Strings(r, "problems").Select(DependencyProblem));
             }, CancellationToken.None);
         }
         catch (Exception ex) { DependencyText.Text = ex.Message; }

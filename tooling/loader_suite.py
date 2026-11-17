@@ -99,6 +99,8 @@ def analyze(source, requested='auto', review=None):
             report['staticAnalysis'] = {'method': 'source-declared resident API and immutable SHA-256 binding', 'runtimeContract': 'fxlarge-map-api-v1', 'imagePatches': []}
     except ValueError as ex:
         report['blockers'].append(str(ex))
+        if hasattr(ex, 'evidence'):
+            report['staticAnalysis'] = ex.evidence
     if review is not None:
         required = {'schemaVersion', 'sha256', 'backend', 'memoryReviewed',
                     'callbacksReviewed', 'forbiddenPhysicalRam'}

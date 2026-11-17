@@ -4,7 +4,7 @@ Prepare and launch add-ins on the Casio fx-9860GIII. The Windows app, calculator
 launchers and profile tools share one release. FxProfile appears as **FX Profile
 Studio** in the Windows UI.
 
-**[Download v0.2.0-beta.1 / 下载测试版](https://github.com/lilith-is-all-you-need/fx_universal_loader/releases/tag/v0.2.0-beta.1)** · [中文使用说明](desktop/ProfileStudio/README.zh-CN.md) · [English guide](desktop/ProfileStudio/README.en.md)
+**[Download v0.2.0-beta.2 / 下载测试版](https://github.com/lilith-is-all-you-need/fx_universal_loader/releases/tag/v0.2.0-beta.2)** · [中文使用说明](desktop/ProfileStudio/README.zh-CN.md) · [English guide](desktop/ProfileStudio/README.en.md)
 
 | Download | Use |
 | --- | --- |

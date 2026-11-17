@@ -53,10 +53,10 @@ class DesktopJobTests(unittest.TestCase):
         p=json.loads((self.root/'output/paging-plan.json').read_text('utf-8'))
         self.assertFalse(p['requiresExtendedRefill']);self.assertEqual(p['pages'][-1]['validBytes'],4096)
 
-    def test_missing_deep_dependencies_never_publish_a_calculator_bundle(self):
+    def test_missing_optional_dependencies_preserve_valid_bundle(self):
         r=self.generate(deep=True,ghidra=str(self.root/'absent'),java=str(self.root/'absent-jdk'))
-        self.assertEqual(r['status'],'analysis-incomplete');self.assertFalse(r['installableCandidate'])
-        self.assertFalse((self.root/'output/calculator').exists())
+        self.assertEqual(r['status'],'program-ready');self.assertEqual(r['deepAnalysis']['status'],'unavailable')
+        self.assertTrue(r['programReady']);self.assertTrue((self.root/'output/calculator').exists())
         self.assertEqual((self.root/'output/original.bin').read_bytes(),self.source.read_bytes())
 
     def test_headless_success_does_not_bypass_large_runtime_blocker(self):
@@ -64,9 +64,65 @@ class DesktopJobTests(unittest.TestCase):
         with patch.object(job,'ghidra_analyze',return_value={'status':'completed','analysisComplete':True}):r=self.generate(deep=True)
         self.assertEqual(r['status'],'needs-adapter');self.assertFalse((self.root/'output/calculator').exists())
 
-    def test_partial_analysis_is_not_reported_ready(self):
+    def test_partial_analysis_is_reported_separately_from_package(self):
         with patch.object(job,'ghidra_analyze',return_value={'status':'partial','analysisComplete':False}):r=self.generate(deep=True)
-        self.assertEqual(r['status'],'analysis-incomplete');self.assertFalse((self.root/'output/calculator').exists())
+        self.assertEqual(r['status'],'program-ready');self.assertEqual(r['deepAnalysis']['status'],'partial')
+        self.assertTrue((self.root/'output/calculator').exists())
+
+    def test_distinct_blockers_include_offsets_and_actions_in_both_languages(self):
+        data=image()
+        struct.pack_into('>I',data,0x250,0x80010070)
+        self.source.write_bytes(data)
+        r=self.generate('unknown')
+        d,=r['diagnostics']
+        self.assertEqual(d['code'],'unknown-gate-use')
+        self.assertIn('0x250',d['reasonZh']);self.assertTrue(d['nextEn'])
+        data=image()
+        data[0x220:0x226]=bytes.fromhex('d103412b0009')
+        struct.pack_into('>I',data,0x230,0xa0000000)
+        self.source.write_bytes(data)
+        r=self.generate('direct')
+        d,=r['diagnostics']
+        self.assertEqual(d['code'],'direct-reset-transfer');self.assertIn('0x220',d['reasonEn'])
+        self.assertEqual(d['evidence']['transfers'][0]['literalOffset'],0x230)
+        self.assertFalse(r['programReady'])
+        self.assertIn(d['reasonZh'],(Path(r['output'])/'阅读说明.txt').read_text('utf-8-sig'))
+        job.attach_ghidra_refs([d],{'candidateLiteralPools':[{'offset':0x230,'references':[{'from':'00300220'}]}],
+                                    'controlFlowSites':[{'fileOffset':0x222,'instruction':'jmp @r1','recoveredTargets':['a0000000']}]})
+        self.assertIn('1 条控制流记录',d['reasonZh'])
+        self.assertEqual(d['evidence']['ghidraControlFlow'][0]['fileOffset'],0x222)
+
+    def test_signature_inspection_remains_outside_generic_call_profile(self):
+        data=image(0x300)
+        data[0x240:0x25a]=bytes.fromhex('d70f 4f22 7ff4 0009 6270 4118 622c 4310 7701 8ff9 212b d20b 3120')
+        struct.pack_into('>II',data,0x280,0x80010070,0xd2024008)
+        self.source.write_bytes(data)
+        d,=self.generate()['diagnostics']
+        self.assertEqual(d['code'],'rom-signature-read')
+        self.assertIn('0x240',d['reasonZh']);self.assertIn('0x280',d['reasonEn'])
+
+    def test_same_root_preserves_basic_and_deep_reports_and_can_retry_failed_analysis(self):
+        data=image();struct.pack_into('>I',data,0x250,0x80010070);self.source.write_bytes(data)
+        root=self.root/'results'
+        def complete(source,directory,*args):
+            directory.mkdir()
+            pools=[{'offset':0x250,'references':[{'from':'00300208'}]}]
+            job.write(directory/'evidence.json',{'inputSha256':job.suite.sha(data),'analysisComplete':True,
+                         'imageBase':0x300000,'entry':0x300200,'imageBytes':len(data),'candidateLiteralPools':pools})
+            return {'status':'completed'}
+        with contextlib.redirect_stdout(io.StringIO()):
+            basic=job.generate(self.source,output_root=root)
+            again=job.generate(self.source,output_root=root)
+            failed=job.generate(self.source,output_root=root,deep=True)
+            with patch.object(job,'ghidra_analyze',side_effect=complete) as analyze:
+                success=job.generate(self.source,output_root=root,deep=True)
+                reused=job.generate(self.source,output_root=root,deep=True)
+                self.assertEqual(analyze.call_count,1)
+        self.assertTrue(again['reused']);self.assertTrue(reused['reused'])
+        self.assertEqual(success['output'],reused['output']);self.assertFalse(success['programReady'])
+        self.assertIn('1 条引用',success['diagnostics'][0]['reasonZh'])
+        self.assertEqual(failed['output'],basic['output']+'-deep')
+        self.assertEqual(success['output'],basic['output']+'-deep-2')
 
     def test_input_change_after_initial_analysis_cannot_change_packaged_bytes(self):
         original=self.source.read_bytes()

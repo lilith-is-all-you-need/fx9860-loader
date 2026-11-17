@@ -18,7 +18,8 @@ public static class L
         "cancelled" => T("已取消", "Cancelled"), "failed" or "invalid-input" => T("失败", "Failed"),
         "candidate" => T("可实机测试", "Ready to test"),
         "program-ready" => T("依赖已准备", "Dependencies ready"),
-        "needs-review" or "needs-adapter" => T("需要运行时适配", "Adapter required"),
+        "needs-review" => T("需复核", "Review required"),
+        "needs-adapter" => T("需要运行时适配", "Adapter required"),
         "profile-only" => T("配套不完整", "Incomplete bundle"),
         "analysis-incomplete" => T("深度分析未完成", "Analysis incomplete"), _ => code
     };
