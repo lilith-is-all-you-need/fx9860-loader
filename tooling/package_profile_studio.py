@@ -28,7 +28,8 @@ def assemble(publish,python,artifacts,output,ghidra=None,jdk=None):
     manifest=json.loads((artifacts/'manifest.json').read_text('utf-8-sig'))
     if manifest.get('schemaVersion')!=2 or manifest.get('bundleFormat')!=2:
         raise ValueError('Profile Studio 0.2 requires bundle format 2 Loader artifacts')
-    for name in ('FlashLd.g1a','KLoad.g1a','ExtLoad.g1a'):
+    bundled = ('FlashLd.g1a', 'ExtLoad.g1a')
+    for name in bundled:
         source=artifacts/name
         if not source.is_file():raise FileNotFoundError(source)
         if manifest.get('files',{}).get(name)!=hashlib.sha256(source.read_bytes()).hexdigest():
@@ -44,7 +45,12 @@ def assemble(publish,python,artifacts,output,ghidra=None,jdk=None):
                  'probes/native-loader/tools/prepare.py','probes/storage-loader/tools/prepare.py','probes/mapped-loader/tools/prepare.py']:
         dest=engine/name;dest.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(ROOT/name,dest)
     shutil.copytree(ROOT/'tooling/ghidra',engine/'tooling/ghidra')
-    shutil.copytree(artifacts,engine/'loader-artifacts')
+    launchers = engine/'loader-artifacts'
+    launchers.mkdir()
+    for name in bundled:
+        shutil.copyfile(artifacts/name, launchers/name)
+    manifest['files'] = {name: manifest['files'][name] for name in bundled}
+    (launchers/'manifest.json').write_text(json.dumps(manifest, indent=2)+'\n', encoding='utf-8')
     for src in [ghidra,jdk]:
         if src:shutil.copytree(src,output/'dependencies'/src.name)
     shutil.copyfile(ROOT/'LICENSE',output/'LICENSE.txt')

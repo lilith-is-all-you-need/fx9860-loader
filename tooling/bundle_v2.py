@@ -117,11 +117,14 @@ def prepare(data, report, result, suite, artifacts=None, include_loader=False):
     return report
 
 
-def export_loaders(output, artifacts, backend='all'):
+def export_loaders(output, artifacts, backend='flash'):
     output = Path(output).resolve()
     if output.exists():
         raise FileExistsError('Loader export requires a new directory / 请使用新的导出目录。')
-    keys = list(LOADERS) if backend == 'all' else [backend]
+    keys = [backend]
+    if backend == 'all':
+        manifest = json.loads((Path(artifacts)/'manifest.json').read_text('utf-8-sig'))
+        keys = [key for key, name in LOADERS.items() if key == 'flash' or name in manifest.get('files', {})]
     blobs = [(LOADERS[k], *artifact(artifacts, LOADERS[k])) for k in keys]
     output.parent.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory(prefix='.fxloaders-', dir=output.parent) as temporary:
@@ -130,6 +133,7 @@ def export_loaders(output, artifacts, backend='all'):
         for name, data, digest in blobs:
             (stage/name).write_bytes(data)
         (stage/'checksums.json').write_text(json.dumps({n:d for n,b,d in blobs}, indent=2)+'\n', encoding='utf-8')
-        (stage/'README.txt').write_text('Copy the required .g1a to storage root; preserve its filename.\n将需要的 .g1a 复制到存储根目录，保留文件名。\nFlashLd: ordinary folders / 普通程序\nKLoad: reviewed KhiCAS adapter / 已适配 KhiCAS\nExtLoad: source-integrated oversized payloads / 接入运行库的超限程序\n', encoding='utf-8-sig')
+        names = ', '.join(name for name, data, digest in blobs)
+        (stage/'README.txt').write_text(names + '\nCopy to calculator storage root. Keep the listed filenames.\n复制到计算器存储根目录，保留上列文件名。\n', encoding='utf-8-sig')
         stage.rename(output)
     return {'status':'loader-exported', 'output':str(output), 'loaders':[n for n,b,d in blobs]}

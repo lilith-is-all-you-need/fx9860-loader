@@ -387,7 +387,7 @@ def main():
  g.add_argument('--review-profile',type=Path,help='SHA-bound review JSON with physical RAM exclusions')
  g.add_argument('--include-loader',action='store_true')
  e=sub.add_parser('export-loader');e.add_argument('--output',type=Path,required=True);e.add_argument('--artifacts',type=Path,default=ROOT/'loader-artifacts')
- e.add_argument('--backend',choices=['flash','mapped','extended','all'],default='all')
+ e.add_argument('--backend',choices=['flash','mapped','extended','all'],default='flash')
  a=p.parse_args()
  try:
   if a.command=='dependencies':print(json.dumps(dependency_status(a.ghidra,a.java),ensure_ascii=False));return 0

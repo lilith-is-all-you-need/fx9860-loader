@@ -4,7 +4,7 @@ Prepare and launch add-ins on the Casio fx-9860GIII. The Windows app, calculator
 launchers and profile tools share one release. FxProfile appears as **FX Profile
 Studio** in the Windows UI.
 
-**[Download v0.2.0-beta.4 / 下载测试版](https://github.com/lilith-is-all-you-need/fx_universal_loader/releases/tag/v0.2.0-beta.4)** · [中文使用说明](desktop/ProfileStudio/README.zh-CN.md) · [English guide](desktop/ProfileStudio/README.en.md)
+**[Download v0.2.0-beta.5 / 下载测试版](https://github.com/lilith-is-all-you-need/fx_universal_loader/releases/tag/v0.2.0-beta.5)** · [中文使用说明](desktop/ProfileStudio/README.zh-CN.md) · [English guide](desktop/ProfileStudio/README.en.md)
 
 | Download | Use |
 | --- | --- |
@@ -14,13 +14,13 @@ Studio** in the Windows UI.
 
 在 FxProfile 中选择 G1A 或 BIN，第一次安装时勾选“同时导出 Loader”。将输出目录中
 `calculator` 的内容复制到计算器存储根目录，保留 `FXAPPS/<ID>/` 层级。
-再次添加程序默认只需复制新程序目录。已有程序目录且缺启动器时，也可单独导出 Loader。
+再次添加程序默认只需复制新程序目录。已有程序目录且缺启动器时，也可使用“单独导出 FlashLd”。历史 KLoad 在 [CAS 参考发布页](https://github.com/lilith-is-all-you-need/fx9860-cas-reference/releases/tag/reference-2026.11) 单独下载。
 
 | Calculator file | Programs | Source |
 | --- | --- | --- |
 | `FlashLd.g1a` | Ordinary G1As up to 2 MiB using the Flash backend. Use Full verification for the first run. | [Folder protocol](probes/storage-loader/FOLDERS.en.md) |
 | `ExtLoad.g1a` | Programs built against the large runtime ABI, including the adapted Giac build. Table capacity and storage reserve come from the profile. | [Large runtime](large/docs/runtime.en.md) |
-| `KLoad.g1a` | Opt-in legacy memory-pool adapter for the reviewed KhiCAS image. Select `--backend mapped` to reproduce older runs. Automatic preparation of the ordinary KhiCAS G1A uses FlashLd. | [KhiCAS adapter](large/probes/mapped-loader/README.zh-CN.md) |
+| `KLoad.g1a` | Opt-in legacy memory-pool adapter for the reviewed KhiCAS image. Obtain the adapter from the CAS reference release. Select `--backend mapped` only for that historical run. Automatic preparation of the ordinary KhiCAS G1A uses FlashLd. | [KhiCAS adapter](large/probes/mapped-loader/README.zh-CN.md) |
 
 FlashLd releases its file-browser stack frame before starting a guest. A normal
 guest return completes cleanup and exits the launcher to the OS. The fx-9860GIII

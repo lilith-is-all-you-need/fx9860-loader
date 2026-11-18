@@ -68,7 +68,7 @@ public sealed partial class MainWindow : Window
         ResultsTitle.Text = L.T("输出内容", "What is exported");
         ResultsBody.Text = L.T("calculator/FXAPPS/：独立程序目录\nprofile、镜像和图标：供 Loader 读取\nanalysis.json：适配判断\npaging-plan.json：分页分析\nghidra/：可选深度分析", "calculator/FXAPPS/: program folders\nProfile, image and icon: Loader inputs\nanalysis.json: adaptation report\npaging-plan.json: page analysis\nghidra/: optional analysis evidence");
         ResultsHint.Text = L.T("不同程序目录可合并到 FXAPPS 下。请按每项报告使用对应加载方式；受阻项目只提供分析材料。", "Program folders can coexist in FXAPPS. Follow each report for its loading method; blocked inputs provide analysis only.");
-        ExportButton.Content = L.T("单独导出 Loader", "Export Loader");
+        ExportButton.Content = L.T("单独导出 FlashLd", "Export FlashLd");
         OpenExportButton.Content = L.T("导出目录", "Export folder");
         CancelButton.Content = L.T("取消", "Cancel"); GenerateButton.Content = L.T("分析并生成", "Analyze & generate");
         ProgressText.Text = L.T("准备就绪", "Ready");
@@ -370,13 +370,16 @@ public sealed partial class MainWindow : Window
         try
         {
             SaveSettings();
-            var result = await RunJob(new[] { "export-loader", "--output", Path.Combine(settings.Output, "FX-Loader"), "--artifacts", engine.Artifacts, "--backend", "all" },
+            string directory = Path.Combine(settings.Output, "FX-Loader");
+            for (int suffix = 2; Directory.Exists(directory) || File.Exists(directory); suffix++)
+                directory = Path.Combine(settings.Output, $"FX-Loader-{suffix}");
+            var result = await RunJob(new[] { "export-loader", "--output", directory, "--artifacts", engine.Artifacts, "--backend", "flash" },
                 message => ProgressText.Text = message, cancellation.Token);
             if (Field(result, "status") != "loader-exported")
                 throw new IOException(L.T("Loader 导出未完成，请查看诊断。", "Loader export did not complete. Check the diagnostics."));
             exportResult = result; exportedOutput = Field(result, "output");
             OpenExportButton.IsEnabled = Directory.Exists(exportedOutput);
-            ProgressText.Text = L.T("Loader 已单独导出：", "Loader exported to: ") + exportedOutput;
+            ProgressText.Text = L.T("FlashLd.g1a 已导出到 ", "FlashLd.g1a exported to ") + exportedOutput;
         }
         catch (OperationCanceledException) { operationError = "cancelled"; ProgressText.Text = L.T("已取消导出。", "Export cancelled."); }
         catch (Exception ex) { operationError = ex.Message; ProgressText.Text = ex.Message; }

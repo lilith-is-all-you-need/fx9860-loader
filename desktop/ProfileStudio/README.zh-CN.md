@@ -11,9 +11,9 @@
 4. 点击“分析并生成”。电脑端目录使用“原文件名 + 短 SHA-256”，完整摘要写入报告。
 5. 结果为“依赖已准备”时，使用已有的对应 Loader；结果为“可实机测试”时，包内包含 Loader。
    按报告把 calculator 内的内容复制到计算器存储根目录，保留 FXAPPS 的子目录层级。
-6. Loader 丢失时，无需添加输入文件，选择保存位置后点击“单独导出 Loader”。
+6. Loader 丢失时，无需添加输入文件，选择保存位置后点击“单独导出 FlashLd”。
    结果存放在该位置下的 FX-Loader 目录，可点击“导出目录”打开。
-   已有同名导出目录时会提示选择新的保存位置，避免覆盖文件。
+   已有同名目录时，程序会新建 FX-Loader-2 等目录。“导出目录”打开本次结果。
 
 普通程序位于 calculator/FXAPPS/<8字符标识>/。目录中包含 IMAGE.BIN、APP.MET、图标、
 运行 profile 及日志等配套文件；不同程序的子目录可合并到同一个 FXAPPS 下。
@@ -65,7 +65,7 @@ python tooling/package_profile_studio.py --publish C:/build/ProfileStudio --pyth
 ~~~
 
 打包脚本可用 --ghidra 和 --jdk 附带完整依赖目录；输出目录必须不存在。
-构件目录需包含 manifest.json 及对应 G1A。默认“导出 Loader”会校验并导出所有配套启动器。
+单独导出的计算器程序只有 FlashLd.g1a；checksums.json 记录这份文件的 SHA-256。[历史 KhiCAS 启动器](https://github.com/lilith-is-all-you-need/fx9860-cas-reference/releases/tag/reference-2026.11) 在参考项目中单独提供。
 打包过程同时纳入 bundle_v2.py、ext_profile.py、Ghidra 脚本、中英文手册和依赖许可证。
 支持 Windows 10 build 19041 及以上 x64；本轮实际环境为 Windows 11，验证范围见 VALIDATION.json。
 

@@ -237,7 +237,9 @@ class DesktopJobTests(unittest.TestCase):
             job.generate(self.source,output_root=self.root/'stable')
 
     def test_independent_loader_export_needs_no_input_and_checks_manifest(self):
-        r=job.bundle_v2.export_loaders(self.root/'loaders',self.artifacts,'flash')
+        r=job.bundle_v2.export_loaders(self.root/'loaders',self.artifacts)
+        self.assertEqual(r['loaders'], ['FlashLd.g1a'])
+        self.assertEqual([f.name for f in (self.root/'loaders').glob('*.g1a')], ['FlashLd.g1a'])
         self.assertEqual(r['status'],'loader-exported')
         self.assertEqual((self.root/'loaders/FlashLd.g1a').read_bytes(),(self.artifacts/'FlashLd.g1a').read_bytes())
         with self.assertRaises(FileExistsError):job.bundle_v2.export_loaders(self.root/'loaders',self.artifacts,'flash')

@@ -11,9 +11,9 @@ Select Chinese or English in the top-right menu. Settings are stored in LocalApp
 4. Click “Analyze & generate”. Each PC output folder uses the original name plus a short SHA-256; the report records the full hash.
 5. “Dependencies ready” means you use the corresponding existing Loader. “Ready to test” includes a matching Loader.
    Follow the report and copy calculator contents into calculator storage, preserving FXAPPS subfolders.
-6. To replace a missing Loader, choose an output location and click “Export Loader”. No input file is needed.
+6. To replace a missing Loader, choose an output location and click “Export FlashLd”. No input file is needed.
    The result is written to FX-Loader beneath that location. “Export folder” opens it.
-   If the destination already exists, select a different output root; existing files are not overwritten.
+   If the destination exists, the app creates FX-Loader-2 or the next free folder. “Export folder” opens this export.
 
 Ordinary program files live in calculator/FXAPPS/<8-character ID>/. Keep IMAGE.BIN, APP.MET, icon,
 runtime profile and log files together. Different program subfolders can coexist under FXAPPS.
@@ -65,7 +65,7 @@ python tooling/package_profile_studio.py --publish C:/build/ProfileStudio --pyth
 ~~~
 
 Optional --ghidra and --jdk arguments bundle full dependency directories. The package destination must not exist.
-Loader artifacts require manifest.json and the corresponding G1A files. “Export Loader” validates and exports all bundled launchers.
+Export FlashLd checks the build manifest and writes FlashLd.g1a and its SHA-256 receipt. The [historical KhiCAS launcher](https://github.com/lilith-is-all-you-need/fx9860-cas-reference/releases/tag/reference-2026.11) is available in the reference project.
 Packaging includes bundle_v2.py, ext_profile.py, Ghidra scripts, both manuals and dependency notices.
 Requires Windows 10 build 19041 or later, x64. Actual validation used Windows 11; see VALIDATION.json for its scope.
 
