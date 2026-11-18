@@ -4,7 +4,7 @@ Prepare and launch add-ins on the Casio fx-9860GIII. The Windows app, calculator
 launchers and profile tools share one release. FxProfile appears as **FX Profile
 Studio** in the Windows UI.
 
-**[Download v0.2.0-beta.3 / 下载测试版](https://github.com/lilith-is-all-you-need/fx_universal_loader/releases/tag/v0.2.0-beta.3)** · [中文使用说明](desktop/ProfileStudio/README.zh-CN.md) · [English guide](desktop/ProfileStudio/README.en.md)
+**[Download v0.2.0-beta.4 / 下载测试版](https://github.com/lilith-is-all-you-need/fx_universal_loader/releases/tag/v0.2.0-beta.4)** · [中文使用说明](desktop/ProfileStudio/README.zh-CN.md) · [English guide](desktop/ProfileStudio/README.en.md)
 
 | Download | Use |
 | --- | --- |
@@ -32,6 +32,10 @@ Both CAS launchers retain their earlier emulator coverage. Direct MENU re-entry
 and arbitrary oversized binaries still require separate validation. See the
 [earlier Flash tests](probes/storage-loader/FOLDER-VALIDATION.json) and
 [large-runtime checks](large/VALIDATION-DYNAMIC-20261118.json).
+
+## Experimental CAS reference / CAS 实验参考
+
+[KhiCAS and Giac archive / 实验手册与分支记录](https://github.com/lilith-is-all-you-need/fx9860-cas-reference) covers the original KhiCAS adapter and the 699-page and 701-page Giac builds. Beta.4 defaults to generic FlashLd for ordinary G1As. On RAM overlap FlashLd requests another OS allocation. If it cannot place its resident block, it reports the reason before starting the guest. Update both FlashLd.g1a and the original KhiCAS folder’s APP.FPF. KLoad remains an explicit historical choice.
 
 ## Development
 
