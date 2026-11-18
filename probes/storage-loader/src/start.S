@@ -38,3 +38,16 @@ _start:
 .Lmain: .long _main
 .Lsize: .long _ram_used
 .Lsizeword: .long 0x08100000
+
+/* Browser-only syscall. Keep it outside the relocatable guest runner. */
+    .section .text.browser_keywait,"ax"
+    .align 2
+    .global _r_browser_keywait
+_r_browser_keywait:
+    mov.l .Lkeywait,r0
+    mov.l .Los_gate,r2
+    jmp @r2
+    nop
+    .align 2
+.Lkeywait: .long 0x0247
+.Los_gate: .long 0x80010070

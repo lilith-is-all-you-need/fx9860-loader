@@ -38,7 +38,7 @@ for ident in a.ids.split(','):
    time.sleep(.2);shutil.copyfile(root/'screen.bmp',root/(name+'.bmp'))
   try:
    s.remote.request('c',wait=False)
-   wait(s,lambda:any(c['number']==0x90f for c in s.command('syscalls')['recent']))
+   wait(s,lambda:any(c['number']==0x247 for c in s.command('syscalls')['recent']))
    for _ in range(index):key(s,'DOWN')
    key(s,'EXE');time.sleep(3);snap('startup')
    assert 'READY_ENTRY=' in log() and 'FAILED' not in log() and 'FAIL_' not in log(),log()

@@ -65,10 +65,36 @@ static void item_icon(const Item *item,unsigned y)
  if(exact(name,bits,sizeof bits)){for(unsigned r=0;r<17;r++)for(unsigned c=0;c<4;c++)v[(y+r)*16+c]=bits[r*4+c];}
  else {rect(v,3,y+2,22,1);rect(v,3,y+2,1,14);rect(v,3,y+15,22,1);rect(v,24,y+2,1,14);rect(v,7,y+6,13,2);rect(v,7,y+10,9,2);}
 }
+/* Bkey_GetKeyWait, halt until a physical key, with OS menu processing on.
+ * The current selection stays in choose() while the OS is showing its menu.
+ * Only a reported key event supplies matrix coordinates for a browser action. */
+typedef enum {
+ BROWSER_OTHER, BROWSER_EXIT, BROWSER_EXE, BROWSER_UP, BROWSER_DOWN,
+ BROWSER_FULL, BROWSER_FAST
+} BrowserKey;
+
+static BrowserKey browser_key(void)
+{
+ int column=0,row=0;
+ uint16_t unused=0;
+ if(r_browser_keywait(&column,&row,0,0,0,&unused)!=1)return BROWSER_OTHER;
+ if(row==8 && column==4)return BROWSER_EXIT;
+ if(row==2 && column==3)return BROWSER_EXE;
+ if(row==9 && column==2)return BROWSER_UP;
+ if(row==8 && column==3)return BROWSER_DOWN;
+ if(row==10 && column==7)return BROWSER_FULL;
+ if(row==10 && column==6)return BROWSER_FAST;
+ return BROWSER_OTHER;
+}
 static int choose(Item *selected,unsigned *fast)
 {
  Item items[32];unsigned overflow=0,count=catalog(items,&overflow);if(!count)return -1;
  unsigned current=0;
+ /* A fresh entry can still see the EXE used on the OS menu. Ignore that
+  * gesture, including any repeat queued while the key was held. */
+ uint16_t held=0;
+ while(r_any_key(&held))r_sleep(10);
+ r_clear_keys();
  for(;;){
   r_clear();r_print(0,0,(const unsigned char *)"FX / APPS",0);r_print(76,0,(const unsigned char *)(*fast?"FAST":"FULL"),0);
   for(unsigned i=0;i<2;i++){unsigned k=(current/2)*2+i,y=12+20*i;if(k>=count)break;char title[15];unsigned j=0;for(;j<14&&items[k].title[j];j++)title[j]=items[k].title[j];title[j]=0;
@@ -76,12 +102,22 @@ static int choose(Item *selected,unsigned *fast)
    r_print(34,y+9,(const unsigned char *)(items[k].kind==2||items[k].bytes>0x200000?"EXT loader req.":"Flash mapping"),0);
   }
   r_print(0,53,(const unsigned char *)(overflow?"32 max F1/F2 EXE EXIT":"F1/F2 mode EXE EXIT"),0);r_display();
-  int key=0;r_getkey(&key);if(key==30002)return 0;
-  if(key==30018)current=(current+count-1)%count;
-  if(key==30023)current=(current+1)%count;
-  if(key==30009)*fast=0;
-  if(key==30010){show("Fast: trusts cache","May miss BIN changes");r_print(0,43,(const unsigned char *)"EXE: accept",0);r_display();int confirm=0;r_getkey(&confirm);if(confirm==30004)*fast=1;}
-  if(key==30004){if(items[current].kind==2||items[current].bytes>0x200000){show("Over 2 MiB window","Use EXT loader");int back=0;r_getkey(&back);continue;}*selected=items[current];return 1;}
+  BrowserKey key=browser_key();
+  if(key==BROWSER_EXIT)return 0;
+  if(key==BROWSER_UP)current=(current+count-1)%count;
+  if(key==BROWSER_DOWN)current=(current+1)%count;
+  if(key==BROWSER_FULL)*fast=0;
+  if(key==BROWSER_FAST){
+   show("Fast: trusts cache","May miss BIN changes");
+   r_print(0,43,(const unsigned char *)"EXE: accept",0);r_display();
+   if(browser_key()==BROWSER_EXE)*fast=1;
+  }
+  if(key==BROWSER_EXE){
+   if(items[current].kind==2||items[current].bytes>0x200000){
+    show("Over 2 MiB window","Use EXT loader");browser_key();continue;
+   }
+   *selected=items[current];return 1;
+  }
  }
 }
 static void finalize(Context *c){r_quit(0);r_free(c);}

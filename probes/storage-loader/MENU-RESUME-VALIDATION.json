@@ -1,0 +1,30 @@
+{
+  "old-held": {
+    "allocatedWithoutBrowserEXE": true,
+    "osMenu": false
+  },
+  "new-held": {
+    "allocatedWithoutBrowserEXE": false,
+    "osMenu": false
+  },
+  "new-menu": {
+    "sameIconEXE": true,
+    "heldSelectionEXE": true,
+    "preservedRow": true,
+    "fastPromptPreserved": true,
+    "explicitExit": true
+  },
+  "save-exit": {
+    "previousSaveSerial": 3,
+    "savedSerial": 5,
+    "boardPreserved": true,
+    "validSaveSlots": 2,
+    "targetReturned": true
+  },
+  "release": "local hardware candidate",
+  "sha256": "4f1d9e0d127b264aa5e13e4d7acd0a07d84a7016f08ccdb38cab5f7a392202ff",
+  "bytes": 20284,
+  "hardwareValidated": false,
+  "deviceReport": "Released FlashLd list: press MENU, select the same FlashLd icon with EXE, returned to the OS menu.",
+  "baselineObservation": "The HLE same-icon resume passed even with the released launcher. Cold entry with EXE already pressed did enter launch preparation with the released launcher. These are distinct paths."
+}

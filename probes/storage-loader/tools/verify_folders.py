@@ -49,7 +49,7 @@ def run(name,index=0,fast=False,expected_mode=0,fail=None,stress=False,cleanup=T
     with Session(storage/'FlashLd.g1a',out,options,a.emulator,timeout=30,cwd=a.output) as s:
         try:
             s.remote.request('c',wait=False)
-            wait(s,lambda:any(c['number']==0x90f for c in s.command('syscalls')['recent']))
+            wait(s,lambda:any(c['number']==0x247 for c in s.command('syscalls')['recent']))
             time.sleep(.2);shutil.copyfile(out/'screen.bmp',out/'browser.bmp')
             for _ in range(index):key(s,'DOWN')
             if fast:key(s,'F2');key(s,'EXE')
