@@ -30,6 +30,14 @@ def metadata(name, kind, size):
     return struct.pack('>8sIIII32s8s', b'FXAPPM01', 1, kind, size, 0, title, bytes(8))
 
 
+def g1a_icon(data):
+    # The G1A header stores 17 rows of 30 pixels, MSB first, at offset 0x4c.
+    rows = bytearray(data[0x4c:0x90])
+    for last_byte in range(3, len(rows), 4):
+        rows[last_byte] &= 0xfc  # Clear the two padding bits at the right edge.
+    return bytes(rows)
+
+
 def artifact(directory, name):
     directory = Path(directory)
     manifest = json.loads((directory/'manifest.json').read_text('utf-8-sig'))
@@ -67,7 +75,7 @@ def prepare(data, report, result, suite, artifacts=None, include_loader=False):
     app.mkdir(parents=True)
     (app/'IMAGE.BIN').write_bytes(data)
     (app/'APP.MET').write_bytes(metadata(ident['displayName'], {'flash':1,'extended':2,'mapped':3}[backend], len(data)))
-    (app/'ICON.BIN').write_bytes(data[0x40:0x84])
+    (app/'ICON.BIN').write_bytes(g1a_icon(data))
     if backend == 'flash':
         profile, _ = suite.module('probes/storage-loader/tools/prepare.py','fx_folder_scan').profile(data, ())
         (app/'APP.FPF').write_bytes(profile)

@@ -9,7 +9,7 @@ letters, digits or underscores. The computer generator chooses name + short hash
 | `IMAGE.BIN` | Unmodified complete G1A image, including its header |
 | `APP.FPF` | Existing 384-byte version 1 Flash mapping profile |
 | `APP.MET` | 64-byte program metadata described below |
-| `ICON.BIN` | Optional 32×17 monochrome bitmap, 68 bytes, MSB first |
+| `ICON.BIN` | Optional 30×17 monochrome icon from G1A offset `0x4C`. Each row uses four bytes, MSB first, with two zero padding bits (68 bytes total). |
 | `RUN.LOG` | Dedicated preallocated 4096-byte log, beginning `FXFLASH1` |
 | `VERIFY.CCH` | Optional preallocated 4096-byte verification cache; initially all zero |
 

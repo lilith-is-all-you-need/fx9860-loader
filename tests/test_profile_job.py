@@ -40,6 +40,24 @@ class DesktopJobTests(unittest.TestCase):
         for name in [app+'/IMAGE.BIN',app+'/APP.FPF',app+'/APP.MET','calculator/FlashLd.g1a','paging-plan.json','job-result.json']:
             self.assertEqual(sums[name],job.suite.sha((out/name).read_bytes()))
 
+    def test_package_extracts_17_icon_rows_after_build_date(self):
+        data = image()
+        data[0x3c:0x4a] = b'2026.1118.2307'
+        data[0x4a:0x4c] = b'\xaa\x55'
+        expected = bytearray()
+        for row in range(17):
+            pixels = bytes((0x80 >> (row % 8), row, 16 - row, 0xfc if row % 2 else 0x04))
+            expected.extend(pixels)
+            offset = 0x4c + row * 4
+            data[offset:offset + 4] = pixels
+            data[offset + 3] |= 0x03
+        data[0x90:0x94] = b'next'
+        self.source.write_bytes(data)
+        result = self.generate()
+        app = Path(result['output'])/'calculator/FXAPPS'/result['identity']['calculatorId']
+        self.assertEqual((app/'ICON.BIN').read_bytes(), expected)
+        self.assertEqual((app/'IMAGE.BIN').read_bytes(), data)
+
     def test_513th_page_has_only_one_byte_and_cannot_be_made_runnable(self):
         self.source.write_bytes(image(2097153));r=self.generate()
         p=json.loads((self.root/'output/paging-plan.json').read_text('utf-8'))

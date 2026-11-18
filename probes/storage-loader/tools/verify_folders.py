@@ -4,6 +4,8 @@ External samples/firmware are inputs; this script never writes target RAM.
 """
 import argparse,hashlib,json,shutil,struct,sys,time
 from pathlib import Path
+sys.path.insert(0,str(Path(__file__).resolve().parents[3]/'tooling'))
+from bundle_v2 import g1a_icon
 p=argparse.ArgumentParser(description=__doc__)
 for name in ('emulator-root','emulator','firmware','loader','bundle','output'):p.add_argument('--'+name,type=Path,required=True)
 a=p.parse_args()
@@ -18,7 +20,7 @@ for directory,ident in ids:
     data=(a.bundle/(ident+'.bin')).read_bytes()
     (root/'IMAGE.BIN').write_bytes(data);shutil.copyfile(a.bundle/(ident+'.fpf'),root/'APP.FPF')
     (root/'APP.MET').write_bytes(struct.pack('>8sIIII32s8s',b'FXAPPM01',1,1,len(data),0,ident.encode(),bytes(8)))
-    (root/'ICON.BIN').write_bytes(data[0x40:0x84])
+    (root/'ICON.BIN').write_bytes(g1a_icon(data))
     (root/'RUN.LOG').write_bytes(b'FXFLASH1\n'+b' '*(4096-9));(root/'VERIFY.CCH').write_bytes(bytes(4096))
 bad=storage/'FXAPPS'/'BAD00000';bad.mkdir(exist_ok=True);(bad/'APP.MET').write_bytes(bytes(64))
 extra=storage/'FXAPPS'/'ZZ123456';extra.mkdir(exist_ok=True)
