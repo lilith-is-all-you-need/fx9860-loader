@@ -39,6 +39,12 @@ class SuiteTests(unittest.TestCase):
         self.assertEqual((legacy['backend'], legacy['status']), ('mapped', 'candidate'))
         self.assertEqual(legacy['hardwareEvidence']['firstLaunch'], 'legacy-only')
 
+    def test_ram_exclusions_reject_invalid_or_unrepresentable_layouts(self):
+        for bad in (None, [[True, 0x88050000]], [[0x88055000, 0x88055000]],
+                    [[0x88050000 + i * 16, 0x88050008 + i * 16] for i in range(9)]):
+            with self.subTest(layout=bad), self.assertRaises(ValueError):
+                suite.flash_ram_ranges({'forbiddenPhysicalRam': bad}, {})
+
     def test_unknown_small_keeps_image_without_claiming_compatibility(self):
         out=self.root/'out';r=suite.prepare(self.src,out,artifacts=self.root/'missing')
         self.assertEqual(r['status'],'profile-only')

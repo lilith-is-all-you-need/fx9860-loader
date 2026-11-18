@@ -112,6 +112,14 @@ def job_diagnostics(report):
    add('runtime-review','检查项未通过。'+blocker,blocker,
        '查看 analysis.json 中对应的检查项及选用的 Loader。以该输入的 SHA-256 记录复核结果。',
        'Inspect the corresponding check and selected Loader in analysis.json. Record the review against this input’s SHA-256.')
+ ranges = report.get('ramPlacement', {}).get('forbiddenPhysicalRam', [])
+ if ranges and not report['blockers']:
+  addresses = ', '.join(f'[0x{lo:08X}, 0x{hi:08X})' for lo, hi in ranges)
+  add('device-ram-placement', '程序占用的 RAM 范围为 '+addresses+'。',
+      'Reserved guest RAM: '+addresses+'.',
+      'FlashLd 首先请求一个连续块。遇到重叠时再向 OS 请求其他位置，结果写入 RUN.LOG。',
+      'FlashLd requests one contiguous block and asks the OS for alternatives on overlap. See RUN.LOG for the result.',
+      forbiddenPhysicalRam=ranges)
  return items
 
 def attach_ghidra_refs(items,evidence):
@@ -277,17 +285,18 @@ def locate_result(base,options,digest):
    attempt+=1;path=variant.with_name(variant.name+'-'+str(attempt))
  return path,None
 
-def generate(source,output=None,backend='auto',artifacts=None,deep=False,ghidra=None,java=None,timeout=600,include_loader=False,output_root=None):
+def generate(source,output=None,backend='auto',artifacts=None,deep=False,ghidra=None,java=None,timeout=600,include_loader=False,output_root=None,review=None):
  source=Path(source).resolve()
  if (output is None)==(output_root is None):raise ValueError('Choose exactly one of output and output_root')
  emit('analyzing','正在检查文件、调用入口和分页边界。')
- data,initial=suite.analyze(source,backend)
+ data,initial=suite.analyze(source,backend,review)
  ident=bundle_v2.identity(source.name,initial['sha256'])
  output=(Path(output_root)/ident['directoryName'] if output_root is not None else Path(output)).resolve()
  options={'format':2,'backend':backend,'includeLoader':include_loader,'deep':deep,
           'engineContractSha256':engine_contract_sha(),
           'ghidra':str(Path(ghidra).resolve()) if deep and ghidra else None,
           'java':str(Path(java).resolve()) if deep and java else None}
+ if review is not None:options['reviewSha256']=suite.sha(json.dumps(review,sort_keys=True).encode('utf8'))
  if deep:options['timeoutSeconds']=timeout
  if include_loader and initial['backend'] in bundle_v2.LOADERS:
   _,options['loaderSha256']=bundle_v2.artifact(artifacts or ROOT/'loader-artifacts',bundle_v2.LOADERS[initial['backend']])
@@ -375,6 +384,7 @@ def main():
  dest=g.add_mutually_exclusive_group(required=True);dest.add_argument('--output',type=Path);dest.add_argument('--output-root',type=Path)
  g.add_argument('--backend',choices=['auto','flash','ram','mapped','extended'],default='auto');g.add_argument('--artifacts',type=Path)
  g.add_argument('--deep',action='store_true');g.add_argument('--ghidra');g.add_argument('--java');g.add_argument('--timeout',type=int,default=600)
+ g.add_argument('--review-profile',type=Path,help='SHA-bound review JSON with physical RAM exclusions')
  g.add_argument('--include-loader',action='store_true')
  e=sub.add_parser('export-loader');e.add_argument('--output',type=Path,required=True);e.add_argument('--artifacts',type=Path,default=ROOT/'loader-artifacts')
  e.add_argument('--backend',choices=['flash','mapped','extended','all'],default='all')
@@ -384,7 +394,7 @@ def main():
   if a.command=='export-loader':
    r=bundle_v2.export_loaders(a.output,a.artifacts,a.backend);emit('completed','Loader 已导出。',result=r);return 0
   if not 120<=a.timeout<=3600:raise ValueError('分析超时必须在 120 至 3600 秒之间。')
-  r=generate(a.input,a.output,a.backend,a.artifacts,a.deep,a.ghidra,a.java,a.timeout,a.include_loader,a.output_root)
+  r=generate(a.input,a.output,a.backend,a.artifacts,a.deep,a.ghidra,a.java,a.timeout,a.include_loader,a.output_root,suite.read_json(a.review_profile) if a.review_profile else None)
   return 0 if r.get('programReady') else 2
  except (OSError,ValueError,KeyError) as ex:emit('error',str(ex));return 1
 

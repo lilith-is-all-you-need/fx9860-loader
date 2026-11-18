@@ -80,3 +80,7 @@ cancelAfterMs、width、height、screenshot。mode 可为 generate（默认）�
 第一次运行新程序时，在 FlashLd 中选择 Full 校验。建议依次试启动、操作、在程序内保存并退出，再次打开检查存档。FlashLd 在目标正常返回并完成清理后会回到系统菜单。游戏自己请求重启时，退出表现取决于游戏。实测扫雷使用了调用 `gint_setrestart(0)` 的构建。
 
 升级已有安装时，替换计算器根目录的 `FlashLd.g1a`。要修复旧程序目录的缩略图，用本版 FxProfile 重新生成同一输入，只复制对应的 `FXAPPS/<ID>/ICON.BIN` 即可。如果退出或重入异常，请在下次启动前复制该目录中的 `RUN.LOG`，并记下最后一次按键及屏幕文字。
+
+## RAM 选址
+
+重新生成程序目录，可把最新的已知 RAM 保留区写入 APP.FPF。更新既有原版 KhiCAS 时，需要同时复制新的 APP.FPF 和新导出的 FlashLd.g1a。任务详情会显示已知保留区，实际位置由计算器在启动时选择。遇到 No fitting OS block 时，请在下次启动前保存程序目录中的 RUN.LOG。

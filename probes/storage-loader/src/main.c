@@ -85,14 +85,81 @@ static int choose(Item *selected,unsigned *fast)
  }
 }
 static void finalize(Context *c){r_quit(0);r_free(c);}
-static void failure(const uint16_t *p,const char *why,unsigned required)
+typedef struct {
+ unsigned candidates, conflicts;
+ uintptr_t first, last;
+} RamSearch;
+
+/* Ask the OS for owned blocks only. Keep rejected allocations occupied so
+ * the allocator can offer another address. No guest code runs during search. */
+static Context *allocate_resident(unsigned bytes,const Profile *profile,RamSearch *stats,const char **why)
+{
+ typedef struct Held { struct Held *next; } Held;
+ Held *held=NULL;
+ Context *selected=NULL;
+ for(;;){
+  void *block=r_malloc(bytes);
+  if(!block){
+   *why=stats->conflicts?"No fitting OS block":"Not enough RAM";
+   break;
+  }
+  uintptr_t begin=(uintptr_t)block,end=begin+bytes;
+  if(!stats->candidates)stats->first=begin;
+  stats->last=begin;
+  stats->candidates++;
+  if(begin<0x80000000u||end<=begin||end>0xa0000000u){
+   r_free(block);*why="Unsupported heap";break;
+  }
+  uintptr_t skip_to=begin;
+  for(unsigned i=0;i<profile->forbid_count;i++){
+   uintptr_t low=profile->forbidden[i][0],high=profile->forbidden[i][1];
+   if(begin<high&&low<end&&high>skip_to)skip_to=high;
+  }
+  if(skip_to==begin){selected=block;break;}
+  stats->conflicts++;
+  if(skip_to<end){
+   /* Leave the usable suffix available. A full-size placeholder here could
+    * consume the start of the only viable block near a range boundary. */
+   unsigned prefix=(unsigned)(skip_to-begin);
+   if(prefix<sizeof(Held))prefix=sizeof(Held);
+   r_free(block);
+   block=r_malloc(prefix);
+   if(!block){*why="RAM search interrupted";break;}
+  }
+  Held *reservation=block;
+  reservation->next=held;
+  held=reservation;
+ }
+ while(held){
+  Held *next=held->next;
+  r_free(held);
+  held=next;
+ }
+ return selected;
+}
+
+static void log_hex(char *buffer,unsigned *used,const char *label,uint32_t value)
+{
+ while(*label)buffer[(*used)++]=*label++;
+ for(int shift=28;shift>=0;shift-=4){
+  unsigned digit=(value>>shift)&15u;
+  buffer[(*used)++]=(char)(digit<10?'0'+digit:'A'+digit-10);
+ }
+ buffer[(*used)++]='\n';
+}
+
+static void failure(const uint16_t *p,const char *why,unsigned required,const RamSearch *stats)
 {
  char b[512];int fd=r_open(p,1,0);if(fd<0)return;
  int ok=r_size(fd)==LOG_BYTES&&r_read(fd,b,8,0)==8&&equal(b,"FXFLASH1",8);if(r_close(fd)<0)ok=0;if(!ok)return;
  for(unsigned i=0;i<sizeof b;i++)b[i]=' ';
- const char *s="FXFLASH1\nSTART_FAILED=";unsigned n=0;while(*s)b[n++]=*s++;while(*why&&n<450)b[n++]=*why++;
- s="\nREQUIRED_BYTES=";while(*s)b[n++]=*s++;
- for(int i=7;i>=0;i--){unsigned v=(required>>(i*4))&15;b[n++]=(char)(v<10?'0'+v:'A'+v-10);}b[n++]='\n';
+ const char *s="FXFLASH1\nSTART_FAILED=";unsigned n=0;while(*s)b[n++]=*s++;while(*why&&n<128)b[n++]=*why++;
+ b[n++]='\n';
+ log_hex(b,&n,"REQUIRED_BYTES=",required);
+ log_hex(b,&n,"RAM_CANDIDATES=",stats->candidates);
+ log_hex(b,&n,"RAM_CONFLICTS=",stats->conflicts);
+ log_hex(b,&n,"RAM_FIRST=",stats->first);
+ log_hex(b,&n,"RAM_LAST=",stats->last);
  s="\nRUN_END\n";while(*s)b[n++]=*s++;
  fd=r_open(p,2,0);if(fd>=0){r_write(fd,b,sizeof b);r_close(fd);}
 }
@@ -137,7 +204,7 @@ static __attribute__((noinline)) Context *prepare_launch(unsigned *legacy)
 {
  Item item;unsigned fast=0;int choice=choose(&item,&fast);if(!choice)return NULL;
  uint16_t log_path[64];wide(log_path,"\\\\fls0\\FlashLd.txt");
- Context *c=0;unsigned total=0;const char *why="Bad/missing catalog";
+ RamSearch search={0};Context *c=0;unsigned total=0;const char *why="Bad/missing catalog";
  if(choice<0)goto fail;
  if(!item.legacy)path(log_path,&item,"RUN.LOG","");
  unsigned started=(unsigned)r_ticks();
@@ -163,12 +230,10 @@ static __attribute__((noinline)) Context *prepare_launch(unsigned *legacy)
   * Balanced colors save 4 KiB versus forcing an 8 KiB-aligned base. */
  unsigned span=2*(colors[0]>colors[1]?colors[0]:colors[1])*4096,bytes=resident_end-resident_begin;
  total=(sizeof(Context)+pages*8+31+bytes+4095+span+31)&~31u;
- c=r_malloc(total);if(!c){why="Not enough RAM";goto fail;}
- uintptr_t start=(uintptr_t)c,end=start+total;
- if((start&0xe0000000u)!=0x80000000u||end<start){why="Unsupported heap";goto fail;}
- for(unsigned i=0;i<profile.forbid_count;i++)if(start<profile.forbidden[i][1]&&end>profile.forbidden[i][0]){why="Target RAM conflict";goto fail;}
+ c=allocate_resident(total,&profile,&search,&why);if(!c)goto fail;
+ uintptr_t end=(uintptr_t)c+total;
  memset(c,0,sizeof *c);c->finalize=finalize;c->allocation_bytes=total;c->runner_bytes=bytes;c->profile=profile;
- c->started_tick=started;
+ c->ram_candidates=search.candidates;c->started_tick=started;
  c->image_bytes=profile.bytes;c->image_pages=pages;c->shadow_span=span;c->shadow_count=colors[0]+colors[1];
  c->pages=(uint32_t *)(c+1);c->hashes=c->pages+pages;memset(c->pages,0,pages*8);memset(c->shadow_slot,255,512);
  c->ram_word=REG(0x08100000);
@@ -197,7 +262,7 @@ static __attribute__((noinline)) Context *prepare_launch(unsigned *legacy)
  return c;
 fail:
  if(c)r_free(c);
- failure(log_path,why,total);show(why,choice>0&&!item.legacy?"See RUN.LOG":"See FlashLd.txt");{int key=0;while(key!=30002)r_getkey(&key);}return NULL;
+ failure(log_path,why,total,&search);show(why,choice>0&&!item.legacy?"See RUN.LOG":"See FlashLd.txt");{int key=0;while(key!=30002)r_getkey(&key);}return NULL;
 }
 
 int main(void)

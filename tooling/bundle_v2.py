@@ -77,7 +77,8 @@ def prepare(data, report, result, suite, artifacts=None, include_loader=False):
     (app/'APP.MET').write_bytes(metadata(ident['displayName'], {'flash':1,'extended':2,'mapped':3}[backend], len(data)))
     (app/'ICON.BIN').write_bytes(g1a_icon(data))
     if backend == 'flash':
-        profile, _ = suite.module('probes/storage-loader/tools/prepare.py','fx_folder_scan').profile(data, ())
+        ranges = report['ramPlacement']['forbiddenPhysicalRam']
+        profile, _ = suite.module('probes/storage-loader/tools/prepare.py','fx_folder_scan').profile(data, ranges)
         (app/'APP.FPF').write_bytes(profile)
         (app/'RUN.LOG').write_bytes(b'FXFLASH1' + bytes(4096-8))
         (app/'VERIFY.CCH').write_bytes(bytes(4096))

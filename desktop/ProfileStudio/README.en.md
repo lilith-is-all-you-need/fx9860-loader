@@ -80,3 +80,7 @@ Development overrides --settings-dir, --python, --engine and --artifacts are als
 Select Full verification on the first run of a new program in FlashLd. Launch the program, use it, save and exit from its own menu, then reopen it to check the save. FlashLd returns to the OS menu when the guest returns normally and cleanup succeeds. A guest can also request a restart. The hardware-tested Minesweeper build used `gint_setrestart(0)`.
 
 To upgrade, replace `FlashLd.g1a` in the storage root. To refresh an existing thumbnail, regenerate the same input and copy just its `FXAPPS/<ID>/ICON.BIN`. If exit or re-entry fails, copy the program folder’s `RUN.LOG` before launching again and record the final key and screen text.
+
+## RAM placement
+
+Generate a fresh program folder to include current RAM reservations in APP.FPF. When updating an existing original KhiCAS installation, copy both the new APP.FPF and the newly exported FlashLd.g1a. The task details show known protected ranges. The calculator selects an actual address at launch. If it reports No fitting OS block, save the program folder's RUN.LOG before retrying.

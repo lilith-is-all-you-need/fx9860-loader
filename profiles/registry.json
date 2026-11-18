@@ -72,5 +72,16 @@
       "adapter": "ram-v1",
       "blocked": "Original and Loader paths can reset; exit/control transfer adapter remains unresolved"
     }
-  ]
+  ],
+  "flashRamLayouts": {
+    "4a9d1c18009d987dc7c8745b7fc099b3c6e8006ebbb2ee5e4b483934be757473": {
+      "forbiddenPhysicalRam": [
+        [
+          2282033152,
+          2282213376
+        ]
+      ],
+      "evidence": "probes/native-loader/KHICAS-BLOCKERS.md"
+    }
+  }
 }

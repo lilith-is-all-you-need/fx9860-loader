@@ -236,6 +236,7 @@ int resident_main(Context *c)
  resident_context=c;
  if(!start_log(c))return 1;
  uint32_t sp;__asm__ volatile("mov r15,%0":"=r"(sp));
+ event(c,"RAM_CANDIDATES",c->ram_candidates,c->profile.forbid_count);
  event(c,"CONTEXT_BYTES",(uintptr_t)c,c->allocation_bytes);
  event(c,"RESIDENT_BYTES",c->resident,c->runner_bytes);event(c,"SHADOW_STACK",c->shadow,sp);
  if(REG(0xff000030)!=0x10300b00||REG(0xff000044)!=0x2c00||(sp&0xe0000000)!=0x80000000u){event(c,"FAIL_CPU_STACK",sp,0);save(c);return 2;}

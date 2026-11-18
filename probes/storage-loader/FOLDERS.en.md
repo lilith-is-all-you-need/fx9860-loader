@@ -67,3 +67,20 @@ Emulator checks are not real-calculator acceptance or an all-G1A guarantee.
 ## Original KhiCAS on the generic backend
 
 Automatic preparation of the 2,094,444-byte khicasen.g1a produces a Flash folder. In a firmware-assisted emulator run (probe3 memory profile, Full verification, FlashLd SHA-256 starting with `02a2dd48`), direct launch computed `2+2 = 4`. FlashLd recorded `READY_ENTRY`, then execution stopped at an invalid instruction at `0x004F7A74` before the input screen. The cause and physical calculator behavior are open. Save `FXAPPS/KH4A9D1C/RUN.LOG` before launching again. Earlier KLoad results concern its explicit mapped adapter.
+
+## Resident RAM selection
+
+FxProfile writes reviewed target RAM reservations into APP.FPF as half-open intervals. The original KhiCAS image (SHA-256 prefix 4a9d1c18) automatically reserves [0x88051000, 0x8807D000). For another build, generate with --review-profile and supply a review bound to its SHA-256 and backend to add confirmed reservations. Inspect ramPlacement in analysis.json for the effective list. For an older KhiCAS folder, update both APP.FPF and the FlashLd.g1a in calculator storage.
+
+FlashLd asks the OS for one contiguous resident block. If it clears the known reservations, launch proceeds immediately. On overlap the loader temporarily occupies the conflicting part and asks the OS for another location. All temporary blocks are released before handoff or reporting failure. On failure press EXIT. Read the program folder's RUN.LOG up to its first RUN_END for this attempt.
+
+| Log field or message | Meaning |
+| --- | --- |
+| RAM_CANDIDATES | Count of full-size blocks the OS actually returned. One means the first candidate was checked, two or more indicates a retry. On success the second number is the profile's reservation count. |
+| Not enough RAM | The OS could not supply the initial full-size allocation. |
+| No fitting OS block | All returned candidates overlapped, then the OS could no longer supply the requested size. REQUIRED_BYTES, RAM_CONFLICTS, RAM_FIRST and RAM_LAST record the size, conflict count and first and last addresses in hexadecimal. |
+| RAM search interrupted | Allocating a smaller temporary reservation failed, interrupting the search. |
+
+Search covers contiguous blocks offered by the OS heap in this session. Undeclared private target memory, callbacks and faults after handoff require independent evidence. Address retry happens only before guest execution.
+
+Firmware-assisted emulator results (FlashLd SHA-256 prefix 192267a7): Minesweeper accepted the first allocation and completed Save & Exit. Under the 48 KiB model heap the original KhiCAS needed 35 KiB. The first candidate at 0x880502A0 overlapped the reservation and the OS could not supply a second block. EXIT worked. Candidate addresses and outcomes can differ on hardware.

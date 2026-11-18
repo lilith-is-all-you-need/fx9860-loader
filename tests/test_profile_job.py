@@ -30,6 +30,25 @@ class DesktopJobTests(unittest.TestCase):
         with contextlib.redirect_stdout(io.StringIO()):
             return job.generate(self.source,self.root/name,artifacts=self.artifacts,**kwargs)
 
+    def test_folder_keeps_reviewed_reservations_and_image_unchanged(self):
+        data = self.source.read_bytes()
+        digest = job.suite.sha(data)
+        registry = {'programs': [], 'flashRamLayouts': {digest: {
+            'forbiddenPhysicalRam': [[0x88051000, 0x88052000]], 'evidence': 'review'}}}
+        review = {'schemaVersion': 1, 'sha256': digest, 'backend': 'flash',
+                  'memoryReviewed': True, 'callbacksReviewed': True,
+                  'forbiddenPhysicalRam': [[0x88052000, 0x88053000], [0x88070000, 0x88071000]]}
+        with patch.object(job.suite, 'read_json', return_value=registry):
+            r = self.generate(review=review)
+        app = Path(r['output'])/'calculator/FXAPPS'/r['identity']['calculatorId']
+        packed = (app/'APP.FPF').read_bytes()
+        self.assertEqual(struct.unpack_from('>I', packed, 28), (2,))
+        self.assertEqual(struct.unpack_from('>4I', packed, 64),
+                         (0x88051000, 0x88053000, 0x88070000, 0x88071000))
+        self.assertEqual((app/'IMAGE.BIN').read_bytes(), data)
+        self.assertEqual(r['backend'], 'flash')
+        self.assertIn('device-ram-placement', [d['code'] for d in r['diagnostics']])
+
     def test_complete_bundle_hashes_include_loader_profile_and_image(self):
         r=self.generate(include_loader=True);out=self.root/'output'
         self.assertTrue(r['installableCandidate']);self.assertFalse(r['hardwareValidated'])

@@ -39,6 +39,7 @@ struct Context {
  unsigned fast,started_tick,verify_ticks,release_ticks,map_ticks,ready_ticks;
  uint16_t log_path[64],bin_path[64],self_path[32];
  char log[LOG_BUFFER];
+ unsigned ram_candidates;
 };
 typedef struct {uint32_t r[8],pr,sr,sp,out_sr,mach,macl;} Frame;
 extern const unsigned char resident_begin[],resident_end[];
