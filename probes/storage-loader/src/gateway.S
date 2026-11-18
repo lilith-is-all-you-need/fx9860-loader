@@ -49,6 +49,19 @@ _resident_gateway:
  .align 2
 .Ldispatch: .long _resident_dispatch
 
+ .global _resident_os_get_vram
+_resident_os_get_vram:
+ /* GetVRAMAddress takes no arguments. Keep the same OS stack position and
+  * scratch registers as the general entry, without reading the guest stack. */
+ sts.l pr,@-r15
+ mov.l r8,@-r15
+ mov r4,r8
+ add #-32,r15
+ mov.l @(40,r8),r1
+ add #32,r1
+ bra .Los_register_args
+ mov #0,r3
+
  .global _resident_os_call
 _resident_os_call:
  sts.l pr,@-r15
@@ -65,6 +78,7 @@ _resident_os_call:
  add #4,r2
  dt r3
  bf 1b
+.Los_register_args:
  mov.l @(16,r8),r4
  mov.l @(20,r8),r5
  mov.l @(24,r8),r6

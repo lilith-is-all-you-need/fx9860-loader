@@ -17,7 +17,23 @@ static uint32_t mapped(Context *c,unsigned i)
  return c->pages[i];
 }
 static unsigned guard(Context *c)
-{unsigned diff=0;for(unsigned i=0;i<512;i++)diff+=REG(c->os.pages+4*i)!=mapped(c,i);return diff;}
+{
+ volatile const uint32_t *table = (volatile const uint32_t *)(uintptr_t)c->os.pages;
+ unsigned i = 0;
+ for (; i < c->image_pages; ++i) {
+  if (table[i] != mapped(c, i)) return 1;
+ }
+ /* The rest of the OS window must be empty, including its last slot. */
+ uint32_t occupied = 0;
+ for (; i + 4 <= MAX_PAGES; i += 4) {
+  occupied |= table[i];
+  occupied |= table[i + 1];
+  occupied |= table[i + 2];
+  occupied |= table[i + 3];
+ }
+ for (; i < MAX_PAGES; ++i) occupied |= table[i];
+ return occupied != 0;
+}
 static void snapshot(Context *c)
 {for(unsigned i=0;i<512;i++)c->original[i]=REG(c->os.pages+i*4);c->old_cursor=REG(c->os.cursor);c->mmucr=REG(0xff000010);c->pteh=REG(0xff000000);c->ptel=REG(0xff000004);c->ptea=REG(0xff000034);}
 static void install(Context *c)
@@ -158,9 +174,10 @@ void resident_dispatch(Frame *f)
  /* Read-only OS identity/VRAM queries neither perform file I/O nor switch
   * applications. Polling keyboards call these for every matrix position;
   * rescanning 512 entries here would dominate every input frame. */
- if(n==0x15||n==0x2ee||n==0x135){resident_os_call(f);return;}
- /* Reviewed file operations and GetKey can disturb mappings or relocate files.
-  * Ordinary drawing/key-state/tick syscalls do not trigger a 512-page rescan. */
+ if(n==0x135){resident_os_get_vram(f);return;}
+ if(n==0x15||n==0x2ee){resident_os_call(f);return;}
+ /* File operations and GetKey refresh mappings. Other calls below check the
+  * full OS window before resuming the guest. */
  unsigned file=(n>=0x42b&&n<=0x46f)||(n>=0x1d0&&n<=0x21f);
  int slot=-1;unsigned timer_id=f->r[4];
  if(n==0x118){

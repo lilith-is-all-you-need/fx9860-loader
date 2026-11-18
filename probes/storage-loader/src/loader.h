@@ -47,6 +47,7 @@ extern Context *resident_context;
 int resident_main(Context *);
 void resident_quit_entry(void);void resident_quit_work(Context *);
 void resident_gateway(void);void resident_dispatch(Frame *);void resident_os_call(Frame *);
+void resident_os_get_vram(Frame *);
 int r_any_key(uint16_t *);void r_clear_keys(void);
 void r_clear(void);void r_print(int,int,const unsigned char *,int);void r_display(void);
 int r_getkey(int *);void r_quit(void (*)(void));void *r_malloc(unsigned);void r_free(void *);

@@ -1,0 +1,158 @@
+{
+  "date": "2026-11-19",
+  "hardwareValidated": false,
+  "launcher": "FlashLd.g1a",
+  "bytes": 19464,
+  "sha256": "02a2dd48c750e6ea8ed02807130f1ac3f6b799bf3ddec6f051a82901d2b468b2",
+  "baselineBeta3Sha256": "3ccfd216e767a101ae7feffa9fc9434b87d17b4fa7f7d627a9a10f50b78e5613",
+  "emulatorSha256": "b1027c579bede23e36c17d5ef3153cf45b06de50e7f2246249972977ec324739",
+  "firmware3070Sha256": "d65d6667ee437a0b45b709224488a4b98b9ea3b7b284215aab9d19fa06b82552",
+  "buildConfigurations": [
+    "Debug",
+    "Release"
+  ],
+  "timingUnits": "emulator cycles; syscall tracing disabled for timing runs",
+  "benchmarks": {
+    "jet": {
+      "sequence": [
+        "direct",
+        "release",
+        "new",
+        "new2"
+      ],
+      "measurements": {
+        "direct": {
+          "intervals": 27,
+          "median": 927801,
+          "p95NearestRank": 928007
+        },
+        "release": {
+          "intervals": 27,
+          "median": 1439611,
+          "p95NearestRank": 1439820
+        },
+        "new": {
+          "intervals": 27,
+          "median": 1113445,
+          "p95NearestRank": 1113650
+        },
+        "new2": {
+          "intervals": 27,
+          "median": 1113448,
+          "p95NearestRank": 1113650
+        }
+      },
+      "sha256": "b4c45f0c37c7c9c205c1bb24f6d227cad0154259669d6fa76a8c72eeaf176895",
+      "section": "First 27 running updates; first 28 Sleep(24) markers at guest PC 0030D062",
+      "screenMatchesDirectAllRuns": true
+    },
+    "fruit": {
+      "sequence": [
+        "new",
+        "direct",
+        "release"
+      ],
+      "measurements": {
+        "new": {
+          "intervals": 36,
+          "median": 917151.5,
+          "p95NearestRank": 943617
+        },
+        "direct": {
+          "intervals": 36,
+          "median": 921681.0,
+          "p95NearestRank": 924459
+        },
+        "release": {
+          "intervals": 36,
+          "median": 978577.5,
+          "p95NearestRank": 1067951
+        }
+      },
+      "sha256": "5c5bd8f2c42add4feb9eb4112f134d00c45066eb80be805c3f872b27f451eaf6",
+      "section": "F4 Peacefull, score redraw return at 00307CAC, 36 intervals after discarding first 12"
+    }
+  },
+  "getterAndLifecycle": {
+    "authoredGuestSha256": "045f5da20f67e11313e829a49acffaf93413cd760c810e82db9b7d815250cbe9",
+    "getterReturnSamples": 17,
+    "matchingRegistersAtEachReturn": [
+      "r0",
+      "r1",
+      "r2",
+      "r3",
+      "r4",
+      "r5",
+      "r6",
+      "r7",
+      "sp",
+      "pr",
+      "mach",
+      "macl",
+      "sr"
+    ],
+    "loopIntervalBeta3": {
+      "intervals": 16,
+      "median": 2651.0,
+      "p95NearestRank": 2651
+    },
+    "loopIntervalCandidate": {
+      "intervals": 16,
+      "median": 2041.0,
+      "p95NearestRank": 2041
+    },
+    "timerCallbacks": 2,
+    "timerSkipped": 0,
+    "menuRoundTrip": true,
+    "guestReturnAfterExit": 42
+  },
+  "mappingGuard": {
+    "hostComparisons": 263169,
+    "imagePagesRange": [
+      0,
+      512
+    ],
+    "casesPerLength": "correct table plus each of 512 slots individually changed"
+  },
+  "minesReturn": {
+    "originalImagePreserved": true,
+    "priorSaveRead": true,
+    "preservedBoardData": true,
+    "priorSerial": 3,
+    "nextSerial": 5,
+    "finalState": "exited",
+    "additionalKeysAfterSaveAndExit": 0
+  },
+  "forcedFileMove": {
+    "originalImagePreserved": true,
+    "priorSaveRead": true,
+    "preservedBoardData": true,
+    "priorSerial": 3,
+    "nextSerial": 5,
+    "finalState": "exited",
+    "additionalKeysAfterSaveAndExit": 0,
+    "oldOffset": 4214784,
+    "newOffset": 4550656,
+    "movedPages": 31,
+    "totalPageAddressChanges": 62,
+    "oldPagesErased": true,
+    "testEmulatorSha256": "412b9616c158687f3d3b7b14bcc14535289daf316ae5859eb6b5bca0d5be1275",
+    "method": "One-shot host storage model repack on the next image open after the existing board appeared. Old backing pages filled with 0xff; the guest image and real loader binary were unchanged.",
+    "observedChanges": "31 on first lookup plus all 31 on relocation"
+  },
+  "folderRegression": {
+    "passed": [
+      "full-amine",
+      "full-fruit",
+      "full-mines",
+      "full-wsc",
+      "fast-valid",
+      "fast-corrupt-cache-falls-back",
+      "fast-empty-cache-falls-back",
+      "full-rejects-same-size-edit",
+      "fast-documented-same-size-blind-spot"
+    ],
+    "sameEmulatorDiagnosticsAsBeta3": true,
+    "existingDiagnostics": "AMine and Mines scenarios retain the same unmapped-read messages during emulator execution on both builds; the tested cleanup and exit assertions pass."
+  }
+}

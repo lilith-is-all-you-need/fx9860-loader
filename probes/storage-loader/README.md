@@ -17,6 +17,11 @@ The OS window remains 512 × 4096 bytes (2 MiB). Larger files require the separa
 source-integrated extended backend. The existing exact KhiCAS adapter remains
 available because its private memory arena needs adaptation.
 
+FlashLd checks live mappings against the image and verifies that unused window
+entries are zero. Frequent calls to GetVRAMAddress still query the OS, including
+after MENU resume. The no-argument call skips copying guest stack arguments.
+See the [Jetpack, Fruit and lifecycle measurements](PERFORMANCE-20261119.json).
+
 ## Prepare and build
 
 Use the FxStudio offline SDK to open this directory and build Debug and Release,
