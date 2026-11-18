@@ -24,6 +24,21 @@ class SuiteTests(unittest.TestCase):
         self.review={'schemaVersion':1,'sha256':suite.sha(self.src.read_bytes()),'backend':'ram',
                      'memoryReviewed':True,'callbacksReviewed':True,'forbiddenPhysicalRam':[]}
 
+    def test_reviewed_khicas_uses_flash_unless_legacy_adapter_is_requested(self):
+        image = self.src.read_bytes()
+        registry = {'programs': [{'sha256': suite.sha(image), 'adapter': 'mapped-khicas-v1',
+                                  'hardwareEvidence': {'firstLaunch': 'legacy-only'}}]}
+        with patch.object(suite, 'read_json', return_value=registry):
+            _, auto = suite.analyze(self.src)
+            _, flash = suite.analyze(self.src, 'flash')
+            _, legacy = suite.analyze(self.src, 'mapped')
+        self.assertEqual(auto, flash)
+        self.assertEqual((auto['backend'], auto['status']), ('flash', 'candidate'))
+        self.assertIsNone(auto['approvedProfile'])
+        self.assertNotIn('priorBackendEvidence', auto)
+        self.assertEqual((legacy['backend'], legacy['status']), ('mapped', 'candidate'))
+        self.assertEqual(legacy['hardwareEvidence']['firstLaunch'], 'legacy-only')
+
     def test_unknown_small_keeps_image_without_claiming_compatibility(self):
         out=self.root/'out';r=suite.prepare(self.src,out,artifacts=self.root/'missing')
         self.assertEqual(r['status'],'profile-only')

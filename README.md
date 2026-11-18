@@ -20,7 +20,7 @@ Studio** in the Windows UI.
 | --- | --- | --- |
 | `FlashLd.g1a` | Ordinary G1As up to 2 MiB using the Flash backend. Use Full verification for the first run. | [Folder protocol](probes/storage-loader/FOLDERS.en.md) |
 | `ExtLoad.g1a` | Programs built against the large runtime ABI, including the adapted Giac build. Table capacity and storage reserve come from the profile. | [Large runtime](large/docs/runtime.en.md) |
-| `KLoad.g1a` | The reviewed original KhiCAS image, which requires its own memory-pool adapter. FxProfile identifies it by SHA-256. | [KhiCAS adapter](large/probes/mapped-loader/README.zh-CN.md) |
+| `KLoad.g1a` | Opt-in legacy memory-pool adapter for the reviewed KhiCAS image. Select `--backend mapped` to reproduce older runs. Automatic preparation of the ordinary KhiCAS G1A uses FlashLd. | [KhiCAS adapter](large/probes/mapped-loader/README.zh-CN.md) |
 
 FlashLd releases its file-browser stack frame before starting a guest. A normal
 guest return completes cleanup and exits the launcher to the OS. The fx-9860GIII

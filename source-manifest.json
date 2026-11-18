@@ -78,7 +78,7 @@
     "tests/test_caller_session.py": "4659297f2c7c132c25f02cebc146e39838e686f5655f51de75fdcadc0f7aac35",
     "tests/test_flash_profiles.py": "afc762adc7ceaf6e949511fff0548fe895c01bec138964906454fb18e0a662b3",
     "tests/test_hook_review.py": "f4ed716eddf1498d5fb49e951fa31c3158a2499365b72ce0bd8cc1333ef8c9eb",
-    "tests/test_loader_suite.py": "2da8001aa157a0663f0af5169699dda295ca3156650a37c26826266342d604f6",
+    "tests/test_loader_suite.py": "ddfc61a649e6f0bff90b7d174acf587fc2453a01c5f9bdf72240b5310724640b",
     "tests/test_profile_job.py": "33c39dabc41c010bce28428ed0c98f9f7a476131108ec01ae50ebf41ca6ee686",
     "tooling/bundle_v2.py": "b05678ef0a4679cbeaa465ec3e5ec51c72dd086b9b557e5d0befa88b3a4e7857",
     "tooling/ext_profile.py": "d96b589f210bbe87a752c23f9963234c94622a2ffbfff899807aad353d18a511",
@@ -86,7 +86,7 @@
     "tooling/ghidra/PrepareG1a.java": "c82cbed94af3c01d11cc5a12f8b1279521f4a8e1929b22eb43e6e1c58d781dbc",
     "tooling/ghidra/log4j.xml": "b8afd0dca30a57330c23f4239b4f92101eb444acaef254c48449f4db80a9b4ee",
     "tooling/hook_review.py": "365ccdf0cb0a72696f79cb024a9045d888fe5ae511f1bf1b7b2ca3ee4858c2f2",
-    "tooling/loader_suite.py": "bb9671f235cd2f697760463716afbb137c281f89f3dacb3be375ae4473f112a5",
+    "tooling/loader_suite.py": "d9336737901545773d9eb9257798824bf18f21598a9438e1f3a13da8bd1bfcdb",
     "tooling/package_profile_studio.py": "881790e97ef01cec8c24fb62d8a26208b8f7e7f302f1947944cad320b66e1a2b",
     "tooling/profile_job.py": "b3bcb6ff1fa91819ccc977ba1a3a1043ec3837b18ae6f338990019ca01a87968"
   }

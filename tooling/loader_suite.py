@@ -55,7 +55,10 @@ def analyze(source, requested='auto', review=None):
         raise ValueError('Image changed size or exceeds analysis limit')
     digest = sha(data)
     registry = read_json(ROOT / 'profiles/registry.json')
-    approved = next((x for x in registry['programs'] if x['sha256'] == digest), None)
+    # The legacy KhiCAS adapter is opt-in. A Flash analysis must not inherit
+    # its private RAM policy or device evidence, even for the same image.
+    approved = next((x for x in registry['programs'] if x['sha256'] == digest
+                     and (x.get('adapter') != 'mapped-khicas-v1' or requested == 'mapped')), None)
     source_runtime = approved and approved.get('adapter') == 'extended-giac-v1'
     source_contract = None
     if data[:16] == b'FXLARGE-PAYLOAD1' or source_runtime:
@@ -67,8 +70,7 @@ def analyze(source, requested='auto', review=None):
     if bytes(x ^ 255 for x in data[:8]) != b'USBPower':
         if not source_runtime:
             raise ValueError('Not a G1A or a registered source-integrated payload')
-    backend = ('extended' if source_runtime or size > OS_LIMIT else
-               'mapped' if approved and approved.get('adapter') == 'mapped-khicas-v1' else 'flash')
+    backend = 'extended' if source_runtime or size > OS_LIMIT else 'flash'
     if requested != 'auto':
         if requested not in ('flash','ram','mapped','extended') or (requested == 'ram' and size > RAM_LIMIT) or (requested in ('flash','mapped') and size > OS_LIMIT) or (requested == 'extended' and size <= OS_LIMIT and not source_runtime) or (source_runtime and requested != 'extended'):
             raise ValueError(f'{size} bytes cannot use {requested}')
