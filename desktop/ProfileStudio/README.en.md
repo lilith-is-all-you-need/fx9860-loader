@@ -74,3 +74,9 @@ Request fields: inputs, output, language (zh-CN/en), includeLoader, deep, ghidra
 cancelAfterMs, width, height and screenshot. mode is generate (default), export-loader or preview.
 Version 2 ui-verification.json contains items, status codes, actual output paths, reuse results and errors.
 Development overrides --settings-dir, --python, --engine and --artifacts are also available.
+
+## Testing small add-ins with beta.3
+
+Select Full verification on the first run of a new program in FlashLd. Launch the program, use it, save and exit from its own menu, then reopen it to check the save. FlashLd returns to the OS menu when the guest returns normally and cleanup succeeds. A guest can also request a restart. The hardware-tested Minesweeper build used `gint_setrestart(0)`.
+
+To upgrade, replace `FlashLd.g1a` in the storage root. To refresh an existing thumbnail, regenerate the same input and copy just its `FXAPPS/<ID>/ICON.BIN`. If exit or re-entry fails, copy the program folder’s `RUN.LOG` before launching again and record the final key and screen text.

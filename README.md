@@ -4,7 +4,7 @@ Prepare and launch add-ins on the Casio fx-9860GIII. The Windows app, calculator
 launchers and profile tools share one release. FxProfile appears as **FX Profile
 Studio** in the Windows UI.
 
-**[Download v0.2.0-beta.2 / 下载测试版](https://github.com/lilith-is-all-you-need/fx_universal_loader/releases/tag/v0.2.0-beta.2)** · [中文使用说明](desktop/ProfileStudio/README.zh-CN.md) · [English guide](desktop/ProfileStudio/README.en.md)
+**[Download v0.2.0-beta.3 / 下载测试版](https://github.com/lilith-is-all-you-need/fx_universal_loader/releases/tag/v0.2.0-beta.3)** · [中文使用说明](desktop/ProfileStudio/README.zh-CN.md) · [English guide](desktop/ProfileStudio/README.en.md)
 
 | Download | Use |
 | --- | --- |
@@ -22,11 +22,16 @@ Studio** in the Windows UI.
 | `ExtLoad.g1a` | Programs built against the large runtime ABI, including the adapted Giac build. Table capacity and storage reserve come from the profile. | [Large runtime](large/docs/runtime.en.md) |
 | `KLoad.g1a` | The reviewed original KhiCAS image, which requires its own memory-pool adapter. FxProfile identifies it by SHA-256. | [KhiCAS adapter](large/probes/mapped-loader/README.zh-CN.md) |
 
-This beta has emulator coverage for directory launch and arithmetic in both CAS
-paths. Hardware acceptance for these launcher builds, including direct MENU
-re-entry, is pending. Unknown oversized binaries can receive an analysis report
-and may still require a runtime adapter. See the [Flash checks](probes/storage-loader/FOLDER-VALIDATION.json)
-and [large-runtime checks](large/VALIDATION-DYNAMIC-20261118.json).
+FlashLd releases its file-browser stack frame before starting a guest. A normal
+guest return completes cleanup and exits the launcher to the OS. The fx-9860GIII
+MinesReturn test recorded a return value of 1, completed cleanup and two valid
+save files. The tested game build calls `gint_setrestart(0)`. Other guests can
+request their own restart or menu behavior. See the [hardware record](probes/storage-loader/BETA3-VALIDATION.json).
+
+Both CAS launchers retain their earlier emulator coverage. Direct MENU re-entry
+and arbitrary oversized binaries still require separate validation. See the
+[earlier Flash tests](probes/storage-loader/FOLDER-VALIDATION.json) and
+[large-runtime checks](large/VALIDATION-DYNAMIC-20261118.json).
 
 ## Development
 

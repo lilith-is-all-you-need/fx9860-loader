@@ -132,9 +132,10 @@ static void save_cache(Context *c,const uint16_t *name)
  if(ok&&r_seek(fd,0)>=0)r_write(fd,&h,sizeof h);
  r_close(fd);
 }
-int main(void)
+/* Release the browser and verification workspace before the guest starts. */
+static __attribute__((noinline)) Context *prepare_launch(unsigned *legacy)
 {
- Item item;unsigned fast=0;int choice=choose(&item,&fast);if(!choice)return 1;
+ Item item;unsigned fast=0;int choice=choose(&item,&fast);if(!choice)return NULL;
  uint16_t log_path[64];wide(log_path,"\\\\fls0\\FlashLd.txt");
  Context *c=0;unsigned total=0;const char *why="Bad/missing catalog";
  if(choice<0)goto fail;
@@ -192,11 +193,24 @@ int main(void)
   REG(c->resident+off)=v-(uintptr_t)resident_begin+c->resident;
  }
  BARRIER();unsigned rt=(unsigned)r_ticks();uint16_t matrix=0;while(r_any_key(&matrix))r_sleep(10);r_clear_keys();c->release_ticks=(unsigned)r_ticks()-rt;
- int (*run)(Context *)=(int(*)(Context *))(c->resident+(uintptr_t)resident_main-(uintptr_t)resident_begin);
- int result=run(c);r_quit(0);r_free(c);c=0;
- show(result?"Stopped: see log":"Target returned",item.legacy?"Saved FlashLd.txt":"Saved RUN.LOG");
- {int key=0;while(key!=30002)r_getkey(&key);}return 1;
+ *legacy=item.legacy;
+ return c;
 fail:
  if(c)r_free(c);
- failure(log_path,why,total);show(why,choice>0&&!item.legacy?"See RUN.LOG":"See FlashLd.txt");{int key=0;while(key!=30002)r_getkey(&key);}return 1;
+ failure(log_path,why,total);show(why,choice>0&&!item.legacy?"See RUN.LOG":"See FlashLd.txt");{int key=0;while(key!=30002)r_getkey(&key);}return NULL;
+}
+
+int main(void)
+{
+ unsigned legacy=0;
+ Context *c=prepare_launch(&legacy);
+ if(!c)return 1;
+ int (*run)(Context *)=(int(*)(Context *))(c->resident+(uintptr_t)resident_main-(uintptr_t)resident_begin);
+ int result=run(c);
+ r_quit(0);r_free(c);
+ if(!result)return 1;
+ show("Stopped: see log",legacy?"Saved FlashLd.txt":"Saved RUN.LOG");
+ int key=0;
+ while(key!=30002)r_getkey(&key);
+ return 1;
 }

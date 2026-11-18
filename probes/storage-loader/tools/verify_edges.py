@@ -35,17 +35,18 @@ for case in ['return','oom','bad-bin','no-bin','wrong-size','bad-profile','bad-p
    end=time.monotonic()+25
    while not fn():
     assert time.monotonic()<end,s.command('status')
-    assert s.command('status')['state']=='running',s.command('status')
     time.sleep(.05)
   s.remote.request('c',wait=False);time.sleep(.4)
   if case!='bad-catalog':key('EXE')
   if case=='return':
-   wait(lambda:'TARGET_CLEANUP_DONE=' in log())
-   assert 'TARGET_RETURNED=0000002A' in log(),log()
-   s.remote.interrupt();assert s.remote.read_memory(0x08100004,4)==bytes.fromhex('00000001');s.remote.request('c',wait=False)
+   wait(lambda:s.command('status')['state']=='exited')
+   assert 'TARGET_RETURNED=0000002A' in log() and 'TARGET_CLEANUP_DONE=' in log(),log()
+   assert s.remote.receive()=='W00'
+   assert s.remote.read_memory(0x08100004,4)==bytes.fromhex('00000001')
   else:
    time.sleep(1);assert 'READY_ENTRY=' not in log(),log()
-  key('EXIT');wait(lambda:s.command('status')['state']=='exited')
+   assert s.command('status')['state']=='running'
+   key('EXIT');wait(lambda:s.command('status')['state']=='exited')
   if case=='foreign-log':assert (storage/'FlashLd.txt').read_bytes()==b'keep unrelated data'
   results.append({'case':case,'passed':True,'log':log(),'status':s.command('status')});print(case,'PASS',flush=True)
 (out/'results.json').write_text(json.dumps({'hardwareValidated':False,'hostWritesTargetMemory':False,'cases':results},indent=2))

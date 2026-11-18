@@ -78,3 +78,9 @@ failures remain failures in the report. `tools/verify_edges.py` executes malform
 files and an authored normal-return/quit-callback fixture. Both use real loader
 files; the harness never writes target memory or registers. Firmware and original
 third-party G1As remain external. See `VALIDATION.json` for current evidence.
+
+The [beta.3 hardware record](BETA3-VALIDATION.json) identifies the exact launcher
+and Minesweeper build tested on the fx-9860GIII. A normal guest return now
+closes FlashLd after cleanup. Startup or validation errors keep the diagnostic
+screen open until EXIT. Folder thumbnails are generated on the PC, so an
+existing folder needs a regenerated `ICON.BIN` to pick up the extraction fix.

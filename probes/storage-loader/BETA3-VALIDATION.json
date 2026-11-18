@@ -1,0 +1,27 @@
+{
+  "release": "v0.2.0-beta.3",
+  "launcher": "FlashLd.g1a",
+  "launcherSha256": "3ccfd216e767a101ae7feffa9fc9434b87d17b4fa7f7d627a9a10f50b78e5613",
+  "hardware": {
+    "model": "fx-9860GIII",
+    "guest": "MinesReturn (Minesweeper 1.0.14, normal-return build)",
+    "guestSha256": "49488ea3242dafa7ca274d2cfa6e93120cbf584b3c228a384e84cb38a0c8709c",
+    "guestSourceSetting": "gint_setrestart(0)",
+    "userReport": "Game works",
+    "runLogSha256": "a717f2121ef5e50cf5ddc4ee786ebf289c6a0d5711fe7aed40d7c4d6fcfc4b2c",
+    "verificationMode": "full",
+    "logEvents": [
+      "TARGET_RETURNED=00000001,00000000",
+      "TARGET_CLEANUP_DONE=000000A9,00000000",
+      "RESTORE_PENDING=00000000,00000000"
+    ],
+    "saveFiles": {"count": 2, "bytesEach": 5756, "formatVersion": 4, "validPayloadChecksums": 2}
+  },
+  "emulator": {
+    "normalReturn": {"guestReturn": 42, "cleanupCompleted": true, "extraKeysAfterReturn": 0, "launcherEndState": "exited"},
+    "badProfile": {"waitedForExitKey": true, "launcherEndState": "exited"},
+    "existingMinesReturnSave": {"boardPreserved": true, "serialBefore": 3, "serialAfter": 5},
+    "extractedIcon": {"width": 30, "height": 17, "matchingPixels": 510}
+  },
+  "loaderMainStackBytesDuringGuest": {"beta2": 2804, "beta3": 20}
+}

@@ -74,3 +74,9 @@ python tooling/package_profile_studio.py --publish C:/build/ProfileStudio --pyth
 cancelAfterMs、width、height、screenshot。mode 可为 generate（默认）、export-loader 或 preview。
 输出 ui-verification.json 为版本 2，包含 items、状态代码、实际输出路径、复用信息或错误。
 开发环境可用 --settings-dir、--python、--engine、--artifacts 覆盖组件位置；普通用户无需这些参数。
+
+## beta.3 小程序实机复测
+
+第一次运行新程序时，在 FlashLd 中选择 Full 校验。建议依次试启动、操作、在程序内保存并退出，再次打开检查存档。FlashLd 在目标正常返回并完成清理后会回到系统菜单。游戏自己请求重启时，退出表现取决于游戏。实测扫雷使用了调用 `gint_setrestart(0)` 的构建。
+
+升级已有安装时，替换计算器根目录的 `FlashLd.g1a`。要修复旧程序目录的缩略图，用本版 FxProfile 重新生成同一输入，只复制对应的 `FXAPPS/<ID>/ICON.BIN` 即可。如果退出或重入异常，请在下次启动前复制该目录中的 `RUN.LOG`，并记下最后一次按键及屏幕文字。

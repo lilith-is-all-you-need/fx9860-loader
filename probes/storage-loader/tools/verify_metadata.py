@@ -27,7 +27,11 @@ for mismatch in (False,True):
         if mismatch:
             assert 'READY_ENTRY=' not in log()
             assert not any(c['number']==0xacd for c in s.command('syscalls')['recent'])
-        key('EXIT');assert s.command('status')['state']=='exited'
+            assert s.command('status')['state']=='running'
+            key('EXIT')
+        while s.command('status')['state']!='exited':
+            assert time.monotonic()<deadline,(log(),s.command('status'))
+            time.sleep(.05)
         results.append({'case':name,'passed':True,'log':log(),'backendAllocationAttempted':not mismatch})
         print(name,'PASS',flush=True)
 (a.output/'results.json').write_text(json.dumps({'hardwareValidated':False,'loaderSha256':hashlib.sha256(a.loader.read_bytes()).hexdigest(),'cases':results},indent=2))

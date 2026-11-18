@@ -39,7 +39,7 @@ public sealed partial class MainWindow : Window
         SidebarStep.Text = L.T("01  准备加载文件", "01  Prepare files");
         OfflineTitle.Text = L.T("全部在本机处理", "Processed locally");
         OfflineBody.Text = L.T("离线生成 · 无需 LLM\n保留原始镜像布局", "Offline · No LLM required\nPreserves image layout");
-        VersionText.Text = L.T("测试版 0.2.0-beta.2", "Beta 0.2.0-beta.2");
+        VersionText.Text = L.T("测试版 0.2.0-beta.3", "Beta 0.2.0-beta.3");
         PageTitle.Text = L.T("准备计算器加载文件", "Prepare calculator files");
         PageSubtitle.Text = L.T("一份程序，一套固定目录。Loader 可共用，也可随时单独导出。", "One stable folder per program. Share a Loader or export it separately.");
         CompatibilityNote.Title = L.T("生成文件 ≠ 已验证兼容", "Generated does not mean verified");
