@@ -46,7 +46,8 @@ FxProfile 将已核实的目标 RAM 保留区写入 APP.FPF。每个区间包含
 
 | 日志或提示 | 含义 |
 | --- | --- |
-| RAM_CANDIDATES | OS 实际给过多少个足够大的候选块。1 表示只检查了第一个候选，2 或更高表示已换址。成功日志的第二个数字为 profile 中的保留区数。 |
+| RAM_CANDIDATES | 实际检查过的候选分配次数。第二次申请可能在原地址调整大小，也可能换址。成功日志的第二个数字为 profile 中的保留区数。 |
+| TABLE_CHECKS_WRITES | 截至清理阶段，检查目标窗口的次数、实际重写整张页表的次数。每次安装仍会清理该窗口的地址转换缓存。 |
 | Not enough RAM | OS 第一次就未能分配所需的连续块。 |
 | No fitting OS block | OS 给过的候选均与已知区间重叠，继续申请时已无法提供所需大小的块。REQUIRED_BYTES、RAM_CONFLICTS、RAM_FIRST、RAM_LAST 分别记录所需字节、冲突次数及首末候选地址，均为十六进制。 |
 | RAM search interrupted | 缩短临时占位时分配失败，搜索没有完成。 |

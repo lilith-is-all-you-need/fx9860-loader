@@ -30,8 +30,11 @@ for case in ['return','oom','bad-bin','no-bin','wrong-size','bad-profile','bad-p
    end={'ram-conflict':0x88070000,'ram-retry':0x880522a0,'ram-adjacent':0x880502a0,'ram-retry-twice':0x880506a0}[case]
    struct.pack_into('>I',data,28,1);struct.pack_into('>II',data,64,0x88050000,end)
    if case=='ram-retry-twice':
-    end=0x88055fc0
-    struct.pack_into('>I',data,28,2);struct.pack_into('>II',data,72,0x88055f00,end)
+    # Put the second exclusion just beyond the first candidate, so shifting
+    # past the first exclusion will actually encounter it, at any build size.
+    second=0x880502a0+first_request+0x100
+    end=second+0xc0
+    struct.pack_into('>I',data,28,2);struct.pack_into('>II',data,72,second,end)
   profile.write_bytes(data)
  if case=='bad-catalog':(storage/'Loader.idx').write_bytes(bytes(204))
  if case=='no-profile':profile.unlink()
@@ -54,7 +57,7 @@ for case in ['return','oom','bad-bin','no-bin','wrong-size','bad-profile','bad-p
    wait(lambda:s.command('status')['state']=='exited')
    assert 'TARGET_RETURNED=0000002A' in log() and 'TARGET_CLEANUP_DONE=' in log(),log()
    count=int(re.search(r'RAM_CANDIDATES=([0-9A-F]+)',log())[1],16)
-   assert count=={'ram-retry':2,'ram-retry-twice':3}.get(case,1),(case,log())
+   assert count>={'ram-retry':2,'ram-retry-twice':3}.get(case,1),(case,log())
    if case.startswith('ram-retry'):assert int(re.search(r'CONTEXT_BYTES=([0-9A-F]+)',log())[1],16)>=end
    assert s.remote.receive()=='W00'
    assert s.remote.read_memory(0x08100004,4)==bytes.fromhex('00000001')
@@ -63,9 +66,13 @@ for case in ['return','oom','bad-bin','no-bin','wrong-size','bad-profile','bad-p
    assert s.command('status')['state']=='running'
    key('EXIT');wait(lambda:s.command('status')['state']=='exited')
   if case=='ram-conflict':
-   assert 'START_FAILED=No fitting OS block' in log() and 'RAM_FIRST=880502A0' in log() and 'RAM_CONFLICTS=00000002' in log(),log()
+   assert 'START_FAILED=No fitting OS block' in log() and 'RAM_FIRST=880502A0' in log(),log()
+   candidates=int(re.search('RAM_CANDIDATES=([0-9A-F]+)',log())[1],16)
+   conflicts=int(re.search('RAM_CONFLICTS=([0-9A-F]+)',log())[1],16)
+   assert conflicts==candidates and conflicts>=2,(case,log())
   if trace.is_file():
    calls=[e['call'] for e in map(json.loads,trace.read_text().splitlines()) if e['phase']=='leave']
+   if case=='return':first_request=next(c['args'][0] for c in calls if c['number']==0xacd)
    alloc=Counter(c['result'] for c in calls if c['number']==0xacd and c['result'])
    free=Counter(c['args'][0] for c in calls if c['number']==0xacc and c['args'][0])
    assert alloc==free,(case,alloc,free)

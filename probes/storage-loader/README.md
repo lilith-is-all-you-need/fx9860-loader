@@ -13,14 +13,25 @@ The PC tool copies the complete G1A unchanged to BIN. A SHA-bound FPF profile
 identifies instruction-validated syscall gates; their pages alone are copied to
 RAM and patched. All other pages are read from the actual external file mapping.
 
-The OS window remains 512 × 4096 bytes (2 MiB). Larger files require the separate
-source-integrated extended backend. The existing exact KhiCAS adapter remains
-available because its private memory arena needs adaptation.
+The OS window is 512 × 4096 bytes (2 MiB). Larger files require the separate
+source-integrated extended backend. The generic backend checks original KhiCAS
+against the same memory reservations as other programs.
 
 FlashLd checks live mappings against the image and verifies that unused window
 entries are zero. Frequent calls to GetVRAMAddress still query the OS, including
-after MENU resume. The no-argument call skips copying guest stack arguments.
+after MENU resume. Register-only calls with reviewed signatures avoid copying
+stack arguments. File and blocking-key returns recheck backing addresses. The
+loader repairs the RAM table when it differs and invalidates translations for
+the add-in window on every install, even if the table already matches.
 See the [Jetpack, Fruit and lifecycle measurements](PERFORMANCE-20261119.json).
+
+For the generic file, memory and frame performance candidate, see
+[the measurements and hardware-test status](GENERIC-PERF-20261119.json).
+To reproduce the file operations, build `tests/file-io` in Release and run
+`tools/verify_file_io.py --help`. The runner needs the guest G1A and ELF from
+that build, the SDK's sh-elf-nm, the emulator and its runtime_probe.py directory,
+a supported firmware image, both launchers and a fresh output path. It checks
+16 short reads and writes, readback, file contents and a normal exit in each run.
 
 ## Prepare and build
 

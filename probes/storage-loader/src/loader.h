@@ -26,16 +26,18 @@ struct Context {
  void (*finalize)(Context *);
  uintptr_t resident,shadow;unsigned allocation_bytes,runner_bytes;
  FxOsMapProfile os;
- uint32_t *pages,*hashes,original[512];
- unsigned image_bytes,image_pages,shadow_span,shadow_count;
- unsigned char shadow_slot[512];
+ /* pages is always the desired OS window. Keep backing addresses separately
+  * only for pages whose executable copy lives in RAM. */
+ uint32_t *pages,*hashes,*shadow_sources,original[MAX_PAGES];
+ unsigned image_bytes,image_pages,shadow_count;
+ unsigned char *shadow_slot;
  Profile profile;
  uint32_t old_cursor,mmucr,pteh,ptel,ptea,ram_word;
  unsigned active,failed,in_callback,io_error,log_used,log_saved;
  unsigned file_busy,refreshes,changed,syscalls,last_syscall,key_calls,self_bytes;
  uintptr_t guest_quit;
  struct {uintptr_t callback;int id;} timers[10];
- unsigned timer_calls,timer_skipped;
+ unsigned timer_calls,timer_skipped,table_checks,table_writes;
  unsigned fast,started_tick,verify_ticks,release_ticks,map_ticks,ready_ticks;
  uint16_t log_path[64],bin_path[64],self_path[32];
  char log[LOG_BUFFER];
@@ -48,7 +50,7 @@ extern Context *resident_context;
 int resident_main(Context *);
 void resident_quit_entry(void);void resident_quit_work(Context *);
 void resident_gateway(void);void resident_dispatch(Frame *);void resident_os_call(Frame *);
-void resident_os_get_vram(Frame *);
+void resident_os_register_args(Frame *);
 int r_browser_keywait(int *column,int *row,int mode,int timeout,int menu,uint16_t *unused);
 int r_any_key(uint16_t *);void r_clear_keys(void);
 void r_clear(void);void r_print(int,int,const unsigned char *,int);void r_display(void);

@@ -1,37 +1,42 @@
 #include "loader.h"
 Context *resident_context=(Context *)(uintptr_t)1;
 static uint8_t rom_read(void *u,uint32_t a){(void)u;return BYTE(a);}
-static unsigned page_size(uint32_t d){unsigned x=((d>>6)&2)|((d>>4)&1);return x==0?1024:x==1?4096:x==2?65536:1048576;}
-static int overlap(uint32_t a,uint32_t d)
-{unsigned sz=page_size(d);uint32_t va=a&~(sz-1);return (uint64_t)va<0x00500000u&&(uint64_t)va+sz>BASE;}
+/* Both ends of the add-in window are aligned to the largest SH page (1 MiB).
+ * A TLB page therefore lies wholly inside or wholly outside for every size.
+ * The low address-array attribute bits cannot change this test either. */
+_Static_assert((BASE & 0xfffffu)==0 && ((MAX_PAGES*4096u) & 0xfffffu)==0,
+ "window boundaries must be aligned to the maximum TLB page size");
+static void invalidate_window_entry(uintptr_t address,uintptr_t data)
+{
+ uint32_t entry=REG(address);
+ if(entry-BASE < MAX_PAGES*4096u){
+  REG(address)=entry&~0x100u;
+  REG(data)&=~0x100u;
+ }
+}
 static void flush_window(void)
 {
- for(unsigned i=0;i<64;i++){uint32_t a=0xf6000000u+(i<<8),d=0xf7000000u+(i<<8);if(overlap(REG(a),REG(d))){REG(a)&=~0x100u;REG(d)&=~0x100u;}}
- for(unsigned i=0;i<4;i++){uint32_t a=0xf2000000u+(i<<8),d=0xf3000000u+(i<<8);if(overlap(REG(a),REG(d))){REG(a)&=~0x100u;REG(d)&=~0x100u;}}
+ for(unsigned i=0;i<64;i++)invalidate_window_entry(0xf6000000u+(i<<8),0xf7000000u+(i<<8));
+ for(unsigned i=0;i<4;i++)invalidate_window_entry(0xf2000000u+(i<<8),0xf3000000u+(i<<8));
  BARRIER();
-}
-static uint32_t mapped(Context *c,unsigned i)
-{
- if(i>=c->image_pages)return 0;
- if(c->shadow_slot[i]!=255)return (c->shadow+4096*c->shadow_slot[i])&0x1fffffff;
- return c->pages[i];
 }
 static unsigned guard(Context *c)
 {
  volatile const uint32_t *table = (volatile const uint32_t *)(uintptr_t)c->os.pages;
- unsigned i = 0;
- for (; i < c->image_pages; ++i) {
-  if (table[i] != mapped(c, i)) return 1;
+ const uint32_t *expected=c->pages;
+ unsigned count=c->image_pages;
+ for(unsigned i=count;i;i--){
+  if(*table++!=*expected++)return 1;
  }
  /* The rest of the OS window must be empty, including its last slot. */
- uint32_t occupied = 0;
- for (; i + 4 <= MAX_PAGES; i += 4) {
-  occupied |= table[i];
-  occupied |= table[i + 1];
-  occupied |= table[i + 2];
-  occupied |= table[i + 3];
+ uint32_t occupied=0;
+ unsigned remaining=MAX_PAGES-count;
+ for(unsigned i=remaining&7u;i;i--)occupied|=*table++;
+ for(unsigned groups=remaining>>3;groups;groups--){
+  occupied|=table[0]|table[1]|table[2]|table[3];
+  occupied|=table[4]|table[5]|table[6]|table[7];
+  table+=8;
  }
- for (; i < MAX_PAGES; ++i) occupied |= table[i];
  return occupied != 0;
 }
 static void snapshot(Context *c)
@@ -39,7 +44,17 @@ static void snapshot(Context *c)
 static void install(Context *c)
 {
  uint32_t sr=sr_get();sr_set(sr|0xf0);BARRIER();
- for(unsigned i=0;i<512;i++)REG(c->os.pages+i*4)=mapped(c,i);
+ /* refresh() validated backing addresses independently. A matching RAM table
+  * needs no rewrite, but a stale TLB entry can survive even when it matches.
+  * Keep the check and repair together under the same interrupt mask. */
+ c->table_checks++;
+ if(guard(c)){
+  c->table_writes++;
+  volatile uint32_t *table=(volatile uint32_t *)(uintptr_t)c->os.pages;
+  unsigned i=0;
+  for(;i<c->image_pages;i++)table[i]=c->pages[i];
+  for(;i<MAX_PAGES;i++)table[i]=0;
+ }
  REG(c->os.cursor)=0;flush_window();c->active=1;sr_set(sr);BARRIER();
 }
 static void restore(Context *c)
@@ -112,13 +127,15 @@ static int refresh(Context *c)
  for(unsigned i=0;i<c->image_pages&&ok;i++){
   uint32_t a=0;int span=address(c,fd,i*4096,&a);uint32_t pa=a&0x1fffffff;
   if(span!=4096||(pa&4095)||pa<0x10000||pa>0x1fff000){ok=0;break;}
-  if(c->pages[i]!=pa){
+  unsigned slot=c->shadow_slot[i];
+  uint32_t *backing=slot==255?&c->pages[i]:&c->shadow_sources[slot];
+  if(*backing!=pa){
    unsigned n=c->image_bytes-i*4096;if(n>4096)n=4096;
    /* Fast trusts a prior full verification on the first lookup. The cache
     * has no historical physical addresses: moves between launches do not
     * force a rehash. Only later address changes within this run rehash. */
    if((!c->fast||c->refreshes)&&hash(pa|0xa0000000u,n)!=c->hashes[i]){ok=0;break;}
-   c->changed++;c->pages[i]=pa;
+   c->changed++;*backing=pa;
   }
  }
  if(r_close(fd)<0)ok=0;
@@ -134,7 +151,8 @@ static int shadows(Context *c)
   for(unsigned j=0;j<4096;j+=32)purge(dst+j);
   BARRIER();
   unsigned n=c->image_bytes-page*4096;if(n>4096)n=4096;
-  for(unsigned j=0;j<4096;j++)BYTE((dst|0x20000000u)+j)=j<n?BYTE((c->pages[page]|0xa0000000u)+j):0;
+  uintptr_t source=c->shadow_sources[c->shadow_slot[page]]|0xa0000000u;
+  for(unsigned j=0;j<4096;j++)BYTE((dst|0x20000000u)+j)=j<n?BYTE(source+j):0;
  }
  for(unsigned i=0;i<c->profile.patch_count;i++){
   unsigned off=c->profile.patches[i],page=off/4096;
@@ -174,8 +192,8 @@ void resident_dispatch(Frame *f)
  /* Read-only OS identity/VRAM queries neither perform file I/O nor switch
   * applications. Polling keyboards call these for every matrix position;
   * rescanning 512 entries here would dominate every input frame. */
- if(n==0x135){resident_os_get_vram(f);return;}
- if(n==0x15||n==0x2ee){resident_os_call(f);return;}
+ if(n==0x135||n==0x15){resident_os_register_args(f);return;}
+ if(n==0x2ee){resident_os_call(f);return;}
  /* File operations and GetKey refresh mappings. Other calls below check the
   * full OS window before resuming the guest. */
  unsigned file=(n>=0x42b&&n<=0x46f)||(n>=0x1d0&&n<=0x21f);
@@ -191,7 +209,10 @@ void resident_dispatch(Frame *f)
   install(c);
  }
  if(file)c->file_busy++;
- resident_os_call(f);
+ /* RTC_GetTicks() and Sleep(ms) take register arguments. Keep the same
+  * post-call validation, including after a wait that may run a callback. */
+ if(n==0x3b||n==0x420)resident_os_register_args(f);
+ else resident_os_call(f);
  if(file)c->file_busy--;
  if(slot>=0){
   if(f->r[5]==callbacks[slot])f->r[5]=c->timers[slot].callback;
@@ -222,6 +243,7 @@ static void cleanup(Context *c)
  stop_timers(c);
  event(c,"TARGET_CLEANUP_DONE",c->syscalls,c->key_calls);
  event(c,"REFRESH_CHANGED",c->refreshes,c->changed);
+ event(c,"TABLE_CHECKS_WRITES",c->table_checks,c->table_writes);
  event(c,"TIMER_CALLS_SKIPPED",c->timer_calls,c->timer_skipped);
  event(c,"TICKS_VERIFY_RELEASE",c->verify_ticks,c->release_ticks);
  event(c,"TICKS_MAP_READY",c->map_ticks,c->ready_ticks);

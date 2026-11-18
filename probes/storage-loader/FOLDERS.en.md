@@ -76,7 +76,8 @@ FlashLd asks the OS for one contiguous resident block. If it clears the known re
 
 | Log field or message | Meaning |
 | --- | --- |
-| RAM_CANDIDATES | Count of full-size blocks the OS actually returned. One means the first candidate was checked, two or more indicates a retry. On success the second number is the profile's reservation count. |
+| RAM_CANDIDATES | Count of candidate allocations checked. A retry can resize the request at the same address or select a different address. On success the second number is the profile's reservation count. |
+| TABLE_CHECKS_WRITES | Install checks and full table rewrites observed up to cleanup. Every install also refreshes the translation cache for the add-in window. |
 | Not enough RAM | The OS could not supply the initial full-size allocation. |
 | No fitting OS block | All returned candidates overlapped, then the OS could no longer supply the requested size. REQUIRED_BYTES, RAM_CONFLICTS, RAM_FIRST and RAM_LAST record the size, conflict count and first and last addresses in hexadecimal. |
 | RAM search interrupted | Allocating a smaller temporary reservation failed, interrupting the search. |

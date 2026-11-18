@@ -49,10 +49,10 @@ _resident_gateway:
  .align 2
 .Ldispatch: .long _resident_dispatch
 
- .global _resident_os_get_vram
-_resident_os_get_vram:
- /* GetVRAMAddress takes no arguments. Keep the same OS stack position and
-  * scratch registers as the general entry, without reading the guest stack. */
+ .global _resident_os_register_args
+_resident_os_register_args:
+ /* Only for reviewed signatures with at most four arguments. Keep the OS
+  * stack position and scratch registers identical to the general entry. */
  sts.l pr,@-r15
  mov.l r8,@-r15
  mov r4,r8

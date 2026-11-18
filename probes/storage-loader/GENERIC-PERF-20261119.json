@@ -1,0 +1,406 @@
+{
+  "hardwareValidated": false,
+  "units": "retired SH instructions in FxEmulator, not real clock cycles, wall times or FPS",
+  "baselineSha256": "192267a7f30b2cf98e3bfda064999106e1912fac0a9f8758b39deb900f207abd",
+  "candidateSha256": "ec4d48744f3cbe4f005c714241e8303d4235fea4b076c29eac01dec549789fde",
+  "candidateBytes": 20380,
+  "emulatorSha256": "f6f13afc6e6f497fb7e1433405a8d3dcdfb806d6e059feded145cf46dad79d42",
+  "ioProbeG1aSha256": "ff42be8c46f0282f2ced779f78ff5c7cf922d4d3c47eaa210636d9a445a7b70a",
+  "ioProbeByFirmware": {
+    "03.71": {
+      "firmwareSha256": "d65d6667ee437a0b45b709224488a4b98b9ea3b7b284215aab9d19fa06b82552",
+      "baseline": {
+        "size16": {
+          "instructions": 2106613,
+          "filePageQueries": 96
+        },
+        "seek16": {
+          "instructions": 2106663,
+          "filePageQueries": 96
+        },
+        "read16": {
+          "instructions": 2106741,
+          "filePageQueries": 96
+        },
+        "seekWrite16": {
+          "instructions": 2238358,
+          "filePageQueries": 102
+        },
+        "readback16Close": {
+          "instructions": 2238470,
+          "filePageQueries": 102
+        },
+        "waitExit": {
+          "instructions": 305926,
+          "filePageQueries": 12
+        }
+      },
+      "candidate": {
+        "size16": {
+          "instructions": 675685,
+          "filePageQueries": 96
+        },
+        "seek16": {
+          "instructions": 675735,
+          "filePageQueries": 96
+        },
+        "read16": {
+          "instructions": 675813,
+          "filePageQueries": 96
+        },
+        "seekWrite16": {
+          "instructions": 717997,
+          "filePageQueries": 102
+        },
+        "readback16Close": {
+          "instructions": 718109,
+          "filePageQueries": 102
+        },
+        "waitExit": {
+          "instructions": 127021,
+          "filePageQueries": 12
+        }
+      },
+      "installChecksAndRewrites": [
+        87,
+        1
+      ],
+      "persistedBytesChecked": 256,
+      "exitCode": 42
+    },
+    "03.60": {
+      "firmwareSha256": "eea4735911b14a531667a311c34257518ef036896d30381183d9dd1f773ca1b7",
+      "baseline": {
+        "size16": {
+          "instructions": 2106613,
+          "filePageQueries": 96
+        },
+        "seek16": {
+          "instructions": 2106663,
+          "filePageQueries": 96
+        },
+        "read16": {
+          "instructions": 2106741,
+          "filePageQueries": 96
+        },
+        "seekWrite16": {
+          "instructions": 2238358,
+          "filePageQueries": 102
+        },
+        "readback16Close": {
+          "instructions": 2238470,
+          "filePageQueries": 102
+        },
+        "waitExit": {
+          "instructions": 305926,
+          "filePageQueries": 12
+        }
+      },
+      "candidate": {
+        "size16": {
+          "instructions": 675685,
+          "filePageQueries": 96
+        },
+        "seek16": {
+          "instructions": 675735,
+          "filePageQueries": 96
+        },
+        "read16": {
+          "instructions": 675813,
+          "filePageQueries": 96
+        },
+        "seekWrite16": {
+          "instructions": 717997,
+          "filePageQueries": 102
+        },
+        "readback16Close": {
+          "instructions": 718109,
+          "filePageQueries": 102
+        },
+        "waitExit": {
+          "instructions": 127021,
+          "filePageQueries": 12
+        }
+      },
+      "installChecksAndRewrites": [
+        87,
+        1
+      ],
+      "persistedBytesChecked": 256,
+      "exitCode": 42
+    },
+    "03.40": {
+      "firmwareSha256": "2e75e8b00dd6cf0f32f866269793d63b0c90e95473b7fff301ed0bfb6f47f56c",
+      "baseline": {
+        "size16": {
+          "instructions": 2106613,
+          "filePageQueries": 96
+        },
+        "seek16": {
+          "instructions": 2106663,
+          "filePageQueries": 96
+        },
+        "read16": {
+          "instructions": 2106741,
+          "filePageQueries": 96
+        },
+        "seekWrite16": {
+          "instructions": 2238358,
+          "filePageQueries": 102
+        },
+        "readback16Close": {
+          "instructions": 2238470,
+          "filePageQueries": 102
+        },
+        "waitExit": {
+          "instructions": 305926,
+          "filePageQueries": 12
+        }
+      },
+      "candidate": {
+        "size16": {
+          "instructions": 675685,
+          "filePageQueries": 96
+        },
+        "seek16": {
+          "instructions": 675735,
+          "filePageQueries": 96
+        },
+        "read16": {
+          "instructions": 675813,
+          "filePageQueries": 96
+        },
+        "seekWrite16": {
+          "instructions": 717997,
+          "filePageQueries": 102
+        },
+        "readback16Close": {
+          "instructions": 718109,
+          "filePageQueries": 102
+        },
+        "waitExit": {
+          "instructions": 127021,
+          "filePageQueries": 12
+        }
+      },
+      "installChecksAndRewrites": [
+        87,
+        1
+      ],
+      "persistedBytesChecked": 256,
+      "exitCode": 42
+    }
+  },
+  "litReader": {
+    "heapBytes": 40960,
+    "stockReadfont": true,
+    "originalAndConvertedImageSha256": "f8c4324afe2594f72af0a1a17c8e23cf279306984f5169ea38bb042f110926f5",
+    "oldAndNewInstructions": {
+      "main_to_shelf": [
+        94981179,
+        47303168
+      ],
+      "shelf_down": [
+        1922833,
+        51283
+      ],
+      "open_book": [
+        213254905,
+        115970653
+      ],
+      "page2": [
+        6685026,
+        5172412
+      ],
+      "page3": [
+        2074216,
+        2068051
+      ],
+      "page4": [
+        5317427,
+        3643150
+      ],
+      "back": [
+        2070149,
+        195532
+      ]
+    },
+    "samePageOffsets": true
+  },
+  "residentAllocationBytes": {
+    "order": [
+      "published",
+      "candidate"
+    ],
+    "heapBytesFor2048TetrisAndMines": 49152,
+    "otherHeapBytes": 40960,
+    "samples": {
+      "LitRead": [
+        23744,
+        19808
+      ],
+      "Fruitnin": [
+        40064,
+        36192
+      ],
+      "JetpackJ": [
+        32032,
+        28000
+      ],
+      "2048": [
+        23712,
+        19808
+      ],
+      "2048delu": [
+        48256,
+        44384
+      ],
+      "TETRIS": [
+        23648,
+        19808
+      ],
+      "Minesweeper": [
+        23808,
+        19808
+      ]
+    }
+  },
+  "games": {
+    "fruit": {
+      "previous": {
+        "intervals": 36,
+        "median": 917151.5,
+        "p95": 943617
+      },
+      "candidate": {
+        "intervals": 36,
+        "median": 916980.5,
+        "p95": 941160
+      },
+      "notes": "F4 mode. Discard first 12 intervals. Remaining 36 samples. Input and frame timing do not establish real-device FPS."
+    },
+    "jet": {
+      "previous": {
+        "intervals": 27,
+        "median": 1113445,
+        "p95": 1113653
+      },
+      "candidate": {
+        "intervals": 27,
+        "median": 1092455,
+        "p95": 1095329
+      },
+      "a1": {
+        "intervals": 27,
+        "median": 1113445,
+        "p95": 1113650
+      },
+      "a2": {
+        "intervals": 27,
+        "median": 1113445,
+        "p95": 1113647
+      },
+      "b1": {
+        "intervals": 27,
+        "median": 1092455,
+        "p95": 1095329
+      },
+      "b2": {
+        "intervals": 27,
+        "median": 1092455,
+        "p95": 1092651
+      },
+      "differingPixelsByFrame": {
+        "a1_b1": {
+          "26": 12,
+          "27": 11,
+          "28": 10
+        },
+        "a2_b2": {},
+        "a1_a2": {},
+        "b1_b2": {
+          "26": 12,
+          "27": 11,
+          "28": 10
+        }
+      },
+      "notes": "a1/a2 are baseline and b1/b2 candidate. Same input sequence and 24 ms delay marker. Compare separately captured VRAM. No fixed game random seed."
+    }
+  },
+  "regressions": {
+    "menu": {
+      "sameIconEXE": true,
+      "heldSelectionEXE": true,
+      "preservedRow": true,
+      "fastPromptPreserved": true,
+      "explicitExit": true
+    },
+    "held": {
+      "allocatedWithoutBrowserEXE": false,
+      "osMenu": false
+    },
+    "mines": {
+      "previousSaveSerial": 3,
+      "savedSerial": 5,
+      "boardPreserved": true,
+      "validSaveSlots": 2,
+      "targetReturned": true,
+      "installChecksAndRewrites": [
+        102,
+        25
+      ]
+    },
+    "move": {
+      "previousSaveSerial": 3,
+      "savedSerial": 5,
+      "boardPreserved": true,
+      "validSaveSlots": 2,
+      "targetReturned": true,
+      "movedAndErasedPages": 31,
+      "installChecksAndRewrites": [
+        102,
+        26
+      ]
+    },
+    "timer": {
+      "samples": 17,
+      "timerCalls": 2,
+      "timerSkipped": 0,
+      "menu": true,
+      "exit": 42
+    },
+    "edges": [
+      "return",
+      "oom",
+      "bad-bin",
+      "no-bin",
+      "wrong-size",
+      "bad-profile",
+      "bad-patch",
+      "bad-gate",
+      "bad-catalog",
+      "no-profile",
+      "foreign-log",
+      "ram-conflict",
+      "ram-retry",
+      "ram-adjacent",
+      "ram-retry-twice"
+    ],
+    "folders": [
+      "full-amine",
+      "full-fruit",
+      "full-mines",
+      "full-wsc",
+      "fast-valid",
+      "fast-corrupt-cache-falls-back",
+      "fast-empty-cache-falls-back",
+      "full-rejects-same-size-edit",
+      "fast-documented-same-size-blind-spot"
+    ],
+    "hostAlgorithmChecks": {
+      "tableCases": 262656,
+      "tlbCases": 33554432
+    }
+  },
+  "remaining": "Each protected file call still validates both backing files. Generic performance candidate; physical-device MENU, timers and sustained game speed remain unverified."
+}

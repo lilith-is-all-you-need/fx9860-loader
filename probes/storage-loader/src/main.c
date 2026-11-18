@@ -261,17 +261,36 @@ static __attribute__((noinline)) Context *prepare_launch(unsigned *legacy)
  }
  for(unsigned i=0;i<profile.forbid_count;i++)if(profile.forbidden[i][0]>=profile.forbidden[i][1]||
     (profile.forbidden[i][0]&0xe0000000u)!=0x80000000u||(profile.forbidden[i][1]&0xe0000000u)!=0x80000000u){why="Invalid RAM range";goto fail;}
- /* A 4 KiB-aligned base can have either cache color. Reserve the worst
-  * slot span, then select slot parity from the actual allocated address.
-  * Balanced colors save 4 KiB versus forcing an 8 KiB-aligned base. */
- unsigned span=2*(colors[0]>colors[1]?colors[0]:colors[1])*4096,bytes=resident_end-resident_begin;
- total=(sizeof(Context)+pages*8+31+bytes+4095+span+31)&~31u;
- c=allocate_resident(total,&profile,&search,&why);if(!c)goto fail;
- uintptr_t end=(uintptr_t)c+total;
+ unsigned slots=2*(colors[0]>colors[1]?colors[0]:colors[1]);
+ unsigned bytes=resident_end-resident_begin;
+ unsigned prefix=sizeof(Context)+pages*9+slots*sizeof(uint32_t);
+ unsigned min_slots=slots-(colors[0]!=colors[1]);
+ unsigned worst=(prefix+31+bytes+4095+slots*4096+31)&~31u;
+ total=(prefix+bytes+min_slots*4096+31)&~31u;
+ uintptr_t runner=0,shadow=0;
+ /* Ask for the minimum, then retry with the measured requirement. A changed
+  * allocator address can alter both alignments; the final request covers
+  * every alignment. Each attempt checks the full owned block for conflicts. */
+ for(unsigned attempt=0;;attempt++){
+  c=allocate_resident(total,&profile,&search,&why);if(!c)goto fail;
+  runner=((uintptr_t)c+prefix+31)&~(uintptr_t)31;
+  shadow=(runner+bytes+4095)&~(uintptr_t)4095;
+  unsigned first=(shadow>>12)&1;
+  unsigned even_end=colors[0]?2*colors[0]-1+first:0;
+  unsigned odd_end=colors[1]?2*colors[1]-first:0;
+  unsigned span=(even_end>odd_end?even_end:odd_end)*4096;
+  unsigned needed=((unsigned)(shadow-(uintptr_t)c)+span+31)&~31u;
+  if(needed<=total)break;
+  r_free(c);c=NULL;
+  if(attempt>=2){why="Allocation bounds";goto fail;}
+  total=attempt==0?needed:worst;
+ }
  memset(c,0,sizeof *c);c->finalize=finalize;c->allocation_bytes=total;c->runner_bytes=bytes;c->profile=profile;
  c->ram_candidates=search.candidates;c->started_tick=started;
- c->image_bytes=profile.bytes;c->image_pages=pages;c->shadow_span=span;c->shadow_count=colors[0]+colors[1];
- c->pages=(uint32_t *)(c+1);c->hashes=c->pages+pages;memset(c->pages,0,pages*8);memset(c->shadow_slot,255,512);
+ c->image_bytes=profile.bytes;c->image_pages=pages;c->shadow_count=colors[0]+colors[1];
+ c->pages=(uint32_t *)(c+1);c->hashes=c->pages+pages;c->shadow_sources=c->hashes+pages;
+ c->shadow_slot=(unsigned char *)(c->shadow_sources+slots);
+ memset(c->pages,0,pages*8+slots*sizeof(uint32_t));memset(c->shadow_slot,255,pages);
  c->ram_word=REG(0x08100000);
  memcpy(c->log_path,log_path,sizeof log_path);wide(c->self_path,"\\\\fls0\\FlashLd.g1a");path(c->bin_path,&item,"IMAGE.BIN",".bin");
  path(filename,&item,"VERIFY.CCH",".cch");
@@ -281,10 +300,14 @@ static __attribute__((noinline)) Context *prepare_launch(unsigned *legacy)
  if(fast&&load_cache(c,filename)){c->fast=1;show("Fast: cached check","Mapping pages");if(r_close(fd)<0){why="BIN close failed";goto fail;}}
  else {if(fast)show("Full check needed","Building fast cache");if(!verify_image(c,fd)){why="BIN hash mismatch";goto fail;}save_cache(c,filename);}
  c->verify_ticks=(unsigned)r_ticks()-vt;
- uintptr_t runner=((uintptr_t)(c->hashes+pages)+31)&~31u;c->resident=runner|0x20000000u;c->shadow=(runner+bytes+4095)&~4095u;
+ c->resident=runner|0x20000000u;c->shadow=shadow;
  colors[0]=(c->shadow>>12)&1;colors[1]=colors[0]^1;
- for(unsigned i=0;i<profile.patch_count;i++){unsigned page=profile.patches[i]/4096;if(c->shadow_slot[page]==255){c->shadow_slot[page]=colors[page&1];colors[page&1]+=2;}}
- if(c->shadow+span>end){why="Allocation bounds";goto fail;}
+ for(unsigned i=0;i<profile.patch_count;i++){
+  unsigned page=profile.patches[i]/4096;
+  if(c->shadow_slot[page]!=255)continue;
+  unsigned slot=colors[page&1];colors[page&1]+=2;
+  c->shadow_slot[page]=slot;c->pages[page]=(shadow+slot*4096)&0x1fffffffu;
+ }
  for(unsigned i=0;i<bytes;i+=32)purge(runner+i);
  BARRIER();for(unsigned i=0;i<bytes;i++)BYTE(c->resident+i)=resident_begin[i];
  if(resident_fixups[0]>1023){why="Fixup table";goto fail;}
