@@ -63,3 +63,7 @@ It does not save an arbitrary caller's stack, heap, static data, file handles or
 device state. Integrating a caller requires a real pause/snapshot and cold-start
 restore backend, with explicit MENU policies. Nested calls are not supported.
 Emulator checks are not real-calculator acceptance or an all-G1A guarantee.
+
+## Original KhiCAS on the generic backend
+
+Automatic preparation of the 2,094,444-byte khicasen.g1a produces a Flash folder. In a firmware-assisted emulator run (probe3 memory profile, Full verification, FlashLd SHA-256 starting with `02a2dd48`), direct launch computed `2+2 = 4`. FlashLd recorded `READY_ENTRY`, then execution stopped at an invalid instruction at `0x004F7A74` before the input screen. The cause and physical calculator behavior are open. Save `FXAPPS/KH4A9D1C/RUN.LOG` before launching again. Earlier KLoad results concern its explicit mapped adapter.
